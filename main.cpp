@@ -1,8 +1,30 @@
-#include <QCoreApplication>
+#include <QDebug>
+#include <QDateTime>
+#include <QString>
+#include <string>
+#include <iostream>
+#include <istream>
+#include <stdio.h>
 
-int main(int argc, char *argv[])
+
+using namespace std;
+
+void menu();
+
+int main()
 {
-    QCoreApplication a(argc, argv);
 
-    return a.exec();
+    menu();
+
+}
+
+void menu(){
+    string entrada = "";
+    system("clear");
+    cout << "MANEJO E IMPLEMENTACIO DE ARCHIVOS" << endl;
+    while(entrada != "exit"){
+        cout << "201800709@MIA: ~$ ";
+        getline(cin, entrada);
+
+    }
 }
