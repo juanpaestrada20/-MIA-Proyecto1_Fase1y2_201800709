@@ -78,7 +78,7 @@ extern int linea;
 
 void yyerror(const char *s)
 {
-  printf("Error Sintactico %s \n",s);
+  printf("Error Sintactico en linea: %u %s \n",linea,s);
 }
 extern char yytext; //
 extern int yylex(void);
@@ -170,7 +170,8 @@ extern int yydebug;
     TK_CADENA = 289,
     TK_RUTA = 290,
     TK_IDENTIFICADOR = 291,
-    TK_NUMBER = 292
+    TK_NUMBER = 292,
+    TK_NUMBER_NEGATIVO = 293
   };
 #endif
 
@@ -178,12 +179,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 80 "sintactico.y"
+#line 82 "sintactico.y"
 
     char *TEXT;
     class NodoAST *NODO;
 
-#line 187 "sintactico.cpp"
+#line 188 "sintactico.cpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -519,19 +520,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  26
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   109
+#define YYLAST   112
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  38
+#define YYNTOKENS  39
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  18
+#define YYNNTS  19
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  51
+#define YYNRULES  53
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  106
+#define YYNSTATES  108
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   292
+#define YYMAXUTOK   293
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -572,19 +573,19 @@ static const yytype_int8 yytranslate[] =
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37
+      35,    36,    37,    38
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    89,    89,    92,    93,    96,    97,    98,    99,   100,
-     101,   102,   105,   106,   109,   110,   111,   112,   115,   116,
-     117,   120,   121,   122,   125,   126,   129,   130,   131,   132,
-     133,   134,   135,   136,   139,   140,   143,   144,   145,   148,
-     149,   152,   153,   156,   157,   160,   161,   162,   165,   166,
-     169,   170
+       0,    91,    91,    94,    95,    98,    99,   100,   101,   102,
+     103,   104,   107,   108,   111,   112,   113,   114,   117,   118,
+     119,   122,   123,   124,   127,   128,   131,   132,   133,   134,
+     135,   136,   137,   138,   141,   142,   145,   146,   147,   150,
+     151,   154,   155,   158,   159,   162,   163,   164,   167,   168,
+     171,   172,   175,   176
 };
 #endif
 
@@ -599,11 +600,12 @@ static const char *const yytname[] =
   "TK_EXEC", "TK_BESTFIT", "TK_FIRSTFIT", "TK_WORSTFIT", "TK_KYLOBYTES",
   "TK_MEGABYTES", "TK_BYTES", "TK_PRIMARIA", "TK_EXTENDIDA", "TK_LOGICA",
   "TK_FAST", "TK_FULL", "TK_MBR", "TK_DISK", "TK_GUION", "TK_IGUAL",
-  "TK_CADENA", "TK_RUTA", "TK_IDENTIFICADOR", "TK_NUMBER", "$accept",
-  "INICIO", "INSTRUCCIONES", "COMANDOS", "LISTAMKDISK", "OPCION_MKDISK",
-  "TIPO_FIT", "TIPO_UNIT", "LISTAFDISK", "OPCION_FDISK", "TIPO_DELETE",
-  "TIPO_PARTICION", "LISTAMOUNT", "OPCION_MOUNT", "LISTAREP", "OPCION_REP",
-  "TIPO_REP", "TIPO_RUTA", YY_NULLPTR
+  "TK_CADENA", "TK_RUTA", "TK_IDENTIFICADOR", "TK_NUMBER",
+  "TK_NUMBER_NEGATIVO", "$accept", "INICIO", "INSTRUCCIONES", "COMANDOS",
+  "LISTAMKDISK", "OPCION_MKDISK", "TIPO_FIT", "TIPO_UNIT", "LISTAFDISK",
+  "OPCION_FDISK", "TIPO_DELETE", "TIPO_PARTICION", "LISTAMOUNT",
+  "OPCION_MOUNT", "LISTAREP", "OPCION_REP", "TIPO_REP", "TIPO_RUTA",
+  "TIPO_NUMERO", YY_NULLPTR
 };
 #endif
 
@@ -615,7 +617,7 @@ static const yytype_int16 yytoknum[] =
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285,   286,   287,   288,   289,   290,   291,   292
+     285,   286,   287,   288,   289,   290,   291,   292,   293
 };
 # endif
 
@@ -633,17 +635,17 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -3,   -20,   -18,     0,     9,    13,    17,    18,    51,    -3,
-     -50,    25,   -20,   -50,    40,    11,     0,   -50,    -2,     9,
-     -50,    36,    16,   -50,    17,    42,   -50,   -50,    22,    23,
-      24,    26,   -50,    27,    28,    29,    30,    31,    32,    33,
-      34,    35,   -50,    37,    38,   -50,    39,    41,    43,    44,
-     -50,   -26,    45,    19,    20,   -26,   -26,    46,    19,    20,
-     -26,    21,   -11,    48,    49,   -26,    52,    53,   -26,    -1,
-      54,   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,
+      -3,   -14,    -2,    15,    22,    23,    24,    26,    43,    -3,
+     -50,    25,   -14,   -50,    38,    11,    15,   -50,    17,    22,
+     -50,    36,    16,   -50,    24,    45,   -50,   -50,    27,    28,
+      29,    30,   -50,    31,    32,    33,    34,    35,    37,    39,
+      40,    41,   -50,    42,    44,   -50,    46,    47,    48,    49,
+     -50,   -26,     1,    -7,    18,   -26,   -26,     1,    -7,    18,
+     -26,    19,    20,    50,     1,   -26,    51,    52,   -26,    21,
+      53,   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,
      -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,
      -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,
-     -50,   -50,   -50,   -50,   -50,   -50
+     -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -658,24 +660,24 @@ static const yytype_int8 yydefact[] =
        0,     0,    24,     0,     0,    39,     0,     0,     0,     0,
       43,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    51,    50,    11,    14,    18,    19,    20,    17,    22,
-      23,    21,    15,    16,     6,    26,    30,    27,    28,    36,
-      37,    38,    29,    34,    35,    31,    32,    33,    41,    42,
-       9,    46,    48,    49,    45,    47
+       0,    51,    50,    11,    52,    53,    14,    18,    19,    20,
+      17,    22,    23,    21,    15,    16,     6,    26,    30,    27,
+      28,    36,    37,    38,    29,    34,    35,    31,    32,    33,
+      41,    42,     9,    46,    48,    49,    45,    47
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -50,   -50,   -50,    60,   -50,    61,    47,    50,   -50,    59,
-     -50,   -50,   -50,    62,    55,   -50,   -50,   -49
+     -50,   -50,   -50,    60,   -50,    59,    54,     0,   -50,    62,
+     -50,   -50,   -50,    57,    61,   -50,   -50,   -49,   -47
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     8,     9,    10,    12,    13,    78,    82,    16,    17,
-      95,    92,    19,    20,    23,    24,   104,    73
+      -1,     8,     9,    10,    12,    13,    80,    84,    16,    17,
+      97,    94,    19,    20,    23,    24,   106,    73,    76
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -683,60 +685,62 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       1,     2,     3,     4,     5,     6,    83,    84,    71,    72,
-      43,    88,    11,    44,    14,     7,    98,    93,    94,   101,
-      34,    35,    36,    37,    38,    39,    40,    41,    47,   102,
-     103,    48,    15,    49,    28,    29,    30,    31,    75,    76,
-      77,    18,    79,    80,    81,    21,    89,    90,    91,    22,
-      25,    26,    33,    46,    51,    52,    53,    54,     0,    55,
-      56,    57,    58,    59,    60,    61,    62,    63,    64,    27,
-      65,    66,    67,    32,    68,    42,    69,    70,     0,    50,
-       0,    45,    74,    85,    96,     0,    97,     0,    99,   100,
-     105,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    86,     0,     0,     0,    87
+       1,     2,     3,     4,     5,     6,    85,    86,    71,    72,
+      87,    90,    77,    78,    79,     7,   100,    99,    11,   103,
+      34,    35,    36,    37,    38,    39,    40,    41,    47,    43,
+      14,    48,    44,    49,    28,    29,    30,    31,    74,    75,
+      81,    82,    83,    26,    91,    92,    93,    15,    95,    96,
+      33,   104,   105,    46,    18,    21,    22,    51,    25,    89,
+      52,    53,    54,    55,    56,    57,    58,    59,    60,    27,
+      61,    32,    62,    63,    64,    65,    45,    66,    42,    67,
+      68,    69,    70,     0,     0,    50,    98,   101,   102,   107,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,    88
 };
 
 static const yytype_int8 yycheck[] =
 {
        3,     4,     5,     6,     7,     8,    55,    56,    34,    35,
-      12,    60,    32,    15,    32,    18,    65,    28,    29,    68,
-       9,    10,    11,    12,    13,    14,    15,    16,    12,    30,
-      31,    15,    32,    17,     9,    10,    11,    12,    19,    20,
-      21,    32,    22,    23,    24,    32,    25,    26,    27,    32,
-      32,     0,    12,    17,    12,    33,    33,    33,    -1,    33,
+      57,    60,    19,    20,    21,    18,    65,    64,    32,    68,
+       9,    10,    11,    12,    13,    14,    15,    16,    12,    12,
+      32,    15,    15,    17,     9,    10,    11,    12,    37,    38,
+      22,    23,    24,     0,    25,    26,    27,    32,    28,    29,
+      12,    30,    31,    17,    32,    32,    32,    12,    32,    59,
       33,    33,    33,    33,    33,    33,    33,    33,    33,     9,
-      33,    33,    33,    12,    33,    16,    33,    33,    -1,    24,
-      -1,    19,    37,    37,    36,    -1,    37,    -1,    36,    36,
-      36,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    58,    -1,    -1,    -1,    59
+      33,    12,    33,    33,    33,    33,    19,    33,    16,    33,
+      33,    33,    33,    -1,    -1,    24,    36,    36,    36,    36,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    58
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,     4,     5,     6,     7,     8,    18,    39,    40,
-      41,    32,    42,    43,    32,    32,    46,    47,    32,    50,
-      51,    32,    32,    52,    53,    32,     0,    41,     9,    10,
-      11,    12,    43,    12,     9,    10,    11,    12,    13,    14,
-      15,    16,    47,    12,    15,    51,    17,    12,    15,    17,
-      52,    12,    33,    33,    33,    33,    33,    33,    33,    33,
+       0,     3,     4,     5,     6,     7,     8,    18,    40,    41,
+      42,    32,    43,    44,    32,    32,    47,    48,    32,    51,
+      52,    32,    32,    53,    54,    32,     0,    42,     9,    10,
+      11,    12,    44,    12,     9,    10,    11,    12,    13,    14,
+      15,    16,    48,    12,    15,    52,    17,    12,    15,    17,
+      53,    12,    33,    33,    33,    33,    33,    33,    33,    33,
       33,    33,    33,    33,    33,    33,    33,    33,    33,    33,
-      33,    34,    35,    55,    37,    19,    20,    21,    44,    22,
-      23,    24,    45,    55,    55,    37,    44,    45,    55,    25,
-      26,    27,    49,    28,    29,    48,    36,    37,    55,    36,
-      36,    55,    30,    31,    54,    36
+      33,    34,    35,    56,    37,    38,    57,    19,    20,    21,
+      45,    22,    23,    24,    46,    56,    56,    57,    45,    46,
+      56,    25,    26,    27,    50,    28,    29,    49,    36,    57,
+      56,    36,    36,    56,    30,    31,    55,    36
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    38,    39,    40,    40,    41,    41,    41,    41,    41,
-      41,    41,    42,    42,    43,    43,    43,    43,    44,    44,
-      44,    45,    45,    45,    46,    46,    47,    47,    47,    47,
-      47,    47,    47,    47,    48,    48,    49,    49,    49,    50,
-      50,    51,    51,    52,    52,    53,    53,    53,    54,    54,
-      55,    55
+       0,    39,    40,    41,    41,    42,    42,    42,    42,    42,
+      42,    42,    43,    43,    44,    44,    44,    44,    45,    45,
+      45,    46,    46,    46,    47,    47,    48,    48,    48,    48,
+      48,    48,    48,    48,    49,    49,    50,    50,    50,    51,
+      51,    52,    52,    53,    53,    54,    54,    54,    55,    55,
+      56,    56,    57,    57
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -747,7 +751,7 @@ static const yytype_int8 yyr2[] =
        1,     1,     1,     1,     2,     1,     4,     4,     4,     4,
        4,     4,     4,     4,     1,     1,     1,     1,     1,     2,
        1,     4,     4,     2,     1,     4,     4,     4,     1,     1,
-       1,     1
+       1,     1,     1,     1
 };
 
 
@@ -1538,307 +1542,319 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 89 "sintactico.y"
+#line 91 "sintactico.y"
                       { raiz=(yyval.NODO);}
-#line 1544 "sintactico.cpp"
+#line 1548 "sintactico.cpp"
     break;
 
   case 3:
-#line 92 "sintactico.y"
+#line 94 "sintactico.y"
                                       { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1550 "sintactico.cpp"
+#line 1554 "sintactico.cpp"
     break;
 
   case 4:
-#line 93 "sintactico.y"
+#line 95 "sintactico.y"
                                       { (yyval.NODO) = new NodoAST("INSTRUCCION"); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1556 "sintactico.cpp"
+#line 1560 "sintactico.cpp"
     break;
 
   case 5:
-#line 96 "sintactico.y"
+#line 98 "sintactico.y"
                                                                 { NodoAST *n1 = new NodoAST("MkDisk"); n1->agregarHijo(*(yyvsp[0].NODO)); (yyval.NODO) = n1; }
-#line 1562 "sintactico.cpp"
+#line 1566 "sintactico.cpp"
     break;
 
   case 6:
-#line 97 "sintactico.y"
-                                                                { NodoAST *n1 = new NodoAST("RmDisk"); NodoAST *n2 = new NodoAST("Path"); NodoAST *n5 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n5); (yyval.NODO) = n1; }
-#line 1568 "sintactico.cpp"
+#line 99 "sintactico.y"
+                                                                { NodoAST *n1 = new NodoAST("RmDisk"); NodoAST *n2 = new NodoAST("Path"); NodoAST *n5 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n5); n1->agregarHijo(*n2); (yyval.NODO) = n1; }
+#line 1572 "sintactico.cpp"
     break;
 
   case 7:
-#line 98 "sintactico.y"
+#line 100 "sintactico.y"
                                                                 { NodoAST *n1 = new NodoAST("FDisk"); n1->agregarHijo(*(yyvsp[0].NODO)); (yyval.NODO) = n1; }
-#line 1574 "sintactico.cpp"
+#line 1578 "sintactico.cpp"
     break;
 
   case 8:
-#line 99 "sintactico.y"
+#line 101 "sintactico.y"
                                                                 { NodoAST *n1 = new NodoAST("Mount"); n1->agregarHijo(*(yyvsp[0].NODO)); (yyval.NODO) = n1; }
-#line 1580 "sintactico.cpp"
+#line 1584 "sintactico.cpp"
     break;
 
   case 9:
-#line 100 "sintactico.y"
-                                                                { NodoAST *n1 = new NodoAST("Unmount"); NodoAST *n2 = new NodoAST("ID"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1586 "sintactico.cpp"
+#line 102 "sintactico.y"
+                                                                { NodoAST *n1 = new NodoAST("Unmount"); NodoAST *n2 = new NodoAST("ID"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); n1->agregarHijo(*n2); (yyval.NODO) = n1; }
+#line 1590 "sintactico.cpp"
     break;
 
   case 10:
-#line 101 "sintactico.y"
+#line 103 "sintactico.y"
                                                                 { NodoAST *n1 = new NodoAST("Rep"); n1->agregarHijo(*(yyvsp[0].NODO)); (yyval.NODO) = n1; }
-#line 1592 "sintactico.cpp"
+#line 1596 "sintactico.cpp"
     break;
 
   case 11:
-#line 102 "sintactico.y"
-                                                                { NodoAST *n1 = new NodoAST("Exec"); NodoAST *n2 = new NodoAST("Path"); NodoAST *n5 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n5); (yyval.NODO) = n1; }
-#line 1598 "sintactico.cpp"
+#line 104 "sintactico.y"
+                                                                { NodoAST *n1 = new NodoAST("Exec"); NodoAST *n2 = new NodoAST("Path"); NodoAST *n5 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n5); n1->agregarHijo(*n2); (yyval.NODO) = n1; }
+#line 1602 "sintactico.cpp"
     break;
 
   case 12:
-#line 105 "sintactico.y"
+#line 107 "sintactico.y"
                                         { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1604 "sintactico.cpp"
+#line 1608 "sintactico.cpp"
     break;
 
   case 13:
-#line 106 "sintactico.y"
+#line 108 "sintactico.y"
                                         { (yyval.NODO) = new NodoAST("Parametros"); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1610 "sintactico.cpp"
+#line 1614 "sintactico.cpp"
     break;
 
   case 14:
-#line 109 "sintactico.y"
-                                                    { NodoAST *n2 = new NodoAST("Size"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n2; }
-#line 1616 "sintactico.cpp"
+#line 111 "sintactico.y"
+                                                      { NodoAST *n2 = new NodoAST("Size"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n2; }
+#line 1620 "sintactico.cpp"
     break;
 
   case 15:
-#line 110 "sintactico.y"
+#line 112 "sintactico.y"
                                                     { NodoAST *n2 = new NodoAST("Unit"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n2; }
-#line 1622 "sintactico.cpp"
+#line 1626 "sintactico.cpp"
     break;
 
   case 16:
-#line 111 "sintactico.y"
+#line 113 "sintactico.y"
                                                     { NodoAST *n2 = new NodoAST("Ruta"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n2; }
-#line 1628 "sintactico.cpp"
+#line 1632 "sintactico.cpp"
     break;
 
   case 17:
-#line 112 "sintactico.y"
+#line 114 "sintactico.y"
                                                     { NodoAST *n2 = new NodoAST("Fit");  NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n2; }
-#line 1634 "sintactico.cpp"
+#line 1638 "sintactico.cpp"
     break;
 
   case 18:
-#line 115 "sintactico.y"
+#line 117 "sintactico.y"
                         { (yyval.TEXT) = "bf"; }
-#line 1640 "sintactico.cpp"
+#line 1644 "sintactico.cpp"
     break;
 
   case 19:
-#line 116 "sintactico.y"
+#line 118 "sintactico.y"
                         { (yyval.TEXT) = "ff"; }
-#line 1646 "sintactico.cpp"
+#line 1650 "sintactico.cpp"
     break;
 
   case 20:
-#line 117 "sintactico.y"
+#line 119 "sintactico.y"
                         { (yyval.TEXT) = "wf"; }
-#line 1652 "sintactico.cpp"
+#line 1656 "sintactico.cpp"
     break;
 
   case 21:
-#line 120 "sintactico.y"
+#line 122 "sintactico.y"
                         { (yyval.TEXT) = "b"; }
-#line 1658 "sintactico.cpp"
+#line 1662 "sintactico.cpp"
     break;
 
   case 22:
-#line 121 "sintactico.y"
+#line 123 "sintactico.y"
                         { (yyval.TEXT) = "k"; }
-#line 1664 "sintactico.cpp"
+#line 1668 "sintactico.cpp"
     break;
 
   case 23:
-#line 122 "sintactico.y"
+#line 124 "sintactico.y"
                         { (yyval.TEXT) = "m"; }
-#line 1670 "sintactico.cpp"
+#line 1674 "sintactico.cpp"
     break;
 
   case 24:
-#line 125 "sintactico.y"
+#line 127 "sintactico.y"
                                     { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1676 "sintactico.cpp"
+#line 1680 "sintactico.cpp"
     break;
 
   case 25:
-#line 126 "sintactico.y"
+#line 128 "sintactico.y"
                                     { (yyval.NODO) = new NodoAST("Parametros"); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1682 "sintactico.cpp"
+#line 1686 "sintactico.cpp"
     break;
 
   case 26:
-#line 129 "sintactico.y"
-                                                            { NodoAST *n1 = new NodoAST("Size"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1688 "sintactico.cpp"
+#line 131 "sintactico.y"
+                                                              { NodoAST *n1 = new NodoAST("Size"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1692 "sintactico.cpp"
     break;
 
   case 27:
-#line 130 "sintactico.y"
+#line 132 "sintactico.y"
                                                             { NodoAST *n1 = new NodoAST("Unit"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1694 "sintactico.cpp"
+#line 1698 "sintactico.cpp"
     break;
 
   case 28:
-#line 131 "sintactico.y"
+#line 133 "sintactico.y"
                                                             { NodoAST *n1 = new NodoAST("Path"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1700 "sintactico.cpp"
+#line 1704 "sintactico.cpp"
     break;
 
   case 29:
-#line 132 "sintactico.y"
+#line 134 "sintactico.y"
                                                             { NodoAST *n1 = new NodoAST("Type"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1706 "sintactico.cpp"
+#line 1710 "sintactico.cpp"
     break;
 
   case 30:
-#line 133 "sintactico.y"
+#line 135 "sintactico.y"
                                                             { NodoAST *n1 = new NodoAST("Fit"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1712 "sintactico.cpp"
+#line 1716 "sintactico.cpp"
     break;
 
   case 31:
-#line 134 "sintactico.y"
+#line 136 "sintactico.y"
                                                             { NodoAST *n1 = new NodoAST("Delete"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1718 "sintactico.cpp"
+#line 1722 "sintactico.cpp"
     break;
 
   case 32:
-#line 135 "sintactico.y"
+#line 137 "sintactico.y"
                                                             { NodoAST *n1 = new NodoAST("Name"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1724 "sintactico.cpp"
+#line 1728 "sintactico.cpp"
     break;
 
   case 33:
-#line 136 "sintactico.y"
-                                                            { NodoAST *n1 = new NodoAST("Add"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1730 "sintactico.cpp"
+#line 138 "sintactico.y"
+                                                              { NodoAST *n1 = new NodoAST("Add"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1734 "sintactico.cpp"
     break;
 
   case 34:
-#line 139 "sintactico.y"
+#line 141 "sintactico.y"
                         { (yyval.TEXT) = "Fast"; }
-#line 1736 "sintactico.cpp"
+#line 1740 "sintactico.cpp"
     break;
 
   case 35:
-#line 140 "sintactico.y"
+#line 142 "sintactico.y"
                         { (yyval.TEXT) = "Full"; }
-#line 1742 "sintactico.cpp"
+#line 1746 "sintactico.cpp"
     break;
 
   case 36:
-#line 143 "sintactico.y"
+#line 145 "sintactico.y"
                                 { (yyval.TEXT) = "Primaria"; }
-#line 1748 "sintactico.cpp"
+#line 1752 "sintactico.cpp"
     break;
 
   case 37:
-#line 144 "sintactico.y"
+#line 146 "sintactico.y"
                                 { (yyval.TEXT) = "Extendida"; }
-#line 1754 "sintactico.cpp"
+#line 1758 "sintactico.cpp"
     break;
 
   case 38:
-#line 145 "sintactico.y"
+#line 147 "sintactico.y"
                                 { (yyval.TEXT) = "Logica"; }
-#line 1760 "sintactico.cpp"
+#line 1764 "sintactico.cpp"
     break;
 
   case 39:
-#line 148 "sintactico.y"
+#line 150 "sintactico.y"
                                     { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1766 "sintactico.cpp"
+#line 1770 "sintactico.cpp"
     break;
 
   case 40:
-#line 149 "sintactico.y"
+#line 151 "sintactico.y"
                                     { (yyval.NODO) = new NodoAST("Parametros"); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1772 "sintactico.cpp"
+#line 1776 "sintactico.cpp"
     break;
 
   case 41:
-#line 152 "sintactico.y"
+#line 154 "sintactico.y"
                                                             { NodoAST *n1 = new NodoAST("Path"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1778 "sintactico.cpp"
+#line 1782 "sintactico.cpp"
     break;
 
   case 42:
-#line 153 "sintactico.y"
+#line 155 "sintactico.y"
                                                             { NodoAST *n1 = new NodoAST("Name"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1784 "sintactico.cpp"
+#line 1788 "sintactico.cpp"
     break;
 
   case 43:
-#line 156 "sintactico.y"
+#line 158 "sintactico.y"
                                 { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1790 "sintactico.cpp"
+#line 1794 "sintactico.cpp"
     break;
 
   case 44:
-#line 157 "sintactico.y"
+#line 159 "sintactico.y"
                                 { (yyval.NODO) = new NodoAST("Parametros"); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1796 "sintactico.cpp"
+#line 1800 "sintactico.cpp"
     break;
 
   case 45:
-#line 160 "sintactico.y"
+#line 162 "sintactico.y"
                                                         { NodoAST *n1 = new NodoAST("Name"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1802 "sintactico.cpp"
+#line 1806 "sintactico.cpp"
     break;
 
   case 46:
-#line 161 "sintactico.y"
+#line 163 "sintactico.y"
                                                         { NodoAST *n1 = new NodoAST("Path"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1808 "sintactico.cpp"
+#line 1812 "sintactico.cpp"
     break;
 
   case 47:
-#line 162 "sintactico.y"
+#line 164 "sintactico.y"
                                                         { NodoAST *n1 = new NodoAST("ID"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1814 "sintactico.cpp"
+#line 1818 "sintactico.cpp"
     break;
 
   case 48:
-#line 165 "sintactico.y"
+#line 167 "sintactico.y"
                     { (yyval.TEXT) = "MBR";}
-#line 1820 "sintactico.cpp"
+#line 1824 "sintactico.cpp"
     break;
 
   case 49:
-#line 166 "sintactico.y"
+#line 168 "sintactico.y"
                     { (yyval.TEXT) = "Disk"; }
-#line 1826 "sintactico.cpp"
+#line 1830 "sintactico.cpp"
     break;
 
   case 50:
-#line 169 "sintactico.y"
+#line 171 "sintactico.y"
                         { (yyval.TEXT) = (yyvsp[0].TEXT); }
-#line 1832 "sintactico.cpp"
+#line 1836 "sintactico.cpp"
     break;
 
   case 51:
-#line 170 "sintactico.y"
+#line 172 "sintactico.y"
                         { (yyval.TEXT) = (yyvsp[0].TEXT); }
-#line 1838 "sintactico.cpp"
+#line 1842 "sintactico.cpp"
+    break;
+
+  case 52:
+#line 175 "sintactico.y"
+                                { (yyval.TEXT) = (yyvsp[0].TEXT); }
+#line 1848 "sintactico.cpp"
+    break;
+
+  case 53:
+#line 176 "sintactico.y"
+                                { (yyval.TEXT) = (yyvsp[0].TEXT); }
+#line 1854 "sintactico.cpp"
     break;
 
 
-#line 1842 "sintactico.cpp"
+#line 1858 "sintactico.cpp"
 
       default: break;
     }
@@ -2076,5 +2092,5 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 173 "sintactico.y"
+#line 179 "sintactico.y"
 

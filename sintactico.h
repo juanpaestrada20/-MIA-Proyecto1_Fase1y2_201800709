@@ -83,7 +83,8 @@ extern int yydebug;
     TK_CADENA = 289,
     TK_RUTA = 290,
     TK_IDENTIFICADOR = 291,
-    TK_NUMBER = 292
+    TK_NUMBER = 292,
+    TK_NUMBER_NEGATIVO = 293
   };
 #endif
 
@@ -91,12 +92,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 80 "sintactico.y"
+#line 82 "sintactico.y"
 
     char *TEXT;
     class NodoAST *NODO;
 
-#line 100 "sintactico.h"
+#line 101 "sintactico.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

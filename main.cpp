@@ -23,6 +23,7 @@ using namespace std;
 
 void menu();
 string toLower(string);
+void parser(string);
 
 int main()
 {
@@ -50,18 +51,24 @@ void menu(){
             while(getline(fi, buff)){
                 textoAnalizar += buff + "\n";
             }
-            YY_BUFFER_STATE bufferState = yy_scan_string(textoAnalizar.c_str());
-            if(yyparse()==0){
-                qDebug() << "Analisis Completado";
-                Interprete *interprete = new Interprete(raiz);
-                interprete->ejecutar();
-            }else{
-                qDebug() << "Analisis no  se pudo completar";
-            }
-            yy_delete_buffer(bufferState);
+            parser(textoAnalizar);
+        }else{
+            parser(entrada);
         }
 
     }
+}
+
+void parser(string entrada){
+    YY_BUFFER_STATE bufferState = yy_scan_string(entrada.c_str());
+    if(yyparse()==0){
+        qDebug() << "Analisis Completado";
+        Interprete *interprete = new Interprete(raiz);
+        interprete->ejecutar();
+    }else{
+        qDebug() << "Analisis no  se pudo completar";
+    }
+    yy_delete_buffer(bufferState);
 }
 
 string toLower(string entrada){

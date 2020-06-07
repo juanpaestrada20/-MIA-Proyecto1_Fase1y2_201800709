@@ -34,6 +34,7 @@ public:
     void Recorrer_Arbol(NodoAST *raiz);
     void Opciones_Parametro(NodoAST *raiz, int tipo);
     char getFitChar(QString fit);
+    void restorePred();
 };
 
 #endif // INTERPRETE_H

@@ -19,6 +19,7 @@ int linea = 1;
 COMENTARIO "#".*
 DIG [0-9]
 NUM {DIG}+
+NUMNEGATIVO [-][0-9]+
 IDENT [a-zA-Z_][a-zA-Z_0-9]*
 RUTA "/"[^\n\t\r" "]+
 CADENA \"[^\"]*\"
@@ -71,8 +72,8 @@ CADENA \"[^\"]*\"
 {IDENT}                 	{ yylval.TEXT = strdup(yytext); return (TK_IDENTIFICADOR); }
 
 {NUM}				        { yylval.TEXT = strdup(yytext); return (TK_NUMBER); }
-
-.				            { printf ("Error lexico en la linea %d -> %s", linea, yytext); }
+{NUMNEGATIVO}               { yylval.TEXT = strdup(yytext); return (TK_NUMBER_NEGATIVO); }
+.				            { printf ("Error lexico en la linea %d -> %s\n", linea, yytext); }
 
 %%
 

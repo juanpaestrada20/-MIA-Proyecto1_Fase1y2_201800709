@@ -27,7 +27,10 @@ void MKDisk::Ejecutar(){
     this->MasterBootRecord.disk_signature = rand() % 100 + 1;
     this->MasterBootRecord.disk_fit = *this->fit;
     this->MasterBootRecord.creation_time = time(0);
-
+    this->MasterBootRecord.partition1.status = 'F';
+    this->MasterBootRecord.partition2.status = 'F';
+    this->MasterBootRecord.partition3.status = 'F';
+    this->MasterBootRecord.partition4.status = 'F';
     FILE *f =fopen(path.toStdString().c_str(), "wb");
     if(f == NULL)
     {
