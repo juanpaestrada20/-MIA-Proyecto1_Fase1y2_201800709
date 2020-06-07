@@ -9,7 +9,7 @@ class NodoAST
 public:
     QString valor;
     QList<NodoAST> hijos;
-    NodoAST(QString);
+    NodoAST(QString valor);
     void agregarHijo(NodoAST nodo);
 };
 

@@ -12,11 +12,6 @@
 
 int yycolumn = 1;
 
-#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
-    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; \
-    yycolumn += yyleng; \
-    yylval.str = strdup(yytext);
-
 int linea = 1;
 %}
 
@@ -67,15 +62,15 @@ CADENA \"[^\"]*\"
 [-]				            { sscanf(yytext, "%s", yylval.TEXT); return (TK_GUION); }
 [=]				            { sscanf(yytext, "%s", yylval.TEXT); return (TK_IGUAL); }
 
-{CADENA}		            { sscanf(yytext, "%s", yylval.TEXT); return (TK_CADENA); }
+{CADENA}		            { yylval.TEXT = strdup(yytext); return (TK_CADENA); }
 
-{RUTA}          	        { sscanf(yytext, "%s", yylval.TEXT); return (TK_RUTA); }
+{RUTA}          	        { yylval.TEXT = strdup(yytext); return (TK_RUTA); }
 
 "\n"				        { linea++; yycolumn = 1;}
 
-{IDENT}                 	{ sscanf(yytext, "%s", yylval.TEXT); return (TK_IDENTIFICADOR); }
+{IDENT}                 	{ yylval.TEXT = strdup(yytext); return (TK_IDENTIFICADOR); }
 
-{NUM}				        { yylval.NUMERO = atoi(yytext); return (TK_NUMBER); }
+{NUM}				        { yylval.TEXT = strdup(yytext); return (TK_NUMBER); }
 
 .				            { printf ("Error lexico en la linea %d -> %s", linea, yytext); }
 

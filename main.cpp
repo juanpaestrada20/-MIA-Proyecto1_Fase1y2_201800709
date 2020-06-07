@@ -5,11 +5,24 @@
 #include <iostream>
 #include <istream>
 #include <stdio.h>
+#include <cctype>
+#include <fstream>
+#include <math.h>
 
+#include "lexico.h"
+#include "sintactico.h"
+#include "interprete.h"
+extern int yylex(void);
+extern char *yytext;
+extern int linea;
+extern FILE *yyin;
+extern int yyparse(void);
+extern NodoAST *raiz;
 
 using namespace std;
 
 void menu();
+string toLower(string);
 
 int main()
 {
@@ -25,6 +38,39 @@ void menu(){
     while(entrada != "exit"){
         cout << "201800709@MIA: ~$ ";
         getline(cin, entrada);
+        // por si entra el comando de exec
+        if(toLower(entrada.substr(0,4)) == "exec"){
+            string ruta = entrada.substr(entrada.find("=")+1, entrada.length() - 1);
+            if(ruta[0] == '"'){
+                ruta = ruta.substr(1, ruta.length()-2);
+            }
+            ifstream fi(ruta);
+            string buff;
+            string textoAnalizar;
+            while(getline(fi, buff)){
+                textoAnalizar += buff + "\n";
+            }
+            YY_BUFFER_STATE bufferState = yy_scan_string(textoAnalizar.c_str());
+            if(yyparse()==0){
+                qDebug() << "Analisis Completado";
+                Interprete *interprete = new Interprete(raiz);
+
+            }else{
+                qDebug() << "Analisis no  se pudo completar";
+            }
+            yy_delete_buffer(bufferState);
+        }
 
     }
+}
+
+string toLower(string entrada){
+    string out;
+    if(entrada == "" || entrada == "\n"){
+        return entrada;
+    }
+    foreach (char c, entrada) {
+        out += tolower(c);
+    }
+    return out;
 }

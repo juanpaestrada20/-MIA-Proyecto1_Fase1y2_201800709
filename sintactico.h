@@ -93,11 +93,10 @@ union YYSTYPE
 {
 #line 80 "sintactico.y"
 
-    char TEXT[256];
-    int NUMERO;
+    char *TEXT;
     class NodoAST *NODO;
 
-#line 101 "sintactico.h"
+#line 100 "sintactico.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

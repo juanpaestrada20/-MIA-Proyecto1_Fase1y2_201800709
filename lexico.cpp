@@ -543,11 +543,6 @@ char *yytext;
 
 int yycolumn = 1;
 
-#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
-    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; \
-    yycolumn += yyleng; \
-    yylval.str = strdup(yytext);
-
 int linea = 1;
 
 
@@ -1045,11 +1040,11 @@ YY_RULE_SETUP
 case 34:
 /* rule 34 can match eol */
 YY_RULE_SETUP
-{ sscanf(yytext, "%s", yylval.TEXT); return (TK_CADENA); }
+{ yylval.TEXT = strdup(yytext); return (TK_CADENA); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-{ sscanf(yytext, "%s", yylval.TEXT); return (TK_RUTA); }
+{ yylval.TEXT = strdup(yytext); return (TK_RUTA); }
 	YY_BREAK
 case 36:
 /* rule 36 can match eol */
@@ -1058,11 +1053,11 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-{ sscanf(yytext, "%s", yylval.TEXT); return (TK_IDENTIFICADOR); }
+{ yylval.TEXT = strdup(yytext); return (TK_IDENTIFICADOR); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-{ yylval.NUMERO = atoi(yytext); return (TK_NUMBER); }
+{ yylval.TEXT = strdup(yytext); return (TK_NUMBER); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP

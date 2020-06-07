@@ -17,7 +17,7 @@ extern int linea;
 extern FILE *yyin;
 extern int yycolumn;
 
-extern NodoAST *raiz = new NodoAST(0,0,"INICIO");
+extern NodoAST *raiz = new NodoAST("INICIO");
 %}
 %locations
 %define parse.trace
@@ -57,7 +57,7 @@ extern NodoAST *raiz = new NodoAST(0,0,"INICIO");
 %token <TEXT> TK_CADENA
 %token <TEXT> TK_RUTA
 %token <TEXT> TK_IDENTIFICADOR
-%token <NUMERO> TK_NUMBER
+%token <TEXT> TK_NUMBER
 
 %type <NODO> INICIO
 %type <NODO> INSTRUCCIONES
@@ -78,8 +78,7 @@ extern NodoAST *raiz = new NodoAST(0,0,"INICIO");
 %type <TEXT> TIPO_RUTA
 
 %union{
-    char TEXT[256];
-    int NUMERO;
+    char *TEXT;
     class NodoAST *NODO;
 }
 
@@ -87,24 +86,24 @@ extern NodoAST *raiz = new NodoAST(0,0,"INICIO");
 
 %%
 
-INICIO: INSTRUCCIONES { raiz->agregarHijo(*$1); }
+INICIO: INSTRUCCIONES { raiz=$$;}
 ;
 
 INSTRUCCIONES: INSTRUCCIONES COMANDOS { $$ = $1; $$->agregarHijo(*$2); }
-             | COMANDOS               { $$->agregarHijo(*$1); }
+             | COMANDOS               { $$ = new NodoAST("INSTRUCCION"); $$->agregarHijo(*$1); }
 ;
 
 COMANDOS: TK_MKDISK LISTAMKDISK                                 { NodoAST *n1 = new NodoAST("MkDisk"); n1->agregarHijo(*$2); $$ = n1; }
-        | TK_RMDISK TK_GUION TK_PATH TK_IGUAL TIPO_RUTA         { NodoAST *n1 = new NodoAST("RmDisk"); NodoAST *n2 = new NodoAST("Path"); n2->agregarHijo(*$5); $$ = n1; }
+        | TK_RMDISK TK_GUION TK_PATH TK_IGUAL TIPO_RUTA         { NodoAST *n1 = new NodoAST("RmDisk"); NodoAST *n2 = new NodoAST("Path"); NodoAST *n5 = new NodoAST($5); n2->agregarHijo(*n5); $$ = n1; }
         | TK_FDISK LISTAFDISK                                   { NodoAST *n1 = new NodoAST("FDisk"); n1->agregarHijo(*$2); $$ = n1; }
         | TK_MOUNT LISTAMOUNT                                   { NodoAST *n1 = new NodoAST("Mount"); n1->agregarHijo(*$2); $$ = n1; }
-        | TK_UNMOUNT TK_GUION TK_ID TK_IGUAL TK_IDENTIFICADOR   { NodoAST *n1 = new NodoAST("Unmount"); NodoAST *n2 = new NodoAST(linea, yycolumn, "ID"); n2->agregarHijo(*$5); $$ = n1; }
+        | TK_UNMOUNT TK_GUION TK_ID TK_IGUAL TK_IDENTIFICADOR   { NodoAST *n1 = new NodoAST("Unmount"); NodoAST *n2 = new NodoAST("ID"); NodoAST *n4 = new NodoAST($5); n2->agregarHijo(*n4); $$ = n1; }
         | TK_REP LISTAREP                                       { NodoAST *n1 = new NodoAST("Rep"); n1->agregarHijo(*$2); $$ = n1; }
-        | TK_EXEC TK_GUION TK_PATH TIPO_RUTA                    { NodoAST *n1 = new NodoAST("Exec"); NodoAST *n2 = new NodoAST("Path"); n2->agregarHijo(*$4); $$ = n1; }
+        | TK_EXEC TK_GUION TK_PATH TIPO_RUTA                    { NodoAST *n1 = new NodoAST("Exec"); NodoAST *n2 = new NodoAST("Path"); NodoAST *n5 = new NodoAST($4); n2->agregarHijo(*n5); $$ = n1; }
 ;
 
-LISTAMKDISK: LISTAMKDISK OPCION_MKDISK  { $$ = $1; $$.agregarHijo(*$2); }
-           | OPCION_MKDISK              { $$.agregarHijo(*$1); }
+LISTAMKDISK: LISTAMKDISK OPCION_MKDISK  { $$ = $1; $$->agregarHijo(*$2); }
+           | OPCION_MKDISK              { $$ = new NodoAST("Parametros"); $$->agregarHijo(*$1); }
 ;
 
 OPCION_MKDISK: TK_GUION TK_SIZE TK_IGUAL TK_NUMBER  { NodoAST *n2 = new NodoAST("Size"); NodoAST *n4 = new NodoAST($4); n2->agregarHijo(*n4); $$ = n2; }
@@ -124,17 +123,17 @@ TIPO_UNIT: TK_BYTES     { $$ = "B"; }
 ;
 
 LISTAFDISK: LISTAFDISK OPCION_FDISK { $$ = $1; $$->agregarHijo(*$2); }
-          | OPCION_FDISK            { $$->agregarHijo(*$1); }
+          | OPCION_FDISK            { $$ = new NodoAST("Parametros"); $$->agregarHijo(*$1); }
 ;
 
-OPCION_FDISK: TK_GUION TK_SIZE TK_IGUAL TK_NUMBER           { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
-            | TK_GUION TK_UNIT TK_IGUAL TIPO_UNIT           { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*$4); $$ = n1; }
-            | TK_GUION TK_PATH TK_IGUAL TIPO_RUTA           { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*$4); $$ = n1; }
-            | TK_GUION TK_TYPE TK_IGUAL TIPO_PARTICION      { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*$4); $$ = n1; }
-            | TK_GUION TK_FIT TK_IGUAL TIPO_FIT             { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*$4); $$ = n1; }
-            | TK_GUION TK_DELETE TK_IGUAL TIPO_DELETE       { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*$4); $$ = n1; }
-            | TK_GUION TK_NAME TK_IGUAL TK_IDENTIFICADOR    { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
-            | TK_GUION TK_ADD TK_IGUAL TK_NUMBER            { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
+OPCION_FDISK: TK_GUION TK_SIZE TK_IGUAL TK_NUMBER           { NodoAST *n1 = new NodoAST("Size"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
+            | TK_GUION TK_UNIT TK_IGUAL TIPO_UNIT           { NodoAST *n1 = new NodoAST("Unit"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
+            | TK_GUION TK_PATH TK_IGUAL TIPO_RUTA           { NodoAST *n1 = new NodoAST("Path"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
+            | TK_GUION TK_TYPE TK_IGUAL TIPO_PARTICION      { NodoAST *n1 = new NodoAST("Type"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
+            | TK_GUION TK_FIT TK_IGUAL TIPO_FIT             { NodoAST *n1 = new NodoAST("Fit"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
+            | TK_GUION TK_DELETE TK_IGUAL TIPO_DELETE       { NodoAST *n1 = new NodoAST("Delete"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
+            | TK_GUION TK_NAME TK_IGUAL TK_IDENTIFICADOR    { NodoAST *n1 = new NodoAST("Name"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
+            | TK_GUION TK_ADD TK_IGUAL TK_NUMBER            { NodoAST *n1 = new NodoAST("Add"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
 ;
 
 TIPO_DELETE: TK_FAST    { $$ = "Fast"; }
@@ -147,7 +146,7 @@ TIPO_PARTICION: TK_PRIMARIA     { $$ = "Primaria"; }
 ;
 
 LISTAMOUNT: LISTAMOUNT OPCION_MOUNT { $$ = $1; $$->agregarHijo(*$2); }
-          | OPCION_MOUNT            { $$->agregarHijo(*$1); }
+          | OPCION_MOUNT            { $$ = new NodoAST("Parametros"); $$->agregarHijo(*$1); }
 ;
 
 OPCION_MOUNT: TK_GUION TK_PATH TK_IGUAL TIPO_RUTA           { NodoAST *n1 = new NodoAST("Path"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
@@ -155,16 +154,16 @@ OPCION_MOUNT: TK_GUION TK_PATH TK_IGUAL TIPO_RUTA           { NodoAST *n1 = new 
 ;
 
 LISTAREP: OPCION_REP LISTAREP   { $$ = $1; $$->agregarHijo(*$2); }
-        | OPCION_REP            { $$->agregarHijo(*$1); }
+        | OPCION_REP            { $$ = new NodoAST("Parametros"); $$->agregarHijo(*$1); }
 ;
 
-OPCION_REP: TK_GUION TK_NAME TK_IGUAL TIPO_REP          { NodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarhijo(*n4); $$ = n1; }
-          | TK_GUION TK_PATH TK_IGUAL TIPO_RUTA         { NodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarhijo(*n4); $$ = n1; }
-          | TK_GUION TK_ID TK_IGUAL TK_IDENTIFICADOR    { NodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST($4); n1->agregarhijo(*n4); $$ = n1; }
+OPCION_REP: TK_GUION TK_NAME TK_IGUAL TIPO_REP          { NodoAST *n1 = new NodoAST("Name"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
+          | TK_GUION TK_PATH TK_IGUAL TIPO_RUTA         { NodoAST *n1 = new NodoAST("Path"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
+          | TK_GUION TK_ID TK_IGUAL TK_IDENTIFICADOR    { NodoAST *n1 = new NodoAST("ID"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
 ;
 
-TIPO_REP: TK_MBR    { $$ = "MBR" }
-        | TK_DISK   { $$ = "Disk" }
+TIPO_REP: TK_MBR    { $$ = "MBR";}
+        | TK_DISK   { $$ = "Disk"; }
 ;
 
 TIPO_RUTA: TK_RUTA      { $$ = $1; }

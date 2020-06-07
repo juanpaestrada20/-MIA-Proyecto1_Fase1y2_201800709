@@ -86,7 +86,7 @@ extern int linea;
 extern FILE *yyin;
 extern int yycolumn;
 
-extern NodoAST *raiz = new NodoAST(0,0,"INICIO");
+extern NodoAST *raiz = new NodoAST("INICIO");
 
 #line 92 "sintactico.cpp"
 
@@ -180,11 +180,10 @@ union YYSTYPE
 {
 #line 80 "sintactico.y"
 
-    char TEXT[256];
-    int NUMERO;
+    char *TEXT;
     class NodoAST *NODO;
 
-#line 188 "sintactico.cpp"
+#line 187 "sintactico.cpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -580,12 +579,12 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    90,    90,    93,    94,    97,    98,    99,   100,   101,
-     102,   103,   106,   107,   110,   111,   112,   113,   116,   117,
-     118,   121,   122,   123,   126,   127,   130,   131,   132,   133,
-     134,   135,   136,   137,   140,   141,   144,   145,   146,   149,
-     150,   153,   154,   157,   158,   161,   162,   163,   166,   167,
-     170,   171
+       0,    89,    89,    92,    93,    96,    97,    98,    99,   100,
+     101,   102,   105,   106,   109,   110,   111,   112,   115,   116,
+     117,   120,   121,   122,   125,   126,   129,   130,   131,   132,
+     133,   134,   135,   136,   139,   140,   143,   144,   145,   148,
+     149,   152,   153,   156,   157,   160,   161,   162,   165,   166,
+     169,   170
 };
 #endif
 
@@ -1539,307 +1538,307 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 90 "sintactico.y"
-                      { raiz->agregarHijo(*(yyvsp[0].NODO));}
-#line 1545 "sintactico.cpp"
+#line 89 "sintactico.y"
+                      { raiz=(yyval.NODO);}
+#line 1544 "sintactico.cpp"
     break;
 
   case 3:
-#line 93 "sintactico.y"
+#line 92 "sintactico.y"
                                       { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1551 "sintactico.cpp"
+#line 1550 "sintactico.cpp"
     break;
 
   case 4:
-#line 94 "sintactico.y"
-                                      { (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1557 "sintactico.cpp"
+#line 93 "sintactico.y"
+                                      { (yyval.NODO) = new NodoAST("INSTRUCCION"); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
+#line 1556 "sintactico.cpp"
     break;
 
   case 5:
-#line 97 "sintactico.y"
+#line 96 "sintactico.y"
                                                                 { NodoAST *n1 = new NodoAST("MkDisk"); n1->agregarHijo(*(yyvsp[0].NODO)); (yyval.NODO) = n1; }
-#line 1563 "sintactico.cpp"
+#line 1562 "sintactico.cpp"
     break;
 
   case 6:
-#line 98 "sintactico.y"
-                                                                { NodoAST *n1 = new NodoAST("RmDisk"); NodoAST *n2 = new NodoAST("Path"); n2->agregarHijo(*(yyvsp[0].TEXT)); (yyval.NODO) = n1; }
-#line 1569 "sintactico.cpp"
+#line 97 "sintactico.y"
+                                                                { NodoAST *n1 = new NodoAST("RmDisk"); NodoAST *n2 = new NodoAST("Path"); NodoAST *n5 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n5); (yyval.NODO) = n1; }
+#line 1568 "sintactico.cpp"
     break;
 
   case 7:
-#line 99 "sintactico.y"
+#line 98 "sintactico.y"
                                                                 { NodoAST *n1 = new NodoAST("FDisk"); n1->agregarHijo(*(yyvsp[0].NODO)); (yyval.NODO) = n1; }
-#line 1575 "sintactico.cpp"
+#line 1574 "sintactico.cpp"
     break;
 
   case 8:
-#line 100 "sintactico.y"
+#line 99 "sintactico.y"
                                                                 { NodoAST *n1 = new NodoAST("Mount"); n1->agregarHijo(*(yyvsp[0].NODO)); (yyval.NODO) = n1; }
-#line 1581 "sintactico.cpp"
+#line 1580 "sintactico.cpp"
     break;
 
   case 9:
-#line 101 "sintactico.y"
-                                                                { NodoAST *n1 = new NodoAST("Unmount"); NodoAST *n2 = new NodoAST(linea, yycolumn, "ID"); n2->agregarHijo(*(yyvsp[0].TEXT)); (yyval.NODO) = n1; }
-#line 1587 "sintactico.cpp"
+#line 100 "sintactico.y"
+                                                                { NodoAST *n1 = new NodoAST("Unmount"); NodoAST *n2 = new NodoAST("ID"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1586 "sintactico.cpp"
     break;
 
   case 10:
-#line 102 "sintactico.y"
+#line 101 "sintactico.y"
                                                                 { NodoAST *n1 = new NodoAST("Rep"); n1->agregarHijo(*(yyvsp[0].NODO)); (yyval.NODO) = n1; }
-#line 1593 "sintactico.cpp"
+#line 1592 "sintactico.cpp"
     break;
 
   case 11:
-#line 103 "sintactico.y"
-                                                                { NodoAST *n1 = new NodoAST("Exec"); NodoAST *n2 = new NodoAST("Path"); n2->agregarHijo(*(yyvsp[0].TEXT)); (yyval.NODO) = n1; }
-#line 1599 "sintactico.cpp"
+#line 102 "sintactico.y"
+                                                                { NodoAST *n1 = new NodoAST("Exec"); NodoAST *n2 = new NodoAST("Path"); NodoAST *n5 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n5); (yyval.NODO) = n1; }
+#line 1598 "sintactico.cpp"
     break;
 
   case 12:
-#line 106 "sintactico.y"
-                                        { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO).agregarHijo(*(yyvsp[0].NODO)); }
-#line 1605 "sintactico.cpp"
+#line 105 "sintactico.y"
+                                        { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
+#line 1604 "sintactico.cpp"
     break;
 
   case 13:
-#line 107 "sintactico.y"
-                                        { (yyval.NODO).agregarHijo(*(yyvsp[0].NODO)); }
-#line 1611 "sintactico.cpp"
+#line 106 "sintactico.y"
+                                        { (yyval.NODO) = new NodoAST("Parametros"); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
+#line 1610 "sintactico.cpp"
     break;
 
   case 14:
-#line 110 "sintactico.y"
-                                                    { NodoAST *n2 = new NodoAST("Size"); NodoAST *n4 = new NodoAST((yyvsp[0].NUMERO)); n2->agregarHijo(*n4); (yyval.NODO) = n2; }
-#line 1617 "sintactico.cpp"
+#line 109 "sintactico.y"
+                                                    { NodoAST *n2 = new NodoAST("Size"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n2; }
+#line 1616 "sintactico.cpp"
     break;
 
   case 15:
-#line 111 "sintactico.y"
+#line 110 "sintactico.y"
                                                     { NodoAST *n2 = new NodoAST("Unit"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n2; }
-#line 1623 "sintactico.cpp"
+#line 1622 "sintactico.cpp"
     break;
 
   case 16:
-#line 112 "sintactico.y"
+#line 111 "sintactico.y"
                                                     { NodoAST *n2 = new NodoAST("Ruta"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n2; }
-#line 1629 "sintactico.cpp"
+#line 1628 "sintactico.cpp"
     break;
 
   case 17:
-#line 113 "sintactico.y"
+#line 112 "sintactico.y"
                                                     { NodoAST *n2 = new NodoAST("Fit");  NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n2->agregarHijo(*n4); (yyval.NODO) = n2; }
-#line 1635 "sintactico.cpp"
+#line 1634 "sintactico.cpp"
     break;
 
   case 18:
-#line 116 "sintactico.y"
+#line 115 "sintactico.y"
                         { (yyval.TEXT) = "BF"; }
-#line 1641 "sintactico.cpp"
+#line 1640 "sintactico.cpp"
     break;
 
   case 19:
-#line 117 "sintactico.y"
+#line 116 "sintactico.y"
                         { (yyval.TEXT) = "FF"; }
-#line 1647 "sintactico.cpp"
+#line 1646 "sintactico.cpp"
     break;
 
   case 20:
-#line 118 "sintactico.y"
+#line 117 "sintactico.y"
                         { (yyval.TEXT) = "WF"; }
-#line 1653 "sintactico.cpp"
+#line 1652 "sintactico.cpp"
     break;
 
   case 21:
-#line 121 "sintactico.y"
+#line 120 "sintactico.y"
                         { (yyval.TEXT) = "B"; }
-#line 1659 "sintactico.cpp"
+#line 1658 "sintactico.cpp"
     break;
 
   case 22:
-#line 122 "sintactico.y"
+#line 121 "sintactico.y"
                         { (yyval.TEXT) = "KB"; }
-#line 1665 "sintactico.cpp"
+#line 1664 "sintactico.cpp"
     break;
 
   case 23:
-#line 123 "sintactico.y"
+#line 122 "sintactico.y"
                         { (yyval.TEXT) = "MB"; }
-#line 1671 "sintactico.cpp"
+#line 1670 "sintactico.cpp"
     break;
 
   case 24:
-#line 126 "sintactico.y"
+#line 125 "sintactico.y"
                                     { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1677 "sintactico.cpp"
+#line 1676 "sintactico.cpp"
     break;
 
   case 25:
-#line 127 "sintactico.y"
-                                    { (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1683 "sintactico.cpp"
+#line 126 "sintactico.y"
+                                    { (yyval.NODO) = new NodoAST("Parametros"); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
+#line 1682 "sintactico.cpp"
     break;
 
   case 26:
-#line 130 "sintactico.y"
-                                                            { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].NUMERO)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1689 "sintactico.cpp"
+#line 129 "sintactico.y"
+                                                            { NodoAST *n1 = new NodoAST("Size"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1688 "sintactico.cpp"
     break;
 
   case 27:
-#line 131 "sintactico.y"
-                                                            { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*(yyvsp[0].TEXT)); (yyval.NODO) = n1; }
-#line 1695 "sintactico.cpp"
+#line 130 "sintactico.y"
+                                                            { NodoAST *n1 = new NodoAST("Unit"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1694 "sintactico.cpp"
     break;
 
   case 28:
-#line 132 "sintactico.y"
-                                                            { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*(yyvsp[0].TEXT)); (yyval.NODO) = n1; }
-#line 1701 "sintactico.cpp"
+#line 131 "sintactico.y"
+                                                            { NodoAST *n1 = new NodoAST("Path"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1700 "sintactico.cpp"
     break;
 
   case 29:
-#line 133 "sintactico.y"
-                                                            { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*(yyvsp[0].TEXT)); (yyval.NODO) = n1; }
-#line 1707 "sintactico.cpp"
+#line 132 "sintactico.y"
+                                                            { NodoAST *n1 = new NodoAST("Type"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1706 "sintactico.cpp"
     break;
 
   case 30:
-#line 134 "sintactico.y"
-                                                            { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*(yyvsp[0].TEXT)); (yyval.NODO) = n1; }
-#line 1713 "sintactico.cpp"
+#line 133 "sintactico.y"
+                                                            { NodoAST *n1 = new NodoAST("Fit"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1712 "sintactico.cpp"
     break;
 
   case 31:
-#line 135 "sintactico.y"
-                                                            { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*(yyvsp[0].TEXT)); (yyval.NODO) = n1; }
-#line 1719 "sintactico.cpp"
+#line 134 "sintactico.y"
+                                                            { NodoAST *n1 = new NodoAST("Delete"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1718 "sintactico.cpp"
     break;
 
   case 32:
-#line 136 "sintactico.y"
-                                                            { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1725 "sintactico.cpp"
+#line 135 "sintactico.y"
+                                                            { NodoAST *n1 = new NodoAST("Name"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1724 "sintactico.cpp"
     break;
 
   case 33:
-#line 137 "sintactico.y"
-                                                            { NoodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].NUMERO)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1731 "sintactico.cpp"
+#line 136 "sintactico.y"
+                                                            { NodoAST *n1 = new NodoAST("Add"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1730 "sintactico.cpp"
     break;
 
   case 34:
-#line 140 "sintactico.y"
+#line 139 "sintactico.y"
                         { (yyval.TEXT) = "Fast"; }
-#line 1737 "sintactico.cpp"
+#line 1736 "sintactico.cpp"
     break;
 
   case 35:
-#line 141 "sintactico.y"
+#line 140 "sintactico.y"
                         { (yyval.TEXT) = "Full"; }
-#line 1743 "sintactico.cpp"
+#line 1742 "sintactico.cpp"
     break;
 
   case 36:
-#line 144 "sintactico.y"
+#line 143 "sintactico.y"
                                 { (yyval.TEXT) = "Primaria"; }
-#line 1749 "sintactico.cpp"
+#line 1748 "sintactico.cpp"
     break;
 
   case 37:
-#line 145 "sintactico.y"
+#line 144 "sintactico.y"
                                 { (yyval.TEXT) = "Extendida"; }
-#line 1755 "sintactico.cpp"
+#line 1754 "sintactico.cpp"
     break;
 
   case 38:
-#line 146 "sintactico.y"
+#line 145 "sintactico.y"
                                 { (yyval.TEXT) = "Logica"; }
-#line 1761 "sintactico.cpp"
+#line 1760 "sintactico.cpp"
     break;
 
   case 39:
-#line 149 "sintactico.y"
+#line 148 "sintactico.y"
                                     { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1767 "sintactico.cpp"
+#line 1766 "sintactico.cpp"
     break;
 
   case 40:
-#line 150 "sintactico.y"
-                                    { (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1773 "sintactico.cpp"
+#line 149 "sintactico.y"
+                                    { (yyval.NODO) = new NodoAST("Parametros"); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
+#line 1772 "sintactico.cpp"
     break;
 
   case 41:
-#line 153 "sintactico.y"
+#line 152 "sintactico.y"
                                                             { NodoAST *n1 = new NodoAST("Path"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1779 "sintactico.cpp"
+#line 1778 "sintactico.cpp"
     break;
 
   case 42:
-#line 154 "sintactico.y"
+#line 153 "sintactico.y"
                                                             { NodoAST *n1 = new NodoAST("Name"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
-#line 1785 "sintactico.cpp"
+#line 1784 "sintactico.cpp"
     break;
 
   case 43:
-#line 157 "sintactico.y"
+#line 156 "sintactico.y"
                                 { (yyval.NODO) = (yyvsp[-1].NODO); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1791 "sintactico.cpp"
+#line 1790 "sintactico.cpp"
     break;
 
   case 44:
-#line 158 "sintactico.y"
-                                { (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
-#line 1797 "sintactico.cpp"
+#line 157 "sintactico.y"
+                                { (yyval.NODO) = new NodoAST("Parametros"); (yyval.NODO)->agregarHijo(*(yyvsp[0].NODO)); }
+#line 1796 "sintactico.cpp"
     break;
 
   case 45:
-#line 161 "sintactico.y"
-                                                        { NodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarhijo(*n4); (yyval.NODO) = n1; }
-#line 1803 "sintactico.cpp"
+#line 160 "sintactico.y"
+                                                        { NodoAST *n1 = new NodoAST("Name"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1802 "sintactico.cpp"
     break;
 
   case 46:
-#line 162 "sintactico.y"
-                                                        { NodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarhijo(*n4); (yyval.NODO) = n1; }
-#line 1809 "sintactico.cpp"
+#line 161 "sintactico.y"
+                                                        { NodoAST *n1 = new NodoAST("Path"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1808 "sintactico.cpp"
     break;
 
   case 47:
-#line 163 "sintactico.y"
-                                                        { NodoAST *n1 = new NodoAST(""); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarhijo(*n4); (yyval.NODO) = n1; }
-#line 1815 "sintactico.cpp"
+#line 162 "sintactico.y"
+                                                        { NodoAST *n1 = new NodoAST("ID"); NodoAST *n4 = new NodoAST((yyvsp[0].TEXT)); n1->agregarHijo(*n4); (yyval.NODO) = n1; }
+#line 1814 "sintactico.cpp"
     break;
 
   case 48:
-#line 166 "sintactico.y"
-                    { (yyval.TEXT) = "MBR" }
-#line 1821 "sintactico.cpp"
+#line 165 "sintactico.y"
+                    { (yyval.TEXT) = "MBR";}
+#line 1820 "sintactico.cpp"
     break;
 
   case 49:
-#line 167 "sintactico.y"
-                    { (yyval.TEXT) = "Disk" }
-#line 1827 "sintactico.cpp"
+#line 166 "sintactico.y"
+                    { (yyval.TEXT) = "Disk"; }
+#line 1826 "sintactico.cpp"
     break;
 
   case 50:
-#line 170 "sintactico.y"
+#line 169 "sintactico.y"
                         { (yyval.TEXT) = (yyvsp[0].TEXT); }
-#line 1833 "sintactico.cpp"
+#line 1832 "sintactico.cpp"
     break;
 
   case 51:
-#line 171 "sintactico.y"
+#line 170 "sintactico.y"
                         { (yyval.TEXT) = (yyvsp[0].TEXT); }
-#line 1839 "sintactico.cpp"
+#line 1838 "sintactico.cpp"
     break;
 
 
-#line 1843 "sintactico.cpp"
+#line 1842 "sintactico.cpp"
 
       default: break;
     }
@@ -2077,5 +2076,5 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 174 "sintactico.y"
+#line 173 "sintactico.y"
 
