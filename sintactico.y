@@ -112,14 +112,14 @@ OPCION_MKDISK: TK_GUION TK_SIZE TK_IGUAL TK_NUMBER  { NodoAST *n2 = new NodoAST(
              | TK_GUION TK_FIT TK_IGUAL  TIPO_FIT   { NodoAST *n2 = new NodoAST("Fit");  NodoAST *n4 = new NodoAST($4); n2->agregarHijo(*n4); $$ = n2; }
 ;
 
-TIPO_FIT: TK_BESTFIT    { $$ = "BF"; }
-        | TK_FIRSTFIT   { $$ = "FF"; }
-        | TK_WORSTFIT   { $$ = "WF"; }
+TIPO_FIT: TK_BESTFIT    { $$ = "bf"; }
+        | TK_FIRSTFIT   { $$ = "ff"; }
+        | TK_WORSTFIT   { $$ = "wf"; }
 ;
 
-TIPO_UNIT: TK_BYTES     { $$ = "B"; }
-         | TK_KYLOBYTES { $$ = "KB"; }
-         | TK_MEGABYTES { $$ = "MB"; }
+TIPO_UNIT: TK_BYTES     { $$ = "b"; }
+         | TK_KYLOBYTES { $$ = "k"; }
+         | TK_MEGABYTES { $$ = "m"; }
 ;
 
 LISTAFDISK: LISTAFDISK OPCION_FDISK { $$ = $1; $$->agregarHijo(*$2); }

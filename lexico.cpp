@@ -1061,7 +1061,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-{ printf ("Error lexico en la linea %d -> %s", linea, yytext); }
+{ printf ("Error lexico en la linea %d -> %s\n", linea, yytext); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP

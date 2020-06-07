@@ -54,7 +54,7 @@ void menu(){
             if(yyparse()==0){
                 qDebug() << "Analisis Completado";
                 Interprete *interprete = new Interprete(raiz);
-
+                interprete->ejecutar();
             }else{
                 qDebug() << "Analisis no  se pudo completar";
             }

@@ -7,6 +7,7 @@
 #include <QChar>
 #include <iostream>
 #include <structures.h>
+#include "MKDisk.h"
 
 
 class Interprete
@@ -16,9 +17,9 @@ private:
     int size;
     QString fitPredeterminadoM; // Predeterminado par MkDisk
     QString fitPredeterminadoF; //Predeterminado par FDisk
-    QChar unitPredeterminada;
+    QString unitPredeterminada;
     QString path;
-    QChar typePredeterminado;
+    QString typePredeterminado;
     QString deletePredeterminado;
     QString name;
     int add;
@@ -31,7 +32,7 @@ public:
     Interprete(NodoAST *raiz);
     void ejecutar();
     void Recorrer_Arbol(NodoAST *raiz);
-    void Opciones_Parametro(NodoAST *raiz);
+    void Opciones_Parametro(NodoAST *raiz, int tipo);
     char getFitChar(QString fit);
 };
 

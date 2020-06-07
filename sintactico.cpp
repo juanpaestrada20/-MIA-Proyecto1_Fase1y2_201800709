@@ -78,7 +78,7 @@ extern int linea;
 
 void yyerror(const char *s)
 {
-  printf("%s \n",s);
+  printf("Error Sintactico %s \n",s);
 }
 extern char yytext; //
 extern int yylex(void);
@@ -1635,37 +1635,37 @@ yyreduce:
 
   case 18:
 #line 115 "sintactico.y"
-                        { (yyval.TEXT) = "BF"; }
+                        { (yyval.TEXT) = "bf"; }
 #line 1640 "sintactico.cpp"
     break;
 
   case 19:
 #line 116 "sintactico.y"
-                        { (yyval.TEXT) = "FF"; }
+                        { (yyval.TEXT) = "ff"; }
 #line 1646 "sintactico.cpp"
     break;
 
   case 20:
 #line 117 "sintactico.y"
-                        { (yyval.TEXT) = "WF"; }
+                        { (yyval.TEXT) = "wf"; }
 #line 1652 "sintactico.cpp"
     break;
 
   case 21:
 #line 120 "sintactico.y"
-                        { (yyval.TEXT) = "B"; }
+                        { (yyval.TEXT) = "b"; }
 #line 1658 "sintactico.cpp"
     break;
 
   case 22:
 #line 121 "sintactico.y"
-                        { (yyval.TEXT) = "KB"; }
+                        { (yyval.TEXT) = "k"; }
 #line 1664 "sintactico.cpp"
     break;
 
   case 23:
 #line 122 "sintactico.y"
-                        { (yyval.TEXT) = "MB"; }
+                        { (yyval.TEXT) = "m"; }
 #line 1670 "sintactico.cpp"
     break;
 

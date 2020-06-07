@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-
+#include <time.h>
 using namespace std;
 
 typedef struct Partition{
@@ -13,12 +13,12 @@ typedef struct Partition{
     char fit;
     int start;
     int size;
-    char name [16];
+    char name[16];
 } MBR_Part;
 
 typedef struct MasterBootRecord{
     int size;
-    string creation_time;
+    time_t creation_time;
     int  disk_signature;
     char disk_fit;
     MBR_Part partition1;
@@ -29,7 +29,7 @@ typedef struct MasterBootRecord{
 
 typedef struct ExtendedBootRecord{
     char status;
-    char fit;
+    char fit[2];
     int start;
     int size;
     int next;
