@@ -14,13 +14,14 @@ class MKDisk
 {
 public:
     int size;
-    char fit[2];
+    char fit;
     char unit;
     QString path;
     QString pathRAID;
-    MKDisk(int size, char fit[], char unit, QString path);
+    MKDisk(int size, char fit, char unit, QString path);
     void Ejecutar();
     void VerificarDirectorio(char* ruta);
+    void EstadoMBR();
     MBR MasterBootRecord;
 };
 

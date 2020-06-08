@@ -12,11 +12,10 @@
 
 using namespace std;
 
-MKDisk::MKDisk(int size, char fit[], char unit, QString path)
+MKDisk::MKDisk(int size, char fit, char unit, QString path)
 {
     this->size = size;
-    this->fit[0] = fit[0];
-    this->fit[1] = fit [1];
+    this->fit = fit;
     this->unit = unit;
     this->path = path;
 }
@@ -25,12 +24,13 @@ void MKDisk::Ejecutar(){
     char *ruta = this->path.toLocal8Bit().data();
     VerificarDirectorio(ruta);
     this->MasterBootRecord.disk_signature = rand() % 100 + 1;
-    this->MasterBootRecord.disk_fit = *this->fit;
+    this->MasterBootRecord.disk_fit = this->fit;
     this->MasterBootRecord.creation_time = time(0);
-    this->MasterBootRecord.partition1.status = 'F';
-    this->MasterBootRecord.partition2.status = 'F';
-    this->MasterBootRecord.partition3.status = 'F';
-    this->MasterBootRecord.partition4.status = 'F';
+    for(int i = 0; i < 4; i++){
+        this->MasterBootRecord.partitions[i].status = '0';
+    }
+    int s;
+
     FILE *f =fopen(path.toStdString().c_str(), "wb");
     if(f == NULL)
     {
@@ -38,13 +38,14 @@ void MKDisk::Ejecutar(){
         return;
     }
     if(this->unit == 'k'){
-        this->MasterBootRecord.size = this->size * 1024;
+        s = this->size*1024;
+        this->MasterBootRecord.size = s;
     }else{
-        this->MasterBootRecord.size = this->size * 1024*1024;
+        s = this->size*1024*1024;
+        this->MasterBootRecord.size = s;
     }
-
-    fwrite(&MasterBootRecord, sizeof(MBR), 1, f);
-
+    rewind(f);
+    fwrite(&MasterBootRecord,sizeof(MBR),1,f);
     fseek(f,MasterBootRecord.size-1,SEEK_SET);
     fwrite("\0",1,1,f);
 
@@ -57,6 +58,7 @@ void MKDisk::Ejecutar(){
     string path2 = path.toStdString().substr(0, path.size()-5);
     std::ofstream  dst(path2+"_RAID.disk",   std::ios::binary);
     dst << src.rdbuf();
+    EstadoMBR();
 
     printf("Se creo el disco de manera exitosa!\n");
 }
@@ -103,5 +105,12 @@ void MKDisk::VerificarDirectorio(char* ruta){
         }
 
     }
+}
 
+void MKDisk::EstadoMBR(){
+    printf("Crenado Master Boot Record\n");
+    printf("Tamaño: %i\n", this->MasterBootRecord.size);
+    printf("Fit: %cf\n",this->fit);
+    printf("Unidad: %c\n", this->unit);
+    printf("Path: %s\n", this->path.toStdString().c_str());
 }

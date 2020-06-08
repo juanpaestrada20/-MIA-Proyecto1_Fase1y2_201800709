@@ -12,6 +12,7 @@ public:
     QString path;
     RMDisk(QString path);
     void Ejecutar();
+    void EstadoRMDisk();
 };
 
 #endif // RMDISK_H

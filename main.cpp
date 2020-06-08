@@ -11,7 +11,7 @@
 
 #include "lexico.h"
 #include "sintactico.h"
-#include "interprete.h"
+#include "Interprete.h"
 extern int yylex(void);
 extern char *yytext;
 extern int linea;
@@ -52,6 +52,8 @@ void menu(){
                 textoAnalizar += buff + "\n";
             }
             parser(textoAnalizar);
+        }else if(entrada == "exit"){
+            return;
         }else{
             parser(entrada);
         }

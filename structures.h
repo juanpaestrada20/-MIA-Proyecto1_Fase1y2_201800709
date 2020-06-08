@@ -21,15 +21,12 @@ typedef struct MasterBootRecord{
     time_t creation_time;
     int  disk_signature;
     char disk_fit;
-    MBR_Part partition1;
-    MBR_Part partition2;
-    MBR_Part partition3;
-    MBR_Part partition4;
+    MBR_Part partitions[4];
 } MBR;
 
 typedef struct ExtendedBootRecord{
     char status;
-    char fit[2];
+    char fit;
     int start;
     int size;
     int next;

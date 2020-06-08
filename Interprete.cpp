@@ -1,4 +1,4 @@
-#include "interprete.h"
+#include "Interprete.h"
 #include "structures.h"
 #include "nodoast.h"
 #include <stdlib.h>
@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include "MKDisk.h"
 #include "RMDisk.h"
+#include "FDisk.h"
 
 using namespace std;
 
@@ -38,9 +39,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
         Opciones_Parametro(&raiz->hijos[0], 0);
         if(!this->error){
             int tam = this->size;
-            char fit[2];
-            fit[0] = this->fitPredeterminadoM.toLower().toStdString()[0];
-            fit[1] = this->fitPredeterminadoM.toLower().toStdString()[1];
+            char fit;
+            fit = this->fitPredeterminadoM.toLower().toStdString()[0];
             char unidad = this->unitPredeterminada.toLower().toStdString()[0];
             QString ruta = this->path;
 
@@ -56,9 +56,10 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
         }
         restorePred();
     } else if(tipoComando == "FDisk"){
-        Opciones_Parametro(&raiz->hijos[0], 3);
+        Opciones_Parametro(&raiz->hijos[0], 2);
         if(!this->error){
-
+            FDisk *F_Disk = new FDisk(this->size,this->unitPredeterminada.toLower().toStdString()[0], this->path, this->typePredeterminado ,this->fitPredeterminadoF, this->deletePredeterminado, this->name, this->add, this->opcion_fdisk);
+            F_Disk->Ejecutar();
         }
         restorePred();
     } else if(tipoComando == "Mount"){
@@ -80,7 +81,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         int size = 0;
         char unit = 'n';
         QString path = "";
-        char fit[] = "no";
+        char fit = '0';
         QString parametro;
 
         for(int i = 0; i < cantParametros; i++){
@@ -92,8 +93,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
          } else if(parametro == "Ruta"){
              path = raiz->hijos[i].hijos[0].valor;
          } else if(parametro == "Fit"){
-             fit[0] = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[0];
-             fit[1] = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[1];
+             fit = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[0];
          }
         }
         // si hay algun parametro obligatorio faltante
@@ -123,15 +123,15 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
                 printf("No se reconoce el tipo de unidad ingresado\n");
             }
         }
-        if(fit[0]!='n' && fit[1]!='o'){
-            if(fit[0]=='f' && fit[1]=='f'){
-                fitPredeterminadoM = fit[0] +fit[1];
+        if(fit!='0'){
+            if(fit=='f'){
+                this->fitPredeterminadoM = 'f';
             }
-            else if(fit[0]=='w' && fit[1]=='f'){
-                fitPredeterminadoM = fit[0] +fit[1];
+            else if(fit=='w'){
+                this->fitPredeterminadoM ='w';
             }
-            else if(fit[0]=='b' && fit[1]=='f'){
-                fitPredeterminadoM = fit[0] +fit[1];
+            else if(fit=='b'){
+                this->fitPredeterminadoM = 'b';
             }else{
                 this->error= true;
                 printf("No se reconoce el fit\n");
@@ -244,7 +244,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         if(type!='p'){
             if(type=='e'){
-                this->typePredeterminado = 'e'
+                this->typePredeterminado = 'e';
             }else if (type=='l'){
                 this->typePredeterminado = 'l';
             }else{
@@ -253,6 +253,20 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
             }
         }else{
             this->typePredeterminado='p';
+        }
+        if(fit[0]!='w' && fit[1]!='f'){
+            if(fit[0]=='f' && fit[1]=='f'){
+                fitPredeterminadoM = fit[0] +fit[1];
+            }
+            else if(fit[0]=='w' && fit[1]=='f'){
+                fitPredeterminadoM = fit[0] +fit[1];
+            }
+            else if(fit[0]=='b' && fit[1]=='f'){
+                fitPredeterminadoM = fit[0] +fit[1];
+            }else{
+                this->error= true;
+                printf("No se reconoce el fit\n");
+            }
         }
         break;
     }

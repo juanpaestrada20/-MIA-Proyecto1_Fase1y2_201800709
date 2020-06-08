@@ -18,18 +18,17 @@ public:
     int size;
     char unit;
     QString path;
-    char type;
-    char fit;
+    QString type;
+    QString fit;
     QString eliminar;
     QString name;
     int add;
     int opcion_exe;
-    FDisk(int size, char unit, QString path, char type, char fit, QString eliminar, QString name, int add, int opcion);
+    FDisk(int size, char unit, QString path, QString type, QString fit, QString eliminar, QString name, int add, int opcion);
     void Ejecutar();
     int asignar_size(char type);
     int buscar_primer_EBR(MBR disco_actual);
     int Espacio_disponible(MBR MBR_actual);
-    void Analizar_Fdisk(char* comando, int tamanio);
     void Estado_Fdisk();
 
     void Validar_Fdisk();
