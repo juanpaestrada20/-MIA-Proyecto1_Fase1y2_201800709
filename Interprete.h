@@ -8,6 +8,18 @@
 #include <iostream>
 #include <structures.h>
 #include "MKDisk.h"
+#include "structures.h"
+#include "nodoast.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <QString>
+#include <QDateTime>
+#include <QList>
+#include "RMDisk.h"
+#include "FDisk.h"
+#include "Mount.h"
+#include "Rep.h"
+
 
 
 class Interprete
@@ -22,6 +34,7 @@ private:
     QString typePredeterminado;
     QString deletePredeterminado;
     QString name;
+    QList<Mount> *montajes = new QList<Mount>();
     int add;
     QString ID;
     bool error;
@@ -35,6 +48,7 @@ public:
     void Opciones_Parametro(NodoAST *raiz, int tipo);
     char getFitChar(QString fit);
     void restorePred();
+    void EliminarMount(QString id);
 };
 
 #endif // INTERPRETE_H

@@ -155,7 +155,7 @@ OPCION_MOUNT: TK_GUION TK_PATH TK_IGUAL TIPO_RUTA           { NodoAST *n1 = new 
             | TK_GUION TK_NAME TK_IGUAL TK_IDENTIFICADOR    { NodoAST *n1 = new NodoAST("Name"); NodoAST *n4 = new NodoAST($4); n1->agregarHijo(*n4); $$ = n1; }
 ;
 
-LISTAREP: OPCION_REP LISTAREP   { $$ = $1; $$->agregarHijo(*$2); }
+LISTAREP: LISTAREP OPCION_REP   { $$ = $1; $$->agregarHijo(*$2); }
         | OPCION_REP            { $$ = new NodoAST("Parametros"); $$->agregarHijo(*$1); }
 ;
 
@@ -168,8 +168,9 @@ TIPO_REP: TK_MBR    { $$ = "MBR";}
         | TK_DISK   { $$ = "Disk"; }
 ;
 
-TIPO_RUTA: TK_RUTA      { $$ = $1; }
-         | TK_CADENA    { $$ = $1; }
+TIPO_RUTA: TK_RUTA              { $$ = $1; }
+         | TK_IDENTIFICADOR     { $$ = $1; }
+         | TK_CADENA            { $$ = $1; }
 ;
 
 TIPO_NUMERO: TK_NUMBER          { $$ = $1; }

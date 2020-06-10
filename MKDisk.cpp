@@ -28,6 +28,9 @@ void MKDisk::Ejecutar(){
     this->MasterBootRecord.creation_time = time(0);
     for(int i = 0; i < 4; i++){
         this->MasterBootRecord.partitions[i].status = '0';
+        this->MasterBootRecord.partitions[i].fit = '0';
+        this->MasterBootRecord.partitions[i].size= 0;
+        this->MasterBootRecord.partitions[i].start = 0;
     }
     int s;
 
@@ -108,7 +111,7 @@ void MKDisk::VerificarDirectorio(char* ruta){
 }
 
 void MKDisk::EstadoMBR(){
-    printf("Crenado Master Boot Record\n");
+    printf("Creado Master Boot Record\n");
     printf("Tamaño: %i\n", this->MasterBootRecord.size);
     printf("Fit: %cf\n",this->fit);
     printf("Unidad: %c\n", this->unit);

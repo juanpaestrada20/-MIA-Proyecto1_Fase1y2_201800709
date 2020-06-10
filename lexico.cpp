@@ -1042,7 +1042,14 @@ YY_RULE_SETUP
 case 34:
 /* rule 34 can match eol */
 YY_RULE_SETUP
-{ yylval.TEXT = strdup(yytext); return (TK_CADENA); }
+{ int j, n = strlen(yytext);
+                                for(int i=j=0; i < n; i++){
+                                    if(yytext[i] != 34){
+                                        yytext[j++] = yytext[i];
+                                    }
+                                }
+                              yytext[j] = '\0';
+                              yylval.TEXT = strdup(yytext); return (TK_CADENA); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP

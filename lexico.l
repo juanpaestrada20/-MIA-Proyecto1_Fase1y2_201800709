@@ -63,7 +63,14 @@ CADENA \"[^\"]*\"
 [-]				            { sscanf(yytext, "%s", yylval.TEXT); return (TK_GUION); }
 [=]				            { sscanf(yytext, "%s", yylval.TEXT); return (TK_IGUAL); }
 
-{CADENA}		            { yylval.TEXT = strdup(yytext); return (TK_CADENA); }
+{CADENA}		            { int j, n = strlen(yytext);
+                                for(int i=j=0; i < n; i++){
+                                    if(yytext[i] != 34){
+                                        yytext[j++] = yytext[i];
+                                    }
+                                }
+                              yytext[j] = '\0';
+                              yylval.TEXT = strdup(yytext); return (TK_CADENA); }
 
 {RUTA}          	        { yylval.TEXT = strdup(yytext); return (TK_RUTA); }
 

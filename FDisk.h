@@ -10,6 +10,12 @@
 #include <dirent.h>
 #include <QStringList>
 #include <string>
+#include <ctype.h>
+#include <stdbool.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "structures.h"
 
 class FDisk
@@ -21,10 +27,10 @@ public:
     QString type;
     QString fit;
     QString eliminar;
-    QString name;
+    string name;
     int add;
     int opcion_exe;
-    FDisk(int size, char unit, QString path, QString type, QString fit, QString eliminar, QString name, int add, int opcion);
+    FDisk(int size, char unit, QString path, QString type, QString fit, QString eliminar, string name, int add, int opcion);
     void Ejecutar();
     int asignar_size(char type);
     int buscar_primer_EBR(MBR disco_actual);
@@ -47,6 +53,8 @@ public:
 
     bool Existe_Extendida(MBR mbr);
     EBR LLenar_EBR(int inicio);
+
+    void Ruta_Raid();
 
 };
 

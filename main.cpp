@@ -12,6 +12,8 @@
 #include "lexico.h"
 #include "sintactico.h"
 #include "Interprete.h"
+
+
 extern int yylex(void);
 extern char *yytext;
 extern int linea;
@@ -41,17 +43,22 @@ void menu(){
         getline(cin, entrada);
         // por si entra el comando de exec
         if(toLower(entrada.substr(0,4)) == "exec"){
-            string ruta = entrada.substr(entrada.find("=")+1, entrada.length() - 1);
-            if(ruta[0] == '"'){
-                ruta = ruta.substr(1, ruta.length()-2);
+            if(entrada.find("-path") == string::npos){
+                printf("Debe incluir el parametro path\n");
+
+            }else{
+                string ruta = entrada.substr(entrada.find("=")+1, entrada.length() - 1);
+                if(ruta[0] == '"'){
+                    ruta = ruta.substr(1, ruta.length()-2);
+                }
+                ifstream fi(ruta);
+                string buff;
+                string textoAnalizar;
+                while(getline(fi, buff)){
+                    textoAnalizar += buff + "\n";
+                }
+                parser(textoAnalizar);
             }
-            ifstream fi(ruta);
-            string buff;
-            string textoAnalizar;
-            while(getline(fi, buff)){
-                textoAnalizar += buff + "\n";
-            }
-            parser(textoAnalizar);
         }else if(entrada == "exit"){
             return;
         }else{

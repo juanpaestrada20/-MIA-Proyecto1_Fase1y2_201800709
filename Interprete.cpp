@@ -1,15 +1,8 @@
 #include "Interprete.h"
-#include "structures.h"
-#include "nodoast.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <QString>
-#include <QDateTime>
-#include "MKDisk.h"
-#include "RMDisk.h"
-#include "FDisk.h"
+
 
 using namespace std;
+
 
 Interprete::Interprete(NodoAST *raiz)
 {
@@ -29,12 +22,15 @@ Interprete::Interprete(NodoAST *raiz)
 }
 
 void Interprete::ejecutar(){
-    Recorrer_Arbol(&raiz->hijos[0]);
+    int cantHijos = raiz->hijos.count();
+    for(int i = 0; i < cantHijos; i++){
+    Recorrer_Arbol(&raiz->hijos[i]);
+    }
 }
 
 void Interprete::Recorrer_Arbol(NodoAST *raiz){
     QString tipoComando = raiz->valor;
-
+    sleep(3);
     if(tipoComando == "MkDisk"){
         Opciones_Parametro(&raiz->hijos[0], 0);
         if(!this->error){
@@ -58,17 +54,33 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     } else if(tipoComando == "FDisk"){
         Opciones_Parametro(&raiz->hijos[0], 2);
         if(!this->error){
-            FDisk *F_Disk = new FDisk(this->size,this->unitPredeterminada.toLower().toStdString()[0], this->path, this->typePredeterminado ,this->fitPredeterminadoF, this->deletePredeterminado, this->name, this->add, this->opcion_fdisk);
+            FDisk *F_Disk = new FDisk(this->size,this->unitPredeterminada.toLower().toStdString()[0], this->path, this->typePredeterminado ,this->fitPredeterminadoF, this->deletePredeterminado, this->name.toStdString(), this->add, this->opcion_fdisk);
             F_Disk->Ejecutar();
         }
         restorePred();
     } else if(tipoComando == "Mount"){
-
+        Opciones_Parametro(&raiz->hijos[0], 3);
+        if(!this->error){
+            Mount *Montar = new Mount(this->name, this->path, this->ID.toStdString(), montajes);
+            Montar->Ejecutar();
+        }
+        restorePred();
     } else if(tipoComando == "Unmount"){
-
+        Opciones_Parametro(raiz, 4);
+        if(!this->error){
+            EliminarMount(this->ID);
+        }
+        restorePred();
     } else if(tipoComando == "Rep"){
-
+        Opciones_Parametro(&raiz->hijos[0], 5);
+        if(!this->error){
+            Rep *rep = new Rep(this->name, this->path, this->ID.toStdString(), montajes);
+            rep->Hacer_Reporte();
+        }
+        restorePred();
     } else if(tipoComando == "Exec"){
+        Opciones_Parametro(raiz, 5);
+
 
     }
 }
@@ -153,6 +165,8 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
          if(path == ""){
              printf("Debe indicar la ruta para eliminar el disco!\n");
              this->error = true;
+         }else{
+             this->path=path;
          }
         break;
     }
@@ -271,11 +285,74 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         break;
     }
     case 3:
+    {
+        int cantParametros = raiz->hijos.count();
+        QString path = "";
+        QString name = "";
+        QString parametro;
+        for(int i = 0; i < cantParametros; i++){
+            parametro=raiz->hijos[i].valor;
+         if(parametro == "Path"){
+             path = raiz->hijos[i].hijos[0].valor;
+         } else if(parametro == "Name"){
+             name = raiz->hijos[i].hijos[0].valor;
+         }
+        }
+        if(path != "" && name != ""){
+            this->path = path;
+            this->name = name;
+        }else{
+            this->error = true;
+            printf("Parametros Obligatorios no encontrados\n");
+        }
         break;
+    }
     case 4:
+    {
+        int cantParametros = raiz->hijos.count();
+        QString id = "";
+        QString parametro;
+        for(int i = 0; i < cantParametros; i++){
+            parametro=raiz->hijos[i].valor;
+         if(parametro == "ID"){
+             id = raiz->hijos[i].hijos[0].valor;
+         }
+        }
+        if(id != ""){
+            this->ID = id;
+        }else{
+            this->error = true;
+            printf("Parametros Obligatorios no encontrados\n");
+        }
         break;
+    }
     case 5:
+    {
+        int cantParametros = raiz->hijos.count();
+        QString path = "";
+        QString name = "";
+        QString id = "";
+        QString parametro;
+        for(int i = 0; i < cantParametros; i++){
+            parametro=raiz->hijos[i].valor;
+         if(parametro == "Path"){
+             path = raiz->hijos[i].hijos[0].valor;
+         } else if(parametro == "Name"){
+             name = raiz->hijos[i].hijos[0].valor;
+         } else if(parametro == "ID"){
+             id = raiz->hijos[i].hijos[0].valor;
+         }
+        }
+        if(path != "" && name != "" && id != ""){
+            this->path = path;
+            this->name = name.toLower();
+            this->ID = id;
+        }else{
+            this->error = true;
+            printf("Parametros Obligatorios no encontrados\n");
+        }
         break;
+    }
     }
 }
 
@@ -294,4 +371,22 @@ void Interprete::restorePred(){
     this->ID = "";
     this->error = false;
     this->opcion_fdisk = 0;
+}
+
+void Interprete::EliminarMount(QString id){
+    QList<Mount>::iterator it = montajes->begin();
+    bool flag = false;
+    while (it != montajes->end()) {
+        string a = it->id;
+        if(a == id.toStdString()){
+            montajes->erase(it);
+            flag = true;
+            break;
+        }else{
+            it++;
+        }
+    }
+    if(flag){
+        std::cout << "Se desmonto la particion con id: " << id.toStdString() << endl;
+    }
 }

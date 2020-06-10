@@ -18,7 +18,9 @@ SOURCES += \
         FDisk.cpp \
         Interprete.cpp \
         MKDisk.cpp \
+        Mount.cpp \
         RMDisk.cpp \
+        Rep.cpp \
         lexico.cpp \
         main.cpp \
         nodoast.cpp \
@@ -33,9 +35,11 @@ HEADERS += \
     FDisk.h \
     Interprete.h \
     MKDisk.h \
+    Mount.h \
     Objects/MBR.h \
     Objects/Partition.h \
     RMDisk.h \
+    Rep.h \
     lexico.h \
     nodoast.h \
     sintactico.h \
