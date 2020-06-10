@@ -15,9 +15,35 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp
+        FDisk.cpp \
+        Interprete.cpp \
+        MKDisk.cpp \
+        Mount.cpp \
+        RMDisk.cpp \
+        Rep.cpp \
+        lexico.cpp \
+        main.cpp \
+        nodoast.cpp \
+        sintactico.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+HEADERS += \
+    FDisk.h \
+    Interprete.h \
+    MKDisk.h \
+    Mount.h \
+    Objects/MBR.h \
+    Objects/Partition.h \
+    RMDisk.h \
+    Rep.h \
+    lexico.h \
+    nodoast.h \
+    sintactico.h \
+    structures.h
+
+DISTFILES += \
+    sintactico.output
