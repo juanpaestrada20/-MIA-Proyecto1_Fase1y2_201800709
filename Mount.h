@@ -19,18 +19,18 @@
 class Mount
 {
 public:
-    QString path;
-    QString name;
+    string path;
+    string name;
     string id;
     char letra;
     int num;
     QList<Mount> *montajes;
-    Mount(QString name, QString path, string id, QList<Mount> *montajes);
+    Mount(string name, string path, string id, QList<Mount> *montajes);
     void Ejecutar();
     bool Nombre_noRepetido(MBR mbr, FILE *disco);
-    Mount* Get_Mount(QString path);
-    string setID(QString letra, int num);
-    QString getLetra();
+    Mount* Get_Mount(string path);
+    string setID(string letra, int num);
+    string getLetra();
     bool VerificarMontaje();
 };
 

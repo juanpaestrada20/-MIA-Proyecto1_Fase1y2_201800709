@@ -20,7 +20,7 @@ void FDisk::Ejecutar(){
 
 void FDisk::Validar_Fdisk(){
     if(this->path != ""){
-        if(this->add!=0){
+        if(this->opcion_exe==1){
             //Si se cumple es que se agregara o se quitara una particion
             Particion_Add(true);
         }else if(this->eliminar != ""){
@@ -44,18 +44,275 @@ void FDisk::Validar_Fdisk(){
 }
 
 void FDisk::Particion_Add(bool raid){
+    MBR mbr;
 
+    FILE* disco;
+    disco = fopen(this->path.toStdString().c_str(),"r+b");
+
+    if(disco == NULL){
+        if(raid)
+            printf("No se puede abrir el disco, Verifique la ruta o si existe el disco\n");
+        return;
+    }
+    fread(&mbr,sizeof(MBR),1,disco);
+
+    int espacio = Calcular_Espacio_Add();
+    int posicion = 0;
+    bool encontrado = false;
+    Partition part;
+
+    for(int i=0; i<4 ;i++)
+    {
+        if( strcmp(mbr.partitions[i].name, this->name.c_str()) == 0 && mbr.partitions[i].status != '0')
+        {
+            encontrado = true;
+            posicion = i;
+
+            part = mbr.partitions[i];
+            break;
+        }
+    }
+
+    if(encontrado)//ENCONTRO LA PARTICION CON EL MISMO NOMBRE
+    {
+        if(opcion_exe == 0)//SI ES TRUE VAMOS A QUITAR ESPACIO
+        {
+            if(espacio >= part.size)//SI EL ESPACIO A QUITAR ES MAYOR AL DISPONIBLE MENSAJE ERROR
+            {
+                if(raid)
+                    printf("El espacio deseado a quitar es mas de lo hay disponible en la particion en este disco\n");
+                return;
+            }else//SI NO PUES SE PUEDE ELIMINAR EL ESPACIO
+            {
+                part.size = part.size - espacio;
+
+                mbr.partitions[posicion] = part;
+
+                rewind(disco);//REINICIO EL APUNTADOR AL INCIO DEL DISCO
+                fwrite(&mbr,sizeof(mbr),1, disco);//ACTUALIZO EL MBR
+            }
+
+
+
+        }else//SI ES FALSE VAMOS AGREGAR ESPACIO
+        {
+            if(posicion == 3)//SI ES TRUE ES PORQUE ES EL ULTIMO PEDAZO
+            {
+                int sobrante = mbr.size - (part.start + part.size);
+                if(sobrante >= espacio)
+                {
+                    part.size = part.size + espacio;
+
+                    mbr.partitions[posicion] = part;
+
+                    rewind(disco);//REINICIO EL APUNTADOR AL INCIO DEL DISCO
+                    fwrite(&mbr,sizeof(mbr),1, disco);//ACTUALIZO EL MBR
+                }else
+                {
+                    if(raid)
+                        printf("El espacio deseado a agregar es mas de lo hay disponible en la particion en este disco\n");
+
+                    return;
+                }
+
+            }else
+            {
+                //Particion siguiente = mbr.partitions[posicion + 1];
+                //int sobrante = siguiente.part_start - (part.part_start + part.part_size);
+
+                Partition siguiente;
+                int sobrante = 0;
+                int posSiguientes = posicion+1;
+
+                while(posSiguientes < 5 )
+                {
+                    if(posSiguientes == 4)//ESTE NOS INDICA QUE NO HAY, ENTONCES HAY QUE HACERLO CON EL TAMANIO DEL DISCO
+                    {
+                        sobrante = mbr.size - (part.start + part.size);
+                        break;
+                    }
+                    else
+                    {
+                        siguiente = mbr.partitions[posSiguientes++];
+
+                        if(siguiente.status != '0')//VERIFICAMOS SI HAY PARTICION
+                        {
+                            sobrante = siguiente.start - (part.start + part.size);
+                            break;
+                        }
+                    }
+
+                }
+
+
+                if(sobrante >= espacio)
+                {
+                    part.size = part.size + espacio;
+
+                    mbr.partitions[posicion] = part;
+
+                    rewind(disco);//REINICIO EL APUNTADOR AL INCIO DEL DISCO
+                    fwrite(&mbr,sizeof(mbr),1, disco);//ACTUALIZO EL MBR
+                }else
+                {
+                    if(raid)
+                        printf("El espacio deseado a agregar es mas de lo hay disponible en la particion en este disco\n");
+
+                    return;
+                }
+            }
+
+
+        }
+        if(raid)
+            printf("El espacio de la particion en este disco a sido modificado\n");
+
+    }else
+    {
+        if(raid)
+            printf("No se encontro ninguna particion con el nombre en este disco\n");
+    }
+
+    fclose(disco);
+
+    if(raid)//SI ES TRUE MODIFICO SU RAID
+    {
+        Ruta_Raid();
+        Particion_Add(false);
+    }
 }
 
 void FDisk::Particion_Delete(bool raid){
+    MBR mbr;
+    FILE *disco = fopen(this->path.toStdString().c_str(), "r+b");
+    if(disco == NULL){
+        if(raid){
+            printf("No se ha podido abrir el disco\n");
+        }
+        return;
+    }
+    fread(&mbr, sizeof (MBR), 1, disco);
+    bool encontrado = false;
+    int posicion = 0;
+    for(int i = 0; i < 4; i++){
+        if(strcmp(mbr.partitions[i].name, this->name.c_str()) == 0 && mbr.partitions[i].status != 0){
+            encontrado = true;
+            posicion = i;
+        }
+    }
+    bool bandera = true;
+    do{
 
+
+        if(this->eliminar.toStdString()[1] == 'a')//========== ELEMINACION FAST
+        {
+            if(encontrado)//ENCONTRO LA PARTICION CON EL MISMO NOMBRE
+            {
+                if(mbr.partitions[posicion].type == 'p'){
+                    mbr.partitions[posicion].status = '0';
+                    rewind(disco);
+                    fwrite(&mbr,sizeof(MBR),1,disco);
+                    if(raid){
+                        printf("Se borro la particion con el nombre en este disco\n");
+                    }
+                    bandera = false;
+                }else if(mbr.partitions[posicion].type == 'e')
+                {
+                    mbr.partitions[posicion].status = '0';
+
+                    rewind(disco);
+                    fwrite(&mbr,sizeof(MBR),1,disco);
+
+                    if(raid){
+                        printf("Se borro la particion con el nombre en este disco\n");
+                    }
+                    bandera = false;
+                }
+            }else
+            {
+                if(raid){
+                    printf("No se encontro ninguna particion con el nombre en este disco\n");
+                }
+                bandera = false;
+            }
+
+        }else if(this->eliminar.toStdString()[1] == 'u')//ELIMINACION FULL
+        {
+
+            if(encontrado)//ENCONTRO LA PARTICION CON EL MISMO NOMBRE
+            {
+                if(mbr.partitions[posicion].type == 'p')
+                {
+
+                    fseek(disco, mbr.partitions[posicion].start, SEEK_SET);
+
+                    char vaciar[mbr.partitions[posicion].size];
+
+                    fwrite(vaciar,sizeof(vaciar),mbr.partitions[posicion].size,disco);
+
+                    rewind(disco);
+
+                    mbr.partitions[posicion] = Vaciar_Particion();
+
+                    fwrite(&mbr,sizeof(MBR),1,disco);
+                    if(raid){
+                        printf("Se borro la particion con el nombre en este disco ***\n");
+                    }
+
+                }else if(mbr.partitions[posicion].type == 'e')
+                {
+
+                    fseek(disco, mbr.partitions[posicion].start, SEEK_SET);
+
+                    //fwrite(&mbr.partitions[posicion],sizeof(Particion),1,disco);
+
+                    char vaciar[mbr.partitions[posicion].size];
+
+                    fwrite(vaciar,sizeof(vaciar),mbr.partitions[posicion].size,disco);
+
+                    rewind(disco);
+
+                    mbr.partitions[posicion] = Vaciar_Particion();
+
+                    fwrite(&mbr,sizeof(MBR),1,disco);
+                    if(raid){
+                        printf("Se borro la particion con el nombre en este disco\n");
+                    }
+
+                }
+                bandera = false;
+            }else{
+
+                if(raid){
+                    printf("No se encontro ninguna particion con el nombre en este disco\n");
+                }
+                bandera = false;
+            }
+        }
+
+
+
+    }
+    while(bandera);
+
+
+    fclose(disco);
+
+    if(raid)//SI ES TRUE LO VUELVO A EJECUTAR
+    {
+
+        Ruta_Raid();
+        Particion_Delete(false);
+    }
 }
 
 void FDisk::Crear_Particion(bool raid){
     MBR mbr;
     FILE *disco = fopen(this->path.toStdString().c_str(), "r+b");
     if(disco==NULL){
-        printf("No se puedo encontrar el disco, verifique la ruta\n");
+        if(raid){
+            printf("No se puedo encontrar el disco, verifique la ruta\n");
+        }
         return;
     }
     fread(&mbr, sizeof (MBR), 1, disco);
@@ -78,7 +335,8 @@ void FDisk::Crear_Particion(bool raid){
     }
 
     if(espacioParticion && this->type != "l"){
-        printf("En el disco seleccionado no se pueden hacer mas particiones!\n");
+        if(raid)
+            printf("En el disco seleccionado no se pueden hacer mas particiones!\n");
         fclose(disco);
         return;
     }
@@ -109,18 +367,21 @@ void FDisk::Crear_Particion(bool raid){
                                 mbr.partitions[i] = LLenar_Particion(corrida);
                                 rewind(disco);
                                 fwrite(&mbr, sizeof (mbr), 1, disco);
-                                printf("Se ha creado la particion %s satisfactoriamente\n", mbr.partitions[i].name);
+                                if(raid)
+                                    printf("Se ha creado la particion %s satisfactoriamente\n", mbr.partitions[i].name);
                                 NoEspacio = true;
                                 break;
                             }else{
                                 NoEspacio = true;
-                                printf("No se pueden repetir los nombres de la particion\n");
+                                if(raid)
+                                    printf("No se pueden repetir los nombres de la particion\n");
                                 break;
                             }
                         }else{
                             if(i==3){
                                 NoEspacio = true;
-                                printf("No se puede crear la particion, el espacio no es suficiente\n");
+                                if(raid)
+                                    printf("No se puede crear la particion, el espacio no es suficiente\n");
                                 break;
                             }
                         }
@@ -131,18 +392,21 @@ void FDisk::Crear_Particion(bool raid){
                                 mbr.partitions[i] = LLenar_Particion(corrida);
                                 rewind(disco);
                                 fwrite(&mbr, sizeof (mbr), 1, disco);
-                                printf("Se creo la particion exitosamente!\n");
+                                if(raid)
+                                    printf("Se creo la particion exitosamente!\n");
 
                                 NoEspacio = true;
                                 break;
                             }else{
                                 NoEspacio = true;
-                                printf("No se pueden repetir los nombres de la particion\n");
+                                if(raid)
+                                    printf("No se pueden repetir los nombres de la particion\n");
                                 break;
                             }
                         }else{
                             NoEspacio = true;
-                            printf("No se puede crear la particion, el espacion no es suficiente\n");
+                            if(raid)
+                                printf("No se puede crear la particion, el espacio no es suficiente\n");
                             break;
                         }
                     }
@@ -202,18 +466,21 @@ void FDisk::Crear_Particion(bool raid){
                     mbr.partitions[posParticion] = LLenar_Particion(corrida);
                     rewind(disco);
                     fwrite(&mbr, sizeof (mbr), 1, disco);
-                    printf("Se ha creado la particion %s satisfactoriamente en \n", mbr.partitions[posParticion].name);
+                    if(raid)
+                        printf("Se ha creado la particion %s satisfactoriamente\n", mbr.partitions[posParticion].name);
 
                     NoEspacio = true;
                     break;
                 }else{
                     NoEspacio = true;
-                    printf("No se pueden repetir los nombres de la particion\n");
+                    if(raid)
+                        printf("No se pueden repetir los nombres de la particion\n");
                     break;
                 }
             }else{
                 NoEspacio = true;
-                printf("No se puede crear la particion, el espacio no es suficiente\n");
+                if(raid)
+                    printf("No se puede crear la particion, el espacio no es suficiente\n");
                 break;
             }
 
@@ -245,7 +512,6 @@ void FDisk::Crear_Particion(bool raid){
                     if(!bandera){
                         posParticion = i;
                         resto = mbr.size - corrida;
-                        break;
                     }
                     if(i == 3){
                         resto = mbr.size - corrida;
@@ -259,6 +525,7 @@ void FDisk::Crear_Particion(bool raid){
                     }
                 }else{
                     corrida = mbr.partitions[i].start + mbr.partitions[i].size;
+                    resto = mbr.size -corrida;
                     if(i == 3 && tamanioMayor != 0){
                         espacioParticion = true;
                         NoEspacio = true;
@@ -270,23 +537,27 @@ void FDisk::Crear_Particion(bool raid){
                     mbr.partitions[posParticion] = LLenar_Particion(corrida);
                     rewind(disco);
                     fwrite(&mbr,sizeof (mbr),1,disco);
-                    printf("Se ha creado la particion %s satisfactoriamente en \n", mbr.partitions[posParticion].name);
+                    if(raid)
+                        printf("Se ha creado la particion %s satisfactoriamente\n", mbr.partitions[posParticion].name);
 
                     NoEspacio = true;
                     break;
                 }else{
                     NoEspacio = true;
-                    printf("No se pueden repetir los nombres de la particion\n");
+                    if(raid)
+                        printf("No se pueden repetir los nombres de la particion\n");
                     break;
                 }
             }else{
                 NoEspacio = true;
-                printf("No se puede crear la particion, el espacio no es suficiente\n");
+                if(raid)
+                    printf("No se puede crear la particion, el espacio no es suficiente\n");
                 break;
             }
         }
         if(!NoEspacio){
-            printf("No se puede crear la particion\n");
+            if(raid)
+                printf("No se puede crear la particion\n");
         }
         break;
     }
@@ -316,24 +587,28 @@ void FDisk::Crear_Particion(bool raid){
                                     fseek(disco, mbr.partitions[i].start, SEEK_SET);
                                     EBR ebr = LLenar_EBR(corrida);
                                     fwrite(&ebr,sizeof (ebr), 1, disco);
-                                    printf("Se ha creado la particion extendida %s satisfactoriamente en \n", mbr.partitions[i].name);
+                                    if(raid)
+                                        printf("Se ha creado la particion extendida %s satisfactoriamente en \n", mbr.partitions[i].name);
 
                                     NoEspacio = true;
                                     break;
                                 }else{
                                     NoEspacio = true;
-                                    printf("No se puede crear la particion extendida\n");
+                                    if(raid)
+                                        printf("No se puede crear la particion extendida\n");
                                     break;
                                 }
                             }else{
                                 NoEspacio = true;
-                                printf("No se pueden repetir los nombres de la particion\n");
+                                if(raid)
+                                    printf("No se pueden repetir los nombres de la particion\n");
                                 break;
                             }
                         }else{
                             if(i==3){
                                 NoEspacio = true;
-                                printf("No se puede crear la particion extendida, el espacio no es suficiente\n");
+                                if(raid)
+                                    printf("No se puede crear la particion extendida, el espacio no es suficiente\n");
                                 break;
                             }
                         }
@@ -348,22 +623,27 @@ void FDisk::Crear_Particion(bool raid){
                                     fseek(disco, mbr.partitions[i].start, SEEK_SET);
                                     EBR ebr;
                                     fwrite(&ebr,sizeof (ebr),1,disco);
-                                    printf("Se ha creado la particion extendida %s satisfactoriamente en \n", mbr.partitions[i].name);
+                                    if(raid)
+                                        printf("Se ha creado la particion extendida %s satisfactoriamente en \n", mbr.partitions[i].name);
 
                                     NoEspacio = true;
                                 }else{
                                     NoEspacio = true;
-                                    printf("No se puede crear la particion extendida\n");
+                                    if(raid)
+                                        printf("No se puede crear la particion extendida\n");
+
                                 }
                                 break;
                             }else{
                                 NoEspacio = true;
-                                printf("No se pueden repetir los nombres de la particion\n");
+                                if(raid)
+                                    printf("No se pueden repetir los nombres de la particion\n");
                                 break;
                             }
                         }else{
                             NoEspacio = true;
-                            printf("No se puede crear la particion, el espacio no es suficiente\n");
+                            if(raid)
+                                printf("No se puede crear la particion, el espacio no es suficiente\n");
                             break;
                         }
                     }
@@ -426,22 +706,27 @@ void FDisk::Crear_Particion(bool raid){
                         fwrite(&mbr, sizeof (mbr), 1, disco);
                         fseek(disco,mbr.partitions[posParticion].start,SEEK_SET);
                         fwrite(&ebr, sizeof(ebr), 1, disco);
-                        printf("Se ha creado la particion extendida %s satisfactoriamente en \n", mbr.partitions[posParticion].name);
+
+                        if(raid)
+                            printf("Se ha creado la particion extendida %s satisfactoriamente en \n", mbr.partitions[posParticion].name);
                         NoEspacio = true;
 
                     }else{
                         NoEspacio = true;
-                        printf("No se puede crear la particion extendida\n");
+                        if(raid)
+                            printf("No se puede crear la particion extendida\n");
                         break;
                     }
                 }else{
                     NoEspacio = true;
-                    printf("No se pueden repetir los nombres de la particion\n");
+                    if(raid)
+                        printf("No se pueden repetir los nombres de la particion\n");
                     break;
                 }
             }else{
                 NoEspacio = true;
-                printf("No se puede crear la particion, el espacio no es suficiente\n");
+                if(raid)
+                    printf("No se puede crear la particion, el espacio no es suficiente\n");
                 break;
             }
 
@@ -461,7 +746,7 @@ void FDisk::Crear_Particion(bool raid){
                             bandera = true;
                             nextParticion = mbr.partitions[j].start;
                             resto = nextParticion - corrida;
-                            if(resto< tamanioMayor && sizePartition <= resto && sizePartition > 0){
+                            if(resto < tamanioMayor && sizePartition <= resto && sizePartition > 0){
                                 tamanioMayor = nextParticion - corrida;
                                 posParticion = i;
                             }else if( tamanioMayor == 0){
@@ -487,6 +772,7 @@ void FDisk::Crear_Particion(bool raid){
                     }
                 }else{
                     corrida = mbr.partitions[i].start + mbr.partitions[i].size;
+                    resto = mbr.size -corrida;
                     if(i == 3 && tamanioMayor != 0){
                         espacioParticion = true;
                         NoEspacio = true;
@@ -503,27 +789,32 @@ void FDisk::Crear_Particion(bool raid){
                         fseek(disco,mbr.partitions[posParticion].start,SEEK_SET);
                         //CERO PARA DECIR QUE NO HAY
                         fwrite(&ebr, sizeof(ebr), 1, disco);
-                        printf("Se ha creado la particion extendida %s satisfactoriamente en \n", mbr.partitions[posParticion].name);
+                        if(raid)
+                            printf("Se ha creado la particion extendida %s satisfactoriamente en \n", mbr.partitions[posParticion].name);
 
                         NoEspacio = true;
                     }else{
                         NoEspacio = true;
-                        printf("No se puede crear la particion extendida\n");
+                        if(raid)
+                            printf("El disco ya cuenta con una particion extendida\n");
                     }
                     break;
                 }else{
                     NoEspacio = true;
-                    printf("No se pueden repetir los nombres de la particion\n");
+                    if(raid)
+                        printf("No se pueden repetir los nombres de la particion\n");
                     break;
                 }
             }else{
                 NoEspacio = true;
-                printf("No se puede crear la particion, el espacio no es suficiente\n");
+                if(raid)
+                    printf("No se puede crear la particion, el espacio no es suficiente\n");
                 break;
             }
         }
-        if(NoEspacio){
-            printf("No se puede crear la particion, el espacio no es suficiente\n");
+        if(!NoEspacio){
+            if(raid)
+                printf("No se puede crear la particion, el espacio no es suficiente\n");
         }
         break;
     }
@@ -536,7 +827,7 @@ void FDisk::Crear_Particion(bool raid){
                 auxLogica = true;
                 posLogica = i;
                 break;
-                }
+            }
         }
 
         if(auxLogica){
@@ -569,9 +860,11 @@ void FDisk::Crear_Particion(bool raid){
 
                                 fseek(disco, nuevo.start, SEEK_SET);
                                 fwrite(&nuevo, sizeof(EBR), 1, disco );//AQUI ACTUALIZO EL EBR YA ESTADO
-                                printf("Se creo la particion logica %s\n", auxEBR.name);
+                                if(raid)
+                                    printf("Se creo la particion logica %s\n", auxEBR.name);
                             }else{
-                                printf("No se pudo crear la particion logica por falta de espacio!\n");
+                                if(raid)
+                                    printf("No se pudo crear la particion logica por falta de espacio!\n");
                             }
                             break;
                         }else{
@@ -583,11 +876,13 @@ void FDisk::Crear_Particion(bool raid){
                     }
                 }
             }else{
-                printf("No se pueden crear particiones con el mismo nombre\n");
+                if(raid)
+                    printf("No se pueden crear particiones con el mismo nombre\n");
             }
 
         }else{
-            printf("Se necesita crear una particion extendida anted de crear una particion logica\n");
+            if(raid)
+                printf("Se necesita crear una particion extendida anted de crear una particion logica\n");
         }
         break;
     }
@@ -659,7 +954,7 @@ Partition FDisk::LLenar_Particion(int inicio){
     p.size=Calcular_Espacio();
     memset(p.name, '\0',sizeof (p.name));
     for(int i = 0; i < (int) this->name.size(); i++){
-            p.name[i] = this->name[i];
+        p.name[i] = this->name[i];
     }
 
     return p;
@@ -673,7 +968,7 @@ EBR FDisk::LLenar_EBR(int inicio){
     r.size = 0;
     r.next = 0; //CERO PARA DECIR QUE NO HAY
     for(int i = 0; i < (int) this->name.size(); i++){
-            r.name[i] = this->name[i];
+        r.name[i] = this->name[i];
     }
     return r;
 }
@@ -698,10 +993,35 @@ void FDisk::Estado_Fdisk(){
 void FDisk::Ruta_Raid()
 {
     string pathRaid = this->path.toStdString().substr(0, path.size()-5);
+    pathRaid += "_RAID.disk";
+    this->path = QString(pathRaid.c_str());
 
-    ifstream src(path.toStdString(), std::ios::binary);
-    string path2 = path.toStdString().substr(0, path.size()-5);
-    std::ofstream  dst(path2+"_RAID.disk",   std::ios::binary);
-    dst << src.rdbuf();
+}
 
+
+int FDisk::Calcular_Espacio_Add(){
+    int r;
+        if(this->unit == 'b'){
+            r = this->add;
+        }else if(this->unit == 'k'){
+            r = this->add * 1024;
+        }else{
+            r = this->add * 1024 * 1024;
+        }
+        return r;
+}
+
+
+Partition FDisk::Vaciar_Particion(){
+    Partition r;
+
+    r.status = '0';
+    r.type = 'p';
+    r.fit = 'w';
+    r.start = 0;
+    r.size = 0;
+    for(int i = 0; i < 16; i++){
+        r.name[i] = '\0';
+    }
+    return r;
 }
