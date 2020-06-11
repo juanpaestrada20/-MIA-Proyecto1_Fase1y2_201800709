@@ -1,6 +1,6 @@
 #include "Mount.h"
 
-Mount::Mount(QString name, QString path, string id , QList<Mount> *montajes)
+Mount::Mount(string name, string path, string id , QList<Mount> *montajes)
 {
     this->name = name;
     this->path = path;
@@ -17,7 +17,7 @@ void Mount::Ejecutar(){
     }
 
     MBR mbr;
-    FILE *disco = fopen(this->path.toStdString().c_str(), "r+b");
+    FILE *disco = fopen(this->path.c_str(), "r+b");
 
     if(disco== NULL){
         printf("No se puede abrir el disco, verifique la ruta\n");
@@ -27,7 +27,6 @@ void Mount::Ejecutar(){
 
     if(Nombre_noRepetido(mbr, disco)){
         Partition part;
-        EBR ebr;
         bool bandera = false;
         for(int i=0; i<4 ;i++)
         {
@@ -42,7 +41,7 @@ void Mount::Ejecutar(){
                     break;
                 }
 
-                fseek(disco,part.size,SEEK_SET); //ME POSICIONO EN DONDE COMIENZA LAS LOGICAS
+                fseek(disco,part.start,SEEK_SET); //ME POSICIONO EN DONDE COMIENZA LAS LOGICAS
 
                 int finPart = part.size + part.start;
                 EBR ebr;
@@ -80,10 +79,10 @@ void Mount::Ejecutar(){
             if(aux->num == 0)//SI ES 0 NO ESTA EL DISCO DISCO, SI ES != 0 ESE DISCO YA ESTA
             {
                 aux->num = 1;
-                QString letra = getLetra();
+                string letra = getLetra();
                 string nombre = setID(letra,aux->num);
                 Mount *nuevo = new Mount(this->name, this->path, nombre, 0);
-                nuevo->letra=letra.toStdString()[0];
+                nuevo->letra=letra[0];
                 nuevo->num=1;
                 montajes->append(*nuevo);
                 std::cout << "Se montó la particion " << nombre << endl;
@@ -91,10 +90,10 @@ void Mount::Ejecutar(){
             }else
             {
                 int numero = aux->num+1;
-                QString letra = getLetra();
+                string letra = getLetra();
                 string nombre = setID(letra, numero);
                 Mount *nuevo = new Mount(this->name, this->path, nombre, 0);
-                nuevo->letra=letra.toStdString()[0];
+                nuevo->letra=letra[0];
                 nuevo->num=numero;
                 montajes->append(*nuevo);
                 std::cout << "Se montó la particion " << nombre << endl;
@@ -106,10 +105,10 @@ void Mount::Ejecutar(){
             if(aux->num == 0)//SI ES 0 NO ESTA EL DISCO DISCO, SI ES != 0 ESE DISCO YA ESTA
                         {
                             aux->num = 1;
-                            QString letra = getLetra();
+                            string letra = getLetra();
                             string nombre = setID(letra,aux->num);
                             Mount *nuevo = new Mount(this->name, this->path, nombre, 0);
-                            nuevo->letra=letra.toStdString()[0];
+                            nuevo->letra=letra[0];
                             nuevo->num=1;
                             montajes->append(*nuevo);
                             std::cout << "Se montó la particion " << nombre << endl;
@@ -117,10 +116,10 @@ void Mount::Ejecutar(){
                         }else
                         {
                             int numero = aux->num+1;
-                            QString letra = getLetra();
+                            string letra = getLetra();
                             string nombre = setID(letra, numero);
                             Mount *nuevo = new Mount(this->name, this->path, nombre, 0);
-                            nuevo->letra=letra.toStdString()[0];
+                            nuevo->letra=letra[0];
                             nuevo->num=numero;
                             montajes->append(*nuevo);
                             std::cout << "Se montó la particion " << nombre << endl;
@@ -139,10 +138,10 @@ bool Mount::Nombre_noRepetido(MBR mbr, FILE *disco){
         Partition part = mbr.partitions[i];
         // En el caso que la particion se expandida
         if(part.type == 'e'){
-            if(part.name == this->name.toStdString() && part.status != '0'){
+            if(part.name == this->name && part.status != '0'){
                 return true;
             }
-            fseek(disco, part.size, SEEK_SET); // Posicion donde comienzan las logicas
+            fseek(disco, part.start, SEEK_SET); // Posicion donde comienzan las logicas
             int finPart = part.size + part.start;
             EBR ebr;
             int corrida = 0;
@@ -150,7 +149,7 @@ bool Mount::Nombre_noRepetido(MBR mbr, FILE *disco){
             fread(&ebr, sizeof (EBR), 1, disco);//obtener el ebr inicial
             corrida = pesoEBR + ebr.start;
             while(corrida < finPart){
-                if(ebr.name == this->name && ebr.status != '0'){
+                if(strcmp(ebr.name, this->name.c_str())==0 && ebr.status != '0'){
                     return true;
                 }else{
                     if(ebr.next != 0){// si no hay siguiente es porque es el final de la lista
@@ -173,7 +172,7 @@ bool Mount::Nombre_noRepetido(MBR mbr, FILE *disco){
     return false;
 }
 
-Mount* Mount::Get_Mount(QString path)
+Mount* Mount::Get_Mount(string path)
 {
     Mount *aux = new Mount(this->name,this->path, "", 0);
     aux->num = 0;
@@ -196,12 +195,12 @@ Mount* Mount::Get_Mount(QString path)
     return aux;
 }
 
-string Mount::setID(QString letra, int num){
-    string r = "vd" + letra.toStdString() + std::to_string(num);
+string Mount::setID(string letra, int num){
+    string r = "vd" + letra + std::to_string(num);
     return r;
 }
 
-QString Mount::getLetra(){
+string Mount::getLetra(){
     char a = 'a';
     if(montajes->size() == 0){
         return "a";
@@ -209,18 +208,21 @@ QString Mount::getLetra(){
     QList<Mount>::iterator i;
     for(i=montajes->begin(); i!=montajes->end(); i++)
     {
-        if(i->path != this->path)
-        {
+
+        if((int)i->letra >= (int)a){
             a++;
         }
         if(i->path == this->path)
         {
-            QString letr ="";
-            letr.append(i->letra);
+            string letr ="";
+            letr = i->letra;
             return letr;
         }
+
     }
-    return QString(a);
+    string r ="";
+    r+=a;
+    return r;
 }
 
 bool Mount::VerificarMontaje(){

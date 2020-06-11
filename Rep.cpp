@@ -17,7 +17,7 @@ void Rep::Hacer_Reporte(){
     {
         if(this->id == i->id){
             bandera = true;
-            ruta = i->path.toStdString();
+            ruta = i->path;
             break;
         }
     }
@@ -52,9 +52,21 @@ void Rep::ReporteDisk(string ruta){
     }
 
     fread(&mbr,sizeof(MBR),1,disco);
+    char auxRuta[2000];
+    memset(auxRuta,'\0',sizeof(auxRuta));
+    for(int i=0;i< this->path.size();i++)
+    {
+        if(i == this->path.size() -4){
+            auxRuta[i] = '.';
+            auxRuta[i+1] = 'd';
+            auxRuta[i+2] = 'o';
+            auxRuta[i+3] = 't';
+            break;
+        }
 
-    string rutaDestino = this->id +"Disk.dot";
-    FILE *grafo = fopen(rutaDestino.c_str(), "wt");
+        auxRuta[i] = this->path.toStdString()[i];
+    }
+    FILE *grafo = fopen(auxRuta, "wt");
     if(grafo == NULL){
         printf("No se pudo crear el archivo\n");
         return;
@@ -172,6 +184,8 @@ void Rep::ReporteDisk(string ruta){
                             memset(buffer,'\0',sizeof(buffer));
                             recorrido = maxSize;
                         }
+                    }else{
+                        i--;
                     }
                 }
             }
@@ -231,13 +245,7 @@ void Rep::ReporteDisk(string ruta){
             fseek(disco, ebr.next ,SEEK_SET);
             fread(&ebr,sizeof(EBR),1,disco);
         }
-        recorrido = ext.size + ext.start; // EN TEORIA ES LA SUMA HASTA EL FINAL DE EXT
-
-        /*sprintf(buffer,"<td colspan=\"%d\" rowspan=\"2\">EBR</td>\n",2);
-            fputs(buffer,grafo);
-            memset(buffer,'\0',sizeof(buffer));*/
-
-        //int a = ((ext.part_size - ebr.part_start) * 100) / (ext.part_size + ext.part_start );
+        recorrido = ext.size + ext.start;
 
         int a = ((ext.size - acumulacion ) * 100) / maxSize ; // (SIZE_EXT - SUMA_EXT * 100)/MAXSIZE
 
@@ -260,9 +268,8 @@ void Rep::ReporteDisk(string ruta){
 
     fclose(grafo);
     fclose(disco);
-    string rutaPng = rutaDestino.substr(0,rutaDestino.size()-4) + ".png";
-    string comando = "dot -Tpng -o "+rutaDestino;
-    system(comando.c_str()); //ESTE PARA CREAR
+    sprintf(buffer,"dot -Tpng %s -O ",auxRuta);
+    system(buffer); //ESTE PARA CREAR
 
     printf("Se creo el reporte disk de %s exitosamente\n", this->id.c_str());
 }
@@ -281,14 +288,27 @@ void Rep::ReporteMBR(string ruta){
 
     fread(&mbr,sizeof(MBR),1,disco);
     fclose(disco);
+    char auxRuta[2000];
+    memset(auxRuta,'\0',sizeof(auxRuta));
+    for(int i=0;i< this->path.size();i++)
+    {
+        if(i == this->path.size() -4){
+            auxRuta[i] = '.';
+            auxRuta[i+1] = 'd';
+            auxRuta[i+2] = 'o';
+            auxRuta[i+3] = 't';
+            break;
+        }
+
+        auxRuta[i] = this->path.toStdString()[i];
+    }
 
 
-    string auxRuta = this->id +"MBR.dot";
 
     VerificarDirectorio(); //CREO LAS CARPETAS NECESARIAS
 
     FILE* grafo;
-    grafo = fopen(auxRuta.c_str(),"wt");
+    grafo = fopen(auxRuta,"wt");
 
     if(grafo == NULL){
         printf("Error al crear el archivo\n");
@@ -432,10 +452,8 @@ void Rep::ReporteMBR(string ruta){
 
     fputs("</TABLE>>];\n}",grafo);
     fclose(grafo);
-    string rutaPng = auxRuta.substr(0,auxRuta.size()-4) + ".png";
-    string comando = "dot -Tpng -o "+auxRuta;
-    system(comando.c_str()); //ESTE PARA CREAR
-    system(buffer); //ESTE PARA CREAR
+    sprintf(buffer,"dot -Tpng %s -O ",auxRuta);
+        system(buffer);
 
     printf("Se creo el reporte mbr de %s exitosamente\n", this->id.c_str());
 }

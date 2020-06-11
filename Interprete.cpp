@@ -61,7 +61,7 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     } else if(tipoComando == "Mount"){
         Opciones_Parametro(&raiz->hijos[0], 3);
         if(!this->error){
-            Mount *Montar = new Mount(this->name, this->path, this->ID.toStdString(), montajes);
+            Mount *Montar = new Mount(this->name.toStdString(), this->path.toStdString(), this->ID.toStdString(), montajes);
             Montar->Ejecutar();
         }
         restorePred();
@@ -238,6 +238,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
             }else if(deleteType != "" && add==0){
                 this->deletePredeterminado = QString(deleteType.c_str());
             }else if(deleteType == "" && add != 0){
+                this->opcion_fdisk = 1;
                 this->add = add;
             }else{
                 printf("Indique que realizara con el disco\n");
