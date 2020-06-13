@@ -23,8 +23,9 @@ NUMNEGATIVO [-][0-9]+
 IDENT [a-zA-Z_][a-zA-Z_0-9]*
 RUTA "/"[^\n\t\r" "]+
 CADENA \"[^\"]*\"
-CONTRA [a-zA-Z_0-9]+
-NOMBRE_FILE [{IDENT}][.][a-zA-Z]
+CONTRA [a-z|A-Z|_|-|0-9]+
+NOMBRE_FILE [{IDENT}\.{IDENT}]
+GUION [-|–]
 
 %%
 
@@ -62,7 +63,7 @@ NOMBRE_FILE [{IDENT}][.][a-zA-Z]
 "mbr"                       { sscanf(yytext, "%s", yylval.TEXT); return (TK_MBR); }
 "disk"                      { sscanf(yytext, "%s", yylval.TEXT); return (TK_DISK); }
 "mkfs"                      { sscanf(yytext, "%s", yylval.TEXT); return (TK_MKFS); }
-"login"                      { sscanf(yytext, "%s", yylval.TEXT); return (TK_LOGIN); }
+"login"                     { sscanf(yytext, "%s", yylval.TEXT); return (TK_LOGIN); }
 "usr"                       { sscanf(yytext, "%s", yylval.TEXT); return (TK_USR); }
 "pwd"                       { sscanf(yytext, "%s", yylval.TEXT); return (TK_PWD); }
 "logout"                    { sscanf(yytext, "%s", yylval.TEXT); return (TK_LOGOUT); }
@@ -75,7 +76,6 @@ NOMBRE_FILE [{IDENT}][.][a-zA-Z]
 "ugo"                       { sscanf(yytext, "%s", yylval.TEXT); return (TK_UGO); }
 "r"                         { sscanf(yytext, "%s", yylval.TEXT); return (TK_R); }
 "mkfile"                    { sscanf(yytext, "%s", yylval.TEXT); return (TK_MKFILE); }
-"p"                         { sscanf(yytext, "%s", yylval.TEXT); return (TK_P); }
 "cont"                      { sscanf(yytext, "%s", yylval.TEXT); return (TK_CONT); }
 "cat"                       { sscanf(yytext, "%s", yylval.TEXT); return (TK_CAT); }
 "file"                      { sscanf(yytext, "%s", yylval.TEXT); return (TK_FILE); }
@@ -94,12 +94,14 @@ NOMBRE_FILE [{IDENT}][.][a-zA-Z]
 "journaling"                { sscanf(yytext, "%s", yylval.TEXT); return (TK_JOURNALING); }
 "block"                     { sscanf(yytext, "%s", yylval.TEXT); return (TK_BLOCK); }
 "bm_inode"                  { sscanf(yytext, "%s", yylval.TEXT); return (TK_BM_INODE); }
+"bm_block"                  { sscanf(yytext, "%s", yylval.TEXT); return (TK_BM_BLOCK); }
 "tree"                      { sscanf(yytext, "%s", yylval.TEXT); return (TK_TREE); }
 "sb"                        { sscanf(yytext, "%s", yylval.TEXT); return (TK_SB); }
 "ls"                        { sscanf(yytext, "%s", yylval.TEXT); return (TK_LS); }
-"ruta"                      { sscanf(yytext, "%s", yylval.TEXT); return (TK_RUTA); }
+"ruta"                      { sscanf(yytext, "%s", yylval.TEXT); return (TK_RUTA_REP); }
+"."                         { sscanf(yytext, "%s", yylval.TEXT); return (TK_PUNTO); }
 
-[-]				            { sscanf(yytext, "%s", yylval.TEXT); return (TK_GUION); }
+{GUION}			            { yylval.TEXT = strdup(yytext); return (TK_GUION); }
 [=]				            { sscanf(yytext, "%s", yylval.TEXT); return (TK_IGUAL); }
 
 {CADENA}		            { int j, n = strlen(yytext);
@@ -110,12 +112,12 @@ NOMBRE_FILE [{IDENT}][.][a-zA-Z]
                                 }
                               yytext[j] = '\0';
                               yylval.TEXT = strdup(yytext); return (TK_CADENA); }
+{NOMBRE_FILE}               { yylval.TEXT = strdup(yytext); return (TK_FILENAME); }
 {RUTA}          	        { yylval.TEXT = strdup(yytext); return (TK_RUTA); }
-{CONTRA}          	        { yylval.TEXT = strdup(yytext); return (TK_CONTRA); }
 {IDENT}                 	{ yylval.TEXT = strdup(yytext); return (TK_IDENTIFICADOR); }
-{NOMBRE_FILE}                 	{ yylval.TEXT = strdup(yytext); return (TK_FILENAME); }
 {NUM}				        { yylval.TEXT = strdup(yytext); return (TK_NUMBER); }
 {NUMNEGATIVO}               { yylval.TEXT = strdup(yytext); return (TK_NUMBER_NEGATIVO); }
+{CONTRA}          	        { yylval.TEXT = strdup(yytext); return (TK_CONTRA); }
 "\n"				        { linea++; yycolumn = 1;}
 
 .				            { printf ("Palabra no reconocida en la linea %d -> %s\n", linea, yytext); }
