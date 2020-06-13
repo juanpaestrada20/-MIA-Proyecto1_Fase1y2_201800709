@@ -389,5 +389,7 @@ void Interprete::EliminarMount(QString id){
     }
     if(flag){
         std::cout << "Se desmonto la particion con id: " << id.toStdString() << endl;
+    }else{
+        std::cout << "No se monto la particion con id: " << id.toStdString() << endl;
     }
 }

@@ -84,7 +84,47 @@ extern int yydebug;
     TK_RUTA = 290,
     TK_IDENTIFICADOR = 291,
     TK_NUMBER = 292,
-    TK_NUMBER_NEGATIVO = 293
+    TK_NUMBER_NEGATIVO = 293,
+    TK_LOGIN = 294,
+    TK_MKFS = 295,
+    TK_USR = 296,
+    TK_PWD = 297,
+    TK_LOGOUT = 298,
+    TK_MKGRP = 299,
+    TK_RMGRP = 300,
+    TK_MKUSR = 301,
+    TK_GRP = 302,
+    TK_RMUSR = 303,
+    TK_CHMOD = 304,
+    TK_UGO = 305,
+    TK_R = 306,
+    TK_MKFILE = 307,
+    TK_CONT = 308,
+    TK_CAT = 309,
+    TK_FILE = 310,
+    TK_REM = 311,
+    TK_EDIT = 312,
+    TK_REN = 313,
+    TK_MKDIR = 314,
+    TK_CP = 315,
+    TK_MV = 316,
+    TK_DEST = 317,
+    TK_FIND = 318,
+    TK_CHOWN = 319,
+    TK_CHGRP = 320,
+    TK_PAUSE = 321,
+    TK_INODE = 322,
+    TK_JOURNALING = 323,
+    TK_BLOCK = 324,
+    TK_BM_INODE = 325,
+    TK_BM_BLOCK = 326,
+    TK_TREE = 327,
+    TK_SB = 328,
+    TK_LS = 329,
+    TK_RUTA_REP = 330,
+    TK_CONTRA = 331,
+    TK_FILENAME = 332,
+    TK_PUNTO = 333
   };
 #endif
 
@@ -92,12 +132,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 82 "sintactico.y"
+#line 149 "sintactico.y"
 
     char *TEXT;
     class NodoAST *NODO;
 
-#line 101 "sintactico.h"
+#line 141 "sintactico.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
