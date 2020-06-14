@@ -34,6 +34,14 @@ private:
     QString typePredeterminado;
     QString deletePredeterminado;
     QString name;
+    string user;
+    string pass;
+    string grupo;
+    int ugo;
+    bool recursivo;
+    bool carpetaPadre;
+    string cont;
+    string dest;
     QList<Mount> *montajes = new QList<Mount>();
     int add;
     QString ID;

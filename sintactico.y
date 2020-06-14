@@ -179,7 +179,7 @@ COMANDOS: TK_MKDISK LISTAMKDISK                                 { NodoAST *n1 = 
         | TK_CHMOD LISTACHMOD                                   { NodoAST *n1 = new NodoAST("Chmod"); n1->agregarHijo(*$2); $$ = n1; }
         | TK_MKFILE LISTAMKFILE                                 { NodoAST *n1 = new NodoAST("MkFile"); n1->agregarHijo(*$2); $$ = n1; }
         | TK_CAT TK_GUION TK_FILE TK_IGUAL TIPO_RUTA            { NodoAST *n1 = new NodoAST("Cat"); NodoAST *n2 = new NodoAST("File"); NodoAST *n3 = new NodoAST($5); n2->agregarHijo(*n3); n1->agregarHijo(*n2); n1->agregarHijo(*n2); $$ = n1; }
-        | TK_REM TK_GUION TK_PATH TK_IGUAL TIPO_RUTA            { NodoAST *n1 = new NodoAST("rem"); NodoAST *n2 = new NodoAST("Path"); NodoAST *n3 = new NodoAST($5); n2->agregarHijo(*n3); n1->agregarHijo(*n2); n1->agregarHijo(*n2); $$ = n1; }
+        | TK_REM TK_GUION TK_PATH TK_IGUAL TIPO_RUTA            { NodoAST *n1 = new NodoAST("Rem"); NodoAST *n2 = new NodoAST("Path"); NodoAST *n3 = new NodoAST($5); n2->agregarHijo(*n3); n1->agregarHijo(*n2); n1->agregarHijo(*n2); $$ = n1; }
         | TK_EDIT LISTAEDIT                                     { NodoAST *n1 = new NodoAST("Edit"); n1->agregarHijo(*$2); $$ = n1; }
         | TK_REN LISTAREN                                       { NodoAST *n1 = new NodoAST("Ren"); n1->agregarHijo(*$2); $$ = n1; }
         | TK_MKDIR LISTAMKDIR                                   { NodoAST *n1 = new NodoAST("MkDir"); n1->agregarHijo(*$2); $$ = n1; }
