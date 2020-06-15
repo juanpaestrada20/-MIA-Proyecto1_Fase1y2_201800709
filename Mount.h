@@ -25,6 +25,9 @@ public:
     char letra;
     int num;
     QList<Mount> *montajes;
+    int inicio;
+    int size;
+    char type;
     Mount(string name, string path, string id, QList<Mount> *montajes);
     void Ejecutar();
     bool Nombre_noRepetido(MBR mbr, FILE *disco);

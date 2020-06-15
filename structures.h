@@ -64,7 +64,7 @@ typedef struct InodoTable{
     time_t i_atime;
     time_t i_ctime;
     time_t i_mtime;
-}InodoTable;
+}Inodo;
 
 typedef struct Content{
     char b_name[12];

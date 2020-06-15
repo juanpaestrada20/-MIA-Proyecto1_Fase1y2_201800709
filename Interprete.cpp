@@ -88,8 +88,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     } else if(tipoComando == "MkFs"){
         Opciones_Parametro(&raiz->hijos[0], 6);
         if(!this->error){
-//            MKFS *format = new MKFS();
-//            format->Ejecutar();
+            MKFS *format = new MKFS(this->ID.toStdString(), this->typePredeterminado.toStdString(), montajes);
+            format->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Login"){
