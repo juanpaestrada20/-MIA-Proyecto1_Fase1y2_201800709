@@ -19,8 +19,9 @@
 #include "FDisk.h"
 #include "Mount.h"
 #include "Rep.h"
+#include "MKFS.h"
 
-
+extern     QList<Mount> *montajes;
 
 class Interprete
 {
@@ -42,7 +43,7 @@ private:
     bool carpetaPadre;
     string cont;
     string dest;
-    QList<Mount> *montajes = new QList<Mount>();
+
     int add;
     QString ID;
     bool error;

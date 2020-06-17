@@ -85,10 +85,10 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             rep->Hacer_Reporte();
         }
         restorePred();
-    } else if(tipoComando == "MkFs"){
+    } else if(tipoComando == "MkFS"){
         Opciones_Parametro(&raiz->hijos[0], 6);
         if(!this->error){
-            MKFS *format = new MKFS(this->ID.toStdString(), this->typePredeterminado.toStdString(), montajes);
+            MKFS *format = new MKFS(this->ID.toLower().toStdString(), this->typePredeterminado.toLower().toStdString(), montajes);
             format->Ejecutar();
         }
         restorePred();
@@ -537,9 +537,9 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         for(int i = 0; i < cantidadHijos; i++){
             string parametro = raiz->hijos[i].valor.toStdString();
             if(parametro == "Type"){
-                type = raiz->hijos[i].hijos[0].valor.toShort();
+                type = raiz->hijos[i].hijos[0].valor.toStdString();
             }else if(parametro == "ID"){
-                id = raiz->hijos[i].hijos[0].valor.toShort();
+                id = raiz->hijos[i].hijos[0].valor.toStdString();
             }
         }
         if(id!=""){

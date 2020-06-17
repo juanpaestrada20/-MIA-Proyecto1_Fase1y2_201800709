@@ -491,7 +491,7 @@ void Rep::VerificarDirectorio(){
 
         strcat(auxRuta,carpetas[i]);
 
-        struct stat st = {0};
+        struct stat st= {0};
         string str1 ="";
         if(stat(auxRuta,&st) == -1){
             str1.append("mkdir -p \'");

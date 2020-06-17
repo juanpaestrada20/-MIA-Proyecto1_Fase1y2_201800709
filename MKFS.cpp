@@ -229,6 +229,7 @@ void MKFS::Crear_Raiz(string ruta, SuperBloque sb, Mount mount){
     inodo.i_atime = time(0);
     inodo.i_type = '0';
     inodo.i_ctime = time(0);
+    inodo.i_mtime= time(0);
     inodo.i_perm = 777;
 
 
@@ -313,6 +314,8 @@ void MKFS::Crear_Raiz(string ruta, SuperBloque sb, Mount mount){
     Modificar_Count_B(&sb,mount.inicio, disco, 0, mount.size);
 
     fclose(disco);
+
+    cout << "Disco formateado en EXT3" << endl;
 }
 
 
