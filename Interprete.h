@@ -19,8 +19,10 @@
 #include "FDisk.h"
 #include "Mount.h"
 #include "Rep.h"
+#include "MKFS.h"
+#include "Login.h"
 
-
+extern QList<Mount> *montajes;
 
 class Interprete
 {
@@ -34,7 +36,15 @@ private:
     QString typePredeterminado;
     QString deletePredeterminado;
     QString name;
-    QList<Mount> *montajes = new QList<Mount>();
+    string user;
+    string pass;
+    string grupo;
+    int ugo;
+    bool recursivo;
+    bool carpetaPadre;
+    string cont;
+    string dest;
+
     int add;
     QString ID;
     bool error;

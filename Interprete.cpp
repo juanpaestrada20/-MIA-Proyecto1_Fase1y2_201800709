@@ -19,6 +19,14 @@ Interprete::Interprete(NodoAST *raiz)
     this->ID = "";
     this->error = false;
     this->opcion_fdisk = 0;
+    this->user = "";
+    this->pass = "";
+    this->grupo = "";
+    this->ugo = 0;
+    this->recursivo = false;
+    this->carpetaPadre = false;
+    this->cont = "";
+    this->dest = "";
 }
 
 void Interprete::ejecutar(){
@@ -30,7 +38,6 @@ void Interprete::ejecutar(){
 
 void Interprete::Recorrer_Arbol(NodoAST *raiz){
     QString tipoComando = raiz->valor;
-    sleep(3);
     if(tipoComando == "MkDisk"){
         Opciones_Parametro(&raiz->hijos[0], 0);
         if(!this->error){
@@ -78,15 +85,177 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             rep->Hacer_Reporte();
         }
         restorePred();
-    } else if(tipoComando == "Exec"){
-        Opciones_Parametro(raiz, 5);
-
-
+    } else if(tipoComando == "MkFS"){
+        Opciones_Parametro(&raiz->hijos[0], 6);
+        if(!this->error){
+            MKFS *format = new MKFS(this->ID.toLower().toStdString(), this->typePredeterminado.toLower().toStdString(), montajes);
+            format->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Login"){
+        Opciones_Parametro(&raiz->hijos[0], 7);
+        if(!this->error){
+            Login *login = new Login(this->user, this->pass, this->ID.toStdString());
+            login->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Logout"){
+        if(!this->error){
+//            Login *login = new Login();
+//            login->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "MkGrp"){
+        if(raiz->hijos[0].valor.toStdString() == "Name"){
+            this->grupo = raiz->hijos[0].hijos[0].valor.toStdString();
+        }else{
+            cout << "Debe indicar el nombre del grupo para agregar" << endl;
+            this->error= true;
+        }
+        if(!this->error){
+//            Login *login = new Login();
+//            login->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "RkGrp"){
+        if(raiz->hijos[0].valor.toStdString() == "Name"){
+            this->grupo = raiz->hijos[0].hijos[0].valor.toStdString();
+        }else{
+            cout << "Debe indicar el nombre del grupo para eliminar" << endl;
+            this->error= true;
+        }
+        if(!this->error){
+//            Login *login = new Login();
+//            login->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "MkUsr"){
+        Opciones_Parametro(&raiz->hijos[0], 8);
+        if(!this->error){
+//            MKUser *user = new MKUser();
+//            user->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "RmUsr"){
+        if(raiz->hijos[0].valor.toStdString() == "Usr"){
+            this->user = raiz->hijos[0].hijos[0].valor.toStdString();
+        }else{
+            cout << "Debe indicar el nombre del usuario para eliminar" << endl;
+            this->error= true;
+        }
+        if(!this->error){
+//            RMUser *user = new RMUser();
+//            user->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Chmod"){
+        Opciones_Parametro(&raiz->hijos[0], 9);
+        if(!this->error){
+//            Chmod *chmod = new Chmod();
+//            chmod->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "MKFile"){
+        Opciones_Parametro(&raiz->hijos[0], 10);
+        if(!this->error){
+//            MKFile *mkfile = new MKFile();
+//            mkfile->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Cat"){
+        if(raiz->hijos[0].valor.toStdString() == "File"){
+            this->path = raiz->hijos[0].hijos[0].valor;
+        }else{
+            cout << "Debe indicar la ruta del archivo" << endl;
+            this->error= true;
+        }
+        if(!this->error){
+//            Cat *cat = new Cat();
+//            cat->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Rem"){
+        if(raiz->hijos[0].valor.toStdString() == "Path"){
+            this->path = raiz->hijos[0].hijos[0].valor;
+        }else{
+            cout << "Debe indicar el nombre del usuario para eliminar" << endl;
+            this->error= true;
+        }
+        if(!this->error){
+//            Rem *rem = new Rem();
+//            rem->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Edit"){
+        Opciones_Parametro(&raiz->hijos[0], 11);
+        if(!this->error){
+//            Edit *edit = new Edit();
+//            edit->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Ren"){
+        Opciones_Parametro(&raiz->hijos[0], 12);
+        if(!this->error){
+//            Edit *edit = new Edit();
+//            edit->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "MkDir"){
+        Opciones_Parametro(&raiz->hijos[0], 13);
+        if(!this->error){
+//            Edit *edit = new Edit();
+//            edit->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Cp"){
+        Opciones_Parametro(&raiz->hijos[0], 14);
+        if(!this->error){
+//            Edit *edit = new Edit();
+//            edit->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Mv"){
+        Opciones_Parametro(&raiz->hijos[0], 14);
+        if(!this->error){
+//            Edit *edit = new Edit();
+//            edit->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Find"){
+        Opciones_Parametro(&raiz->hijos[0], 12);
+        if(!this->error){
+//            Edit *edit = new Edit();
+//            edit->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Chown"){
+        Opciones_Parametro(&raiz->hijos[0], 15);
+        if(!this->error){
+//            Edit *edit = new Edit();
+//            edit->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "ChGrp"){
+        Opciones_Parametro(&raiz->hijos[0], 16);
+        if(!this->error){
+//            Edit *edit = new Edit();
+//            edit->Ejecutar();
+        }
+        restorePred();
+    }else if (tipoComando == "Pause"){
+        if(!this->error){
+//            Edit *edit = new Edit();
+//            edit->Ejecutar();
+        }
+        restorePred();
     }
+
+
 }
 
 void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
     switch (tipo) {
+    // MkDisk
     case 0:
     {
         int cantParametros = raiz->hijos.count();
@@ -151,6 +320,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
+    // RmDisk
     case 1:
     {
         int cantParametros = raiz->hijos.count();
@@ -170,6 +340,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
          }
         break;
     }
+    // FDisk
     case 2:
     {
         int cantParametros = raiz->hijos.count();
@@ -285,6 +456,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
+    // Mount
     case 3:
     {
         int cantParametros = raiz->hijos.count();
@@ -308,6 +480,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
+    // Unmount
     case 4:
     {
         int cantParametros = raiz->hijos.count();
@@ -327,6 +500,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
+    // Rep
     case 5:
     {
         int cantParametros = raiz->hijos.count();
@@ -354,6 +528,295 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
+    // MkFS
+    case 6:
+    {
+        int cantidadHijos = raiz->hijos.count();
+        string type = "";
+        string id = "";
+        for(int i = 0; i < cantidadHijos; i++){
+            string parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Type"){
+                type = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "ID"){
+                id = raiz->hijos[i].hijos[0].valor.toStdString();
+            }
+        }
+        if(id!=""){
+            this->ID = QString(id.c_str());
+        }else{
+            this->error = true;
+            cout << "Parametros obligatorios incompletos!" << endl;
+        }
+        if(type != ""){
+            this->typePredeterminado = QString(type.c_str());
+        }else{
+            this->typePredeterminado = "full";
+        }
+        break;
+    }
+    //Login
+    case 7:
+    {
+        int cantidadHijos = raiz->hijos.count();
+        string user;
+        string pass;
+        string id;
+        for(int i = 0; i < cantidadHijos; i++){
+            string parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Usr"){
+                user = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "Pwd"){
+                pass = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "ID"){
+                id = raiz->hijos[i].hijos[0].valor.toStdString();
+            }
+        }
+
+        if(id != "" && pass != "" && user != ""){
+            this->user = user;
+            this->pass = pass;
+            this->ID = QString(id.c_str());
+        }else{
+            this->error = true;
+            cout << "Parametros Obligatorios faltantes" << endl;
+        }
+        break;
+    }
+    //MkUsr
+    case 8:
+    {
+        int cantidadHijos = raiz->hijos.count();
+        string user = "";
+        string pass = "";
+        string grupo = "";
+        string parametro = "";
+        for(int i = 0; i < cantidadHijos; i++){
+            parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Usr"){
+                user = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if( parametro == "Pwd"){
+                pass = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "Grp"){
+                grupo = raiz->hijos[i].hijos[0].valor.toStdString();
+            }
+        }
+
+        if(user != "" && pass != "" && grupo != ""){
+            this->user = user;
+            this->pass = pass;
+            this->grupo = grupo;
+        }else{
+            cout << "Debe ingresar los parametros necersarios" << endl;
+            this->error = true;
+        }
+        break;
+    }
+    // Chmod
+    case 9:
+    {
+        int cantidadHijos = raiz->hijos.count();
+        string path = "";
+        int ugo = -1;
+        bool recursivo = false;
+        string parametro ="";
+        for( int i = 0; i < cantidadHijos; i++){
+            parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "Ugo"){
+                ugo = raiz->hijos[i].hijos[0].valor.toInt();
+            }else if(parametro == "R"){
+                recursivo = true;
+            }
+        }
+
+        if(path != "" && ugo > -1){
+            this->path = QString(path.c_str());
+            this->ugo = ugo;
+            this->recursivo = recursivo;
+        }else{
+            cout << "Falta de parametros obligatorios" << endl;
+            this->error = true;
+        }
+        break;
+    }
+    // MkFile
+    case 10:
+    {
+        int cantHijos = raiz->hijos.count();
+        string path = "";
+        bool carpetaPadre = false;
+        int size = 0;
+        string cont = "";
+        string parametro = "";
+
+        for(int i = 0; i < cantHijos; i++){
+            parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "Size"){
+                size = raiz->hijos[i].hijos[0].valor.toInt();
+            }else if(parametro == "Cont"){
+                cont = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "P"){
+                carpetaPadre = true;
+            }
+        }
+        if(path != ""){
+            this->path = QString(path.c_str());
+            this->size = size;
+            this->cont = cont;
+            this->carpetaPadre = carpetaPadre;
+        }else{
+            cout << "Debe indicar la ruta donde se creara el archivo" << endl;
+        }
+
+        break;
+    }
+    // Edit
+    case 11:
+    {
+        int cantHijos = raiz->hijos.count();
+        string path = "";
+        string cont = "";
+        for(int i = 0; i < cantHijos; i++){
+            string parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "Cont"){
+                cont = raiz->hijos[i].hijos[0].valor.toStdString();
+            }
+        }
+        if(path != "" && cont != ""){
+            this->path = QString(path.c_str());
+            this->cont = cont;
+        }else{
+            cout << "Parametros obligatorios faltantes" << endl;
+            this->error = true;
+        }
+        break;
+    }
+    // Ren y find
+    case 12:
+    {
+        int cantHijos = raiz->hijos.count();
+        string path = "";
+        string name = "";
+        for(int i = 0; i < cantHijos; i++){
+            string parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "Name"){
+                name = raiz->hijos[i].hijos[0].valor.toStdString();
+            }
+        }
+        if(name != "" && path != ""){
+            this->path = QString(path.c_str());
+            this->name = QString(name.c_str());
+        }else{
+            cout << "Parametros obligatorios faltantes" << endl;
+            this->error = true;
+        }
+        break;
+    }
+    // MkDir
+    case 13:
+    {
+        int cantHijos = raiz->hijos.count();
+        string path = "";
+        bool carpetaPadre = false;
+        for(int i = 0; i < cantHijos; i++){
+            string parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "P"){
+                carpetaPadre = true;
+            }
+        }
+        if(path != ""){
+            this->path = QString(path.c_str());
+            this->carpetaPadre = carpetaPadre;
+        }else{
+            cout << "Parametros obligatorios faltantes" << endl;
+            this->error = true;
+        }
+        break;
+    }
+    // cp y mv
+    case 14:
+    {
+        int cantHijos = raiz->hijos.count();
+        string path = "";
+        string dest = "";
+        for(int i = 0; i < cantHijos; i++){
+            string parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "Dest"){
+                dest = raiz->hijos[i].hijos[0].valor.toStdString();
+            }
+        }
+        if(dest != "" && path != ""){
+            this->path = QString(path.c_str());
+            this->dest = dest;
+        }else{
+            cout << "Parametros obligatorios faltantes" << endl;
+            this->error = true;
+        }
+        break;
+    }
+    // chown
+    case 15:
+    {
+        int cantHijos = raiz->hijos.count();
+        string path = "";
+        string user = "";
+        bool recursivo = false;
+        for(int i = 0; i < cantHijos; i++){
+            string parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "Usr"){
+                user = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "R"){
+                recursivo = true;
+            }
+        }
+        if(user != "" && path != ""){
+            this->path = QString(path.c_str());
+            this->user = user;
+            this->recursivo = recursivo;
+        }else{
+            cout << "Parametros obligatorios faltantes" << endl;
+            this->error = true;
+        }
+        break;
+    }
+    // chgrp
+    case 16:
+    {
+        int cantHijos = raiz->hijos.count();
+        string user = "";
+        string grupo = "";
+        for(int i = 0; i < cantHijos; i++){
+            string parametro = raiz->hijos[i].valor.toStdString();
+            if(parametro == "Usr"){
+                user = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "Grp"){
+                grupo = raiz->hijos[i].hijos[0].valor.toStdString();
+            }
+        }
+        if(user != "" && grupo != ""){
+            this->user = user;
+            this->grupo = grupo;
+        }else{
+            cout << "Parametros obligatorios faltantes" << endl;
+            this->error = true;
+        }
+        break;
+    }
+
     }
 }
 
@@ -372,6 +835,14 @@ void Interprete::restorePred(){
     this->ID = "";
     this->error = false;
     this->opcion_fdisk = 0;
+    this->user = "";
+    this->pass = "";
+    this->grupo = "";
+    this->ugo = 0;
+    this->recursivo = false;
+    this->carpetaPadre = false;
+    this->cont = "";
+    this->dest = "";
 }
 
 void Interprete::EliminarMount(QString id){

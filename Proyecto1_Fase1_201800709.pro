@@ -17,7 +17,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         FDisk.cpp \
         Interprete.cpp \
+        Login.cpp \
+        MKDir.cpp \
         MKDisk.cpp \
+        MKFS.cpp \
         Mount.cpp \
         RMDisk.cpp \
         Rep.cpp \
@@ -34,7 +37,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     FDisk.h \
     Interprete.h \
+    Login.h \
+    MKDir.h \
     MKDisk.h \
+    MKFS.h \
     Mount.h \
     Objects/MBR.h \
     Objects/Partition.h \

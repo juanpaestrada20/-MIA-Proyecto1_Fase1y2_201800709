@@ -20,6 +20,9 @@ extern int linea;
 extern FILE *yyin;
 extern int yyparse(void);
 extern NodoAST *raiz;
+bool login = false;
+Sesion daLoguer;
+QList<Mount> *montajes = new QList<Mount>();
 
 using namespace std;
 

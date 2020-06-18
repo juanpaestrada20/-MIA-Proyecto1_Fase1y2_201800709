@@ -84,6 +84,9 @@ void Mount::Ejecutar(){
                 Mount *nuevo = new Mount(this->name, this->path, nombre, 0);
                 nuevo->letra=letra[0];
                 nuevo->num=1;
+                nuevo->inicio=part.start;
+                nuevo->size = part.size;
+                nuevo->type = part.type;
                 montajes->append(*nuevo);
                 std::cout << "Se montó la particion " << nombre << endl;
 
@@ -95,6 +98,10 @@ void Mount::Ejecutar(){
                 Mount *nuevo = new Mount(this->name, this->path, nombre, 0);
                 nuevo->letra=letra[0];
                 nuevo->num=numero;
+                nuevo->inicio=part.start;
+                nuevo->size = part.size;
+                nuevo->type = part.type;
+                montajes->append(*nuevo);
                 montajes->append(*nuevo);
                 std::cout << "Se montó la particion " << nombre << endl;
 
@@ -110,6 +117,10 @@ void Mount::Ejecutar(){
                             Mount *nuevo = new Mount(this->name, this->path, nombre, 0);
                             nuevo->letra=letra[0];
                             nuevo->num=1;
+                            nuevo->inicio=part.start;
+                            nuevo->size = part.size;
+                            nuevo->type = part.type;
+                            montajes->append(*nuevo);
                             montajes->append(*nuevo);
                             std::cout << "Se montó la particion " << nombre << endl;
 
@@ -121,6 +132,10 @@ void Mount::Ejecutar(){
                             Mount *nuevo = new Mount(this->name, this->path, nombre, 0);
                             nuevo->letra=letra[0];
                             nuevo->num=numero;
+                            nuevo->inicio=part.start;
+                            nuevo->size = part.size;
+                            nuevo->type = part.type;
+                            montajes->append(*nuevo);
                             montajes->append(*nuevo);
                             std::cout << "Se montó la particion " << nombre << endl;
 
@@ -227,7 +242,6 @@ string Mount::getLetra(){
 
 bool Mount::VerificarMontaje(){
     QList<Mount>::iterator i;
-    i=i+1;
     for(i = montajes->begin(); i!=montajes->end(); i++ )
     {
         if(i->path == path && i->name == this->name)
