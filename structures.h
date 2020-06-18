@@ -89,22 +89,25 @@ typedef struct Journal{
     char peration[256];
 } Journal;
 
-typedef struct{
-    int id_user;
-    int id_grp;
-    int inicioSuper;
-    int inicioJournal;
-    int tipo_sistema;
-    char *direccion;
-    char fit;
-}Sesion;
 
-typedef struct{
+typedef struct Usuario{
     int id_usr;
     int id_grp;
     char username[12];
     char password[12];
     char group[12];
+    char id[12];
 }Usuario;
+
+typedef struct UsuarioLogguedo{
+    int id_user;
+    int id_grp;
+    int inicioSuper;
+    int inicioJournal;
+    int tipo_sistema;
+    string direccion;
+    char fit;
+}Sesion;
+
 
 #endif // STRUCTURES_H

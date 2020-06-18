@@ -20,8 +20,9 @@
 #include "Mount.h"
 #include "Rep.h"
 #include "MKFS.h"
+#include "Login.h"
 
-extern     QList<Mount> *montajes;
+extern QList<Mount> *montajes;
 
 class Interprete
 {

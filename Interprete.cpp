@@ -95,8 +95,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     }else if (tipoComando == "Login"){
         Opciones_Parametro(&raiz->hijos[0], 7);
         if(!this->error){
-//            Login *login = new Login();
-//            login->Ejecutar();
+            Login *login = new Login(this->user, this->pass, this->ID.toStdString());
+            login->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Logout"){

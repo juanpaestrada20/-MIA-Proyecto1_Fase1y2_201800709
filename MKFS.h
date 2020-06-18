@@ -13,6 +13,7 @@
 #include "MKDisk.h"
 #include "Mount.h"
 
+
 using namespace std;
 
 class MKFS
@@ -30,7 +31,7 @@ public:
     void FormatFull(string);
     void FormatFast(string);
     Mount getMontaje(string);
-    void LLenar_SBlock(SuperBloque*, int, int);
+    SuperBloque LLenar_SBlock( int, int, int, int, int);
     void Crear_Raiz(string, SuperBloque, Mount);
     int Calcular_N(int);
     int Calculo_Posicion_Inodo(SuperBloque, int);

@@ -15,7 +15,6 @@
 #include <QList>
 #include <string>
 
-
 class Mount
 {
 public:

@@ -47,60 +47,108 @@ void MKFS::FormatFast(string path){
         fclose(disco);
         return;
     }
-    SuperBloque sblock;
-    fseek(disco, particionMontada.inicio, SEEK_SET);
-    fread(&sblock, sizeof (SuperBloque), 1, disco);
-    int n = Calcular_N(particionMontada.size);
-
-    if(sblock.s_block_size == 0)//SI ES VERDADERO NO HAY SUPER BLOCK, SI ES FALSE ES PORQUE YA EXITE SUPER BLOCK
-    {
-
-        LLenar_SBlock(&sblock, n,particionMontada.inicio);
-
-        char bitmap_inodo[n];       //BITMAP DE INODOS
-        memset(bitmap_inodo,'0',sizeof(bitmap_inodo));
-        char bitmap_bloque[3*n];    //BITMAP DE BLOQUES
-        memset(bitmap_bloque,'0',sizeof(bitmap_bloque));
-
-        //LLENAR LA PARTICION CON LOS INODOS, BLOQUES Y LOS BITMAP'S
-        fseek(disco,particionMontada.inicio,SEEK_SET);
-        fwrite(&sblock,sizeof(SuperBloque),1,disco);
-
-        fseek(disco,sblock.s_bm_inode_start,SEEK_SET);
-        fwrite(bitmap_inodo,sizeof(bitmap_inodo),1,disco);
-
-        fseek(disco,sblock.s_bm_block_start,SEEK_SET);
-        fwrite(bitmap_bloque,sizeof(bitmap_bloque),1,disco);
-
-    }else
-    {
-        sblock.s_first_blo = 0;
-        sblock.s_first_ino = 0;
-        sblock.s_free_blocks_count = 3 * n * sizeof(BloqueCarpeta);
-        sblock.s_free_inodes_count = n * sizeof(Inodo);
-
-
-        char bitmap_inodo[n];       //BITMAP DE INODOS
-        memset(bitmap_inodo,'0',sizeof(bitmap_inodo));
-        char bitmap_bloque[3*n];    //BITMAP DE BLOQUES
-        memset(bitmap_bloque,'0',sizeof(bitmap_bloque));
-
-
-        //LLENAR LA PARTICION CON LOS INODOS, BLOQUES Y LOS BITMAP'S
-        fseek(disco,particionMontada.inicio,SEEK_SET);
-        fwrite(&sblock,sizeof(SuperBloque),1,disco);
-
-        fseek(disco,sblock.s_bm_inode_start,SEEK_SET);
-        fwrite(bitmap_inodo,sizeof(bitmap_inodo),1,disco);
-
-        fseek(disco,sblock.s_bm_block_start,SEEK_SET);
-        fwrite(bitmap_bloque,sizeof(bitmap_bloque),1,disco);
-
+    int inicio;
+    int tamano;
+    int index = -1;
+    MBR masterboot;
+    fread(&masterboot, sizeof (MBR),1, disco);
+    for(int i = 0; i < masterboot.partitions->size; i++){
+        if(masterboot.partitions[i].status =='1'){
+            if(strcmp(masterboot.partitions[i].name, particionMontada.name.c_str()) == 0){
+                index = i;
+                break;
+            }
+        }
     }
+    inicio = masterboot.partitions[index].start;
+    tamano = masterboot.partitions[index].size;
+    int n = Calcular_N(tamano);//numero de estructuras
+    int n_bloques = 3*n;
+    int super_size = sizeof (SuperBloque);
+    int journal_size = sizeof (Journal) * n;
+    SuperBloque sblock;
+    sblock = LLenar_SBlock(n, n_bloques, super_size, journal_size, inicio);
 
-    fclose(disco);
+    Inodo inodo;
+    BloqueCarpeta bloque;
+    char buffer = '0';
+    char buffer2 = '1';
+    char buffer3 = '2';
 
-    Crear_Raiz(ruta,sblock,particionMontada);//AQUI CREO LA CARPETA RAIZ (/)
+    fseek(disco,inicio,SEEK_SET);
+        fwrite(&sblock,sizeof(SuperBloque),1,disco);
+        /*----------------BITMAP DE INODOS----------------*/
+        for(int i = 0; i < n; i++){
+            fseek(disco,sblock.s_bm_inode_start + i,SEEK_SET);
+            fwrite(&buffer,sizeof(char),1,disco);
+        }
+        /*----------bit para / y users.txt en BM----------*/
+        fseek(disco,sblock.s_bm_inode_start,SEEK_SET);
+        fwrite(&buffer2,sizeof(char),1,disco);
+        fwrite(&buffer2,sizeof(char),1,disco);
+        /*---------------BITMAP DE BLOQUES----------------*/
+        for(int i = 0; i < n_bloques; i++){
+            fseek(disco,sblock.s_bm_block_start + i,SEEK_SET);
+            fwrite(&buffer,sizeof(char),1,disco);
+        }
+        /*----------bit para / y users.txt en BM----------*/
+        fseek(disco,sblock.s_bm_block_start,SEEK_SET);
+        fwrite(&buffer2,sizeof(char),1,disco);
+        fwrite(&buffer3,sizeof(char),1,disco);
+        /*------------inodo para carpeta root-------------*/
+        inodo.i_uid = 1;
+        inodo.i_gid = 1;
+        inodo.i_size = 0;
+        inodo.i_atime = time(nullptr);
+        inodo.i_ctime = time(nullptr);
+        inodo.i_mtime = time(nullptr);
+        inodo.i_block[0] = 0;
+        for(int i = 1; i < 15;i++){
+            inodo.i_block[i] = -1;
+        }
+        inodo.i_type = '0';
+        inodo.i_perm = 664;
+        fseek(disco,sblock.s_inode_start,SEEK_SET);
+        fwrite(&inodo,sizeof(InodoTable),1,disco);
+        /*------------Bloque para carpeta root------------*/
+        strcpy(bloque.b_content[0].b_name,".");//Actual
+        bloque.b_content[0].b_inodo=0;
+
+        strcpy(bloque.b_content[1].b_name,"..");//Padre
+        bloque.b_content[1].b_inodo=0;
+
+        strcpy(bloque.b_content[2].b_name,"users.txt");
+        bloque.b_content[2].b_inodo=1;
+
+        strcpy(bloque.b_content[3].b_name,".");
+        bloque.b_content[3].b_inodo=-1;
+        fseek(disco,sblock.s_block_start,SEEK_SET);
+        fwrite(&bloque,sizeof(BloqueCarpeta),1,disco);
+        /*-------------inodo para users.txt-------------*/
+        inodo.i_uid = 1;
+        inodo.i_gid = 1;
+        inodo.i_size = 27;
+        inodo.i_atime = time(nullptr);
+        inodo.i_ctime = time(nullptr);
+        inodo.i_mtime = time(nullptr);
+        inodo.i_block[0] = 1;
+        for(int i = 1; i < 15;i++){
+            inodo.i_block[i] = -1;
+        }
+        inodo.i_type = '1';
+        inodo.i_perm = 755;
+        fseek(disco,sblock.s_inode_start + static_cast<int>(sizeof(InodoTable)),SEEK_SET);
+        fwrite(&inodo,sizeof(InodoTable),1,disco);
+        /*-------------Bloque para users.txt------------*/
+        BloqueArchivo archivo;
+        memset(archivo.b_content,0,sizeof(archivo.b_content));
+        strcpy(archivo.b_content,"1,G,root\n1,U,root,root,123\n");
+        fseek(disco,sblock.s_block_start + static_cast<int>(sizeof(BloqueCarpeta)),SEEK_SET);
+        fwrite(&archivo,sizeof(BloqueArchivo),1,disco);
+
+        cout << "Disco formateado en EXT3" << endl;
+
+        fclose(disco);
 
 }
 
@@ -116,72 +164,109 @@ void MKFS::FormatFull(string path){
         fclose(disco);
         return;
     }
-    SuperBloque sblock;
-    fseek(disco,particionMontada.inicio,SEEK_SET);
-    fread(&sblock,sizeof(SuperBloque),1,disco);//SE LEE EL DISCO CON EL TAMAÑO DEL SUPERBLOQUE
-
-    int n = Calcular_N(particionMontada.size);
-
-    if(sblock.s_block_size == 0)//SI ES VERDADERO NO HAY SUPER BLOCK, SI ES FALSE ES PORQUE YA EXITE SUPER BLOCK
-    {
-
-        LLenar_SBlock(&sblock, n,particionMontada.inicio);
-
-        char bitmap_inodo[n];       //BITMAP DE INODOS
-        memset(bitmap_inodo,'0',sizeof(bitmap_inodo));
-        char bitmap_bloque[3*n];    //BITMAP DE BLOQUES
-        memset(bitmap_bloque,'0',sizeof(bitmap_bloque));
-
-        //LLENAR LA PARTICION CON LOS INODOS, BLOQUES Y LOS BITMAP'S
-        fseek(disco,particionMontada.inicio,SEEK_SET);
-        fwrite(&sblock,sizeof(SuperBloque),1,disco);
-
-        fseek(disco,sblock.s_bm_inode_start,SEEK_SET);
-        fwrite(bitmap_inodo,sizeof(bitmap_inodo),1,disco);
-
-        fseek(disco,sblock.s_bm_block_start,SEEK_SET);
-        fwrite(bitmap_bloque,sizeof(bitmap_bloque),1,disco);
-
-    }else
-    {
-        sblock.s_first_blo = 0;
-        sblock.s_first_ino = 0;
-        sblock.s_free_blocks_count = 3 * n ;
-        sblock.s_free_inodes_count = n ;
-
-
-        char bitmap_inodo[n];       //BITMAP DE INODOS
-        memset(bitmap_inodo,'0',sizeof(bitmap_inodo));
-        char bitmap_bloque[3*n];    //BITMAP DE BLOQUES
-        memset(bitmap_bloque,'0',sizeof(bitmap_bloque));
-
-
-        //LLENAR LA PARTICION CON LOS INODOS, BLOQUES Y LOS BITMAP'S
-        fseek(disco,particionMontada.inicio,SEEK_SET);
-        fwrite(&sblock,sizeof(SuperBloque),1,disco);
-
-        fseek(disco,sblock.s_bm_inode_start,SEEK_SET);
-        fwrite(bitmap_inodo,sizeof(bitmap_inodo),1,disco);
-
-        fseek(disco,sblock.s_bm_block_start,SEEK_SET);
-        fwrite(bitmap_bloque,sizeof(bitmap_bloque),1,disco);
-
-        //LIMPIAR LAS SECCIONES DE INODOS Y BLOQUES
-        char inodo[n*sizeof(Inodo)];
-        memset(inodo,'\0',sizeof(inodo));
-        fseek(disco,sblock.s_inode_start,SEEK_SET);
-        fwrite(inodo,sizeof(inodo),1,disco);
-
-        char block[3*n*sizeof(BloqueCarpeta)];
-        memset(block,'\0',sizeof(block));
-        fseek(disco,sblock.s_block_start,SEEK_SET);
-        fwrite(block,sizeof(block),1,disco);
-
+    int inicio;
+    int tamano;
+    int index = -1;
+    MBR masterboot;
+    fread(&masterboot, sizeof (MBR),1, disco);
+    for(int i = 0; i < masterboot.partitions->size; i++){
+        if(masterboot.partitions[i].status =='1'){
+            if(strcmp(masterboot.partitions[i].name, particionMontada.name.c_str()) == 0){
+                index = i;
+                break;
+            }
+        }
     }
+    inicio = masterboot.partitions[index].start;
+    tamano = masterboot.partitions[index].size;
+    int n = Calcular_N(tamano);//numero de estructuras
+    int n_bloques = 3*n;
+    int super_size = sizeof (SuperBloque);
+    int journal_size = sizeof (Journal) * n;
+    SuperBloque sblock;
+    sblock = LLenar_SBlock(n, n_bloques, super_size, journal_size, inicio);
 
-    fclose(disco);
+    Inodo inodo;
+    BloqueCarpeta bloque;
+    char buffer = '0';
+    char buffer2 = '1';
+    char buffer3 = '2';
 
-    Crear_Raiz(ruta,sblock,particionMontada);//AQUI CREO LA CARPETA RAIZ (/)
+    fseek(disco,inicio,SEEK_SET);
+        fwrite(&sblock,sizeof(SuperBloque),1,disco);
+        /*----------------BITMAP DE INODOS----------------*/
+        for(int i = 0; i < n; i++){
+            fseek(disco,sblock.s_bm_inode_start + i,SEEK_SET);
+            fwrite(&buffer,sizeof(char),1,disco);
+        }
+        /*----------bit para / y users.txt en BM----------*/
+        fseek(disco,sblock.s_bm_inode_start,SEEK_SET);
+        fwrite(&buffer2,sizeof(char),1,disco);
+        fwrite(&buffer2,sizeof(char),1,disco);
+        /*---------------BITMAP DE BLOQUES----------------*/
+        for(int i = 0; i < n_bloques; i++){
+            fseek(disco,sblock.s_bm_block_start + i,SEEK_SET);
+            fwrite(&buffer,sizeof(char),1,disco);
+        }
+        /*----------bit para / y users.txt en BM----------*/
+        fseek(disco,sblock.s_bm_block_start,SEEK_SET);
+        fwrite(&buffer2,sizeof(char),1,disco);
+        fwrite(&buffer3,sizeof(char),1,disco);
+        /*------------inodo para carpeta root-------------*/
+        inodo.i_uid = 1;
+        inodo.i_gid = 1;
+        inodo.i_size = 0;
+        inodo.i_atime = time(nullptr);
+        inodo.i_ctime = time(nullptr);
+        inodo.i_mtime = time(nullptr);
+        inodo.i_block[0] = 0;
+        for(int i = 1; i < 15;i++){
+            inodo.i_block[i] = -1;
+        }
+        inodo.i_type = '0';
+        inodo.i_perm = 664;
+        fseek(disco,sblock.s_inode_start,SEEK_SET);
+        fwrite(&inodo,sizeof(InodoTable),1,disco);
+        /*------------Bloque para carpeta root------------*/
+        strcpy(bloque.b_content[0].b_name,".");//Actual
+        bloque.b_content[0].b_inodo=0;
+
+        strcpy(bloque.b_content[1].b_name,"..");//Padre
+        bloque.b_content[1].b_inodo=0;
+
+        strcpy(bloque.b_content[2].b_name,"users.txt");
+        bloque.b_content[2].b_inodo=1;
+
+        strcpy(bloque.b_content[3].b_name,".");
+        bloque.b_content[3].b_inodo=-1;
+        fseek(disco,sblock.s_block_start,SEEK_SET);
+        fwrite(&bloque,sizeof(BloqueCarpeta),1,disco);
+        /*-------------inodo para users.txt-------------*/
+        inodo.i_uid = 1;
+        inodo.i_gid = 1;
+        inodo.i_size = 27;
+        inodo.i_atime = time(nullptr);
+        inodo.i_ctime = time(nullptr);
+        inodo.i_mtime = time(nullptr);
+        inodo.i_block[0] = 1;
+        for(int i = 1; i < 15;i++){
+            inodo.i_block[i] = -1;
+        }
+        inodo.i_type = '1';
+        inodo.i_perm = 755;
+        fseek(disco,sblock.s_inode_start + static_cast<int>(sizeof(InodoTable)),SEEK_SET);
+        fwrite(&inodo,sizeof(InodoTable),1,disco);
+        /*-------------Bloque para users.txt------------*/
+        BloqueArchivo archivo;
+        memset(archivo.b_content,0,sizeof(archivo.b_content));
+        strcpy(archivo.b_content,"1,G,root\n1,U,root,root,123\n");
+        fseek(disco,sblock.s_block_start + static_cast<int>(sizeof(BloqueCarpeta)),SEEK_SET);
+        fwrite(&archivo,sizeof(BloqueArchivo),1,disco);
+
+        cout << "Disco formateado en EXT3" << endl;
+
+        fclose(disco);
+
 }
 
 Mount MKFS::getMontaje(string id){
@@ -205,7 +290,7 @@ int MKFS::Calcular_N(int size){
     int tam_block = sizeof(BloqueCarpeta);
 
     int operador = (size - tam_SuperBlock);
-    int denominador = 1 + tam_journling + 3 + tam_inodo + 3*tam_block;
+    int denominador = 4 + tam_journling  + tam_inodo + 3*tam_block;
     int n = floor(operador / denominador);
 
     return n;
@@ -230,14 +315,14 @@ void MKFS::Crear_Raiz(string ruta, SuperBloque sb, Mount mount){
     inodo.i_type = '0';
     inodo.i_ctime = time(0);
     inodo.i_mtime= time(0);
-    inodo.i_perm = 777;
+    inodo.i_perm = 664;
 
 
     memset(inodo.i_block,-1,sizeof(inodo.i_block));
 
     inodo.i_block[0] = 0;
 
-    fseek(disco, Calculo_Posicion_Inodo(sb,0),SEEK_SET);
+    fseek(disco, sb.s_inode_start,SEEK_SET);
     fwrite(&inodo, sizeof(Inodo), 1 ,  disco);
 
 
@@ -256,26 +341,27 @@ void MKFS::Crear_Raiz(string ruta, SuperBloque sb, Mount mount){
     strcpy(b_carpeta.b_content[1].b_name, "..");
     b_carpeta.b_content[1].b_inodo = 0;
 
+    memset(b_carpeta.b_content[2].b_name,'\0',sizeof(b_carpeta.b_content[1].b_name));
+    strcpy(b_carpeta.b_content[2].b_name, "users.txt");
+    b_carpeta.b_content[2].b_inodo = 0;
 
-    fseek(disco, Calculo_Posicion_Block(sb,0) ,SEEK_SET);
+    memset(b_carpeta.b_content[3].b_name,'\0',sizeof(b_carpeta.b_content[1].b_name));
+    strcpy(b_carpeta.b_content[3].b_name, ".");
+    b_carpeta.b_content[3].b_inodo = -1;
+
+    fseek(disco, sb.s_block_start ,SEEK_SET);
     fwrite(&b_carpeta, sizeof(BloqueCarpeta), 1 ,  disco);
-
-    Marcar_BitMap_I(sb.s_bm_inode_start,mount.size, disco, '1', 0);
-    Marcar_BitMap_B(sb.s_bm_block_start,mount.size, disco, '1', 0);
-
-    Modificar_Count_I(&sb,mount.inicio, disco, 0,mount.size);
-    Modificar_Count_B(&sb,mount.inicio, disco, 0, mount.size);
 
     // Inodo para el archivo txt
     Inodo inodoA;
     inodoA.i_uid = 1;
     inodoA.i_gid = 1;
-    inodoA.i_size = 52;
+    inodoA.i_size = 27;
     inodoA.i_atime = time(0);
     inodoA.i_ctime = time(0);
     inodoA.i_mtime = time(0);
     inodoA.i_type = '1';
-    inodoA.i_perm = 777;
+    inodoA.i_perm = 755;
 
     memset(inodoA.i_block,-1,sizeof(inodoA.i_block));
 
@@ -283,35 +369,17 @@ void MKFS::Crear_Raiz(string ruta, SuperBloque sb, Mount mount){
     inodoA.i_block[0] = 1;
 
 
-    fseek(disco, Calculo_Posicion_Inodo(sb,1) ,SEEK_SET);
+    fseek(disco, sb.s_inode_start + sizeof (Inodo),SEEK_SET);
     fwrite(&inodoA,sizeof(Inodo),1,disco);
-
-    // Actualizar inodos
-    Marcar_BitMap_I(sb.s_bm_inode_start,mount.size, disco, '1', 1);
-    Modificar_Count_I(&sb,mount.inicio,disco,0,mount.size);
-
-
-    //Enlazar inodo nuevo
-    memset(b_carpeta.b_content[2].b_name,'\0',sizeof(b_carpeta.b_content[0].b_name));
-    strcpy(b_carpeta.b_content[2].b_name, "users.txt");
-    b_carpeta.b_content[2].b_inodo = 1;
-
-    fseek(disco, Calculo_Posicion_Block(sb,0) ,SEEK_SET);
-    fwrite(&b_carpeta, sizeof(BloqueCarpeta), 1 ,  disco);
-
 
     // Crear Bloque Archivo
     BloqueArchivo b_archivo;
     memset(b_archivo.b_content,'\0',sizeof(b_archivo.b_content));
 
-    strcpy(b_archivo.b_content , "1,G,root      \n1,U,root      ,root      ,123       \n");
+    strcpy(b_archivo.b_content , "1,G,root\n1,U,root,root,123\n");
 
-    fseek(disco, Calculo_Posicion_Block(sb,1) ,SEEK_SET);
+    fseek(disco,sb.s_block_start + sizeof (BloqueCarpeta) ,SEEK_SET);
     fwrite(&b_archivo, sizeof(BloqueArchivo), 1 ,  disco);
-
-    //Actualizar Bloque archivos
-    Marcar_BitMap_B(sb.s_bm_block_start,mount.size, disco, '2', 1);
-    Modificar_Count_B(&sb,mount.inicio, disco, 0, mount.size);
 
     fclose(disco);
 
@@ -319,24 +387,27 @@ void MKFS::Crear_Raiz(string ruta, SuperBloque sb, Mount mount){
 }
 
 
-void MKFS::LLenar_SBlock(SuperBloque *sb, int n, int inicio){
-    sb->s_filesystem_type = 3;
-    sb->s_inodes_count = n ;
-    sb->s_blocks_count = 3 * n ;
-    sb->s_free_blocks_count = 3 * n ;
-    sb->s_free_inodes_count = n ;
-    sb->s_mtime = time(0);
-    sb->s_umtime = time(0);
-    sb->s_mnt_count = sb->s_mnt_count +1;
-    sb->s_magic = 61267 ;
-    sb->s_inode_size = sizeof(Inodo);
-    sb->s_block_size = sizeof(BloqueCarpeta);
-    sb->s_first_ino = 0;
-    sb->s_first_blo = 0;
-    sb->s_bm_inode_start = inicio + sizeof(SuperBloque)+ 1 + (n * sizeof(Journal)) +1;
-    sb->s_bm_block_start = sb->s_bm_inode_start + n + 1 ;
-    sb->s_inode_start = sb->s_bm_block_start + (3*n) + 1 ;
-    sb->s_block_start = sb->s_inode_start + n * sizeof(Inodo) +1 ;
+SuperBloque MKFS::LLenar_SBlock(int num_estructuras, int num_bloques, int super_size, int journal_size, int inicio){
+    SuperBloque super;
+    super.s_filesystem_type = 3;
+    super.s_inodes_count = num_estructuras;
+    super.s_blocks_count = num_bloques;
+    super.s_free_blocks_count = num_bloques - 2;
+    super.s_free_inodes_count = num_estructuras - 2;
+    super.s_mtime = time(nullptr);
+    super.s_umtime = 0;
+    super.s_mnt_count = 0;
+    super.s_magic = 0xEF53;
+    super.s_inode_size = sizeof(InodoTable);
+    super.s_block_size = sizeof(BloqueArchivo);
+    super.s_first_ino = 2;
+    super.s_first_blo = 2;
+    super.s_bm_inode_start = inicio + super_size + journal_size;
+    super.s_bm_block_start = inicio + super_size + journal_size + num_estructuras;
+    super.s_inode_start = inicio + super_size + journal_size + num_estructuras + num_bloques;
+    super.s_block_start = inicio + super_size + journal_size + num_estructuras + num_bloques + sizeof(Inodo)*num_estructuras;
+
+    return super;
 }
 
 int MKFS::Calculo_Posicion_Inodo(SuperBloque sb, int i)
