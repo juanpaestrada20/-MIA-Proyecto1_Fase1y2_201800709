@@ -22,6 +22,7 @@ SOURCES += \
         MKDisk.cpp \
         MKFS.cpp \
         MKGRP.cpp \
+        MKUSR.cpp \
         Mount.cpp \
         RMDisk.cpp \
         RMGRP.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     MKDisk.h \
     MKFS.h \
     MKGRP.h \
+    MKUSR.h \
     Mount.h \
     Objects/MBR.h \
     Objects/Partition.h \

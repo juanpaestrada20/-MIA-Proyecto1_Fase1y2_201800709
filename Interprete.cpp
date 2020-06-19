@@ -137,8 +137,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     }else if (tipoComando == "MkUsr"){
         Opciones_Parametro(&raiz->hijos[0], 8);
         if(!this->error){
-//            MKUser *user = new MKUser();
-//            user->Ejecutar();
+            MKUSR *user = new MKUSR(this->user, this->pass, this->grupo);
+            user->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "RmUsr"){

@@ -175,7 +175,7 @@ COMANDOS: TK_MKDISK LISTAMKDISK                                 { NodoAST *n1 = 
         | TK_MKGRP TK_GUION TK_NAME TK_IGUAL TIPO_GRUPO         { NodoAST *n1 = new NodoAST("MkGrp"); NodoAST *n2 = new NodoAST("Name"); NodoAST *n3 = new NodoAST($5); n2->agregarHijo(*n3); n1->agregarHijo(*n2); n1->agregarHijo(*n2); $$ = n1; }
         | TK_RMGRP TK_GUION TK_NAME TK_IGUAL TIPO_GRUPO         { NodoAST *n1 = new NodoAST("RmGrp"); NodoAST *n2 = new NodoAST("Name"); NodoAST *n3 = new NodoAST($5); n2->agregarHijo(*n3); n1->agregarHijo(*n2); n1->agregarHijo(*n2); $$ = n1; }
         | TK_MKUSR LISTAMKUSR                                   { NodoAST *n1 = new NodoAST("MkUsr"); n1->agregarHijo(*$2); $$ = n1; }
-        | TK_RMUSR TK_GUION TK_USR TK_IGUAL TK_IDENTIFICADOR    { NodoAST *n1 = new NodoAST("RmUsr"); NodoAST *n2 = new NodoAST("Usr"); NodoAST *n3 = new NodoAST($5); n2->agregarHijo(*n3); n1->agregarHijo(*n2); n1->agregarHijo(*n2); $$ = n1; }
+        | TK_RMUSR TK_GUION TK_USR TK_IGUAL TIPO_GRUPO          { NodoAST *n1 = new NodoAST("RmUsr"); NodoAST *n2 = new NodoAST("Usr"); NodoAST *n3 = new NodoAST($5); n2->agregarHijo(*n3); n1->agregarHijo(*n2); n1->agregarHijo(*n2); $$ = n1; }
         | TK_CHMOD LISTACHMOD                                   { NodoAST *n1 = new NodoAST("Chmod"); n1->agregarHijo(*$2); $$ = n1; }
         | TK_MKFILE LISTAMKFILE                                 { NodoAST *n1 = new NodoAST("MkFile"); n1->agregarHijo(*$2); $$ = n1; }
         | TK_CAT TK_GUION TK_FILE TK_IGUAL TIPO_RUTA            { NodoAST *n1 = new NodoAST("Cat"); NodoAST *n2 = new NodoAST("File"); NodoAST *n3 = new NodoAST($5); n2->agregarHijo(*n3); n1->agregarHijo(*n2); n1->agregarHijo(*n2); $$ = n1; }
@@ -305,7 +305,7 @@ LISTAMKUSR: LISTAMKUSR OPCION_MKUSR     { $$ = $1; $$->agregarHijo(*$2); }
           | OPCION_MKUSR                { $$ = new NodoAST("Parametros"); $$->agregarHijo(*$1); }
 ;
 
-OPCION_MKUSR: TK_GUION TK_USR TK_IGUAL TK_IDENTIFICADOR { NodoAST *n1 = new NodoAST("Usr"); NodoAST *n2 = new NodoAST($4); n1->agregarHijo(*n2); $$ = n1; }
+OPCION_MKUSR: TK_GUION TK_USR TK_IGUAL TIPO_GRUPO       { NodoAST *n1 = new NodoAST("Usr"); NodoAST *n2 = new NodoAST($4); n1->agregarHijo(*n2); $$ = n1; }
             | TK_GUION TK_PWD TK_IGUAL TIPO_PWD         { NodoAST *n1 = new NodoAST("Pwd"); NodoAST *n2 = new NodoAST($4); n1->agregarHijo(*n2); $$ = n1; }
             | TK_GUION TK_GRP TK_IGUAL TIPO_GRUPO       { NodoAST *n1 = new NodoAST("Grp"); NodoAST *n2 = new NodoAST($4); n1->agregarHijo(*n2); $$ = n1; }
 ;
