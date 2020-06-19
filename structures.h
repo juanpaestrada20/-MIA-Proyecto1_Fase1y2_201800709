@@ -84,9 +84,14 @@ typedef struct BloqueApuntadores{
 }BloqueApuntadores;
 
 typedef struct Journal{
-    time_t hora;
+    time_t journal_date;
     char user[12];
-    char peration[256];
+    char operation[256];
+    char journal_operation_type[10];
+    char journal_name[10];
+    int journal_type;
+    int journal_owner;
+    int journal_permissions;
 } Journal;
 
 

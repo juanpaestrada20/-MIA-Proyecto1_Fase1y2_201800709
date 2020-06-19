@@ -21,8 +21,10 @@ SOURCES += \
         MKDir.cpp \
         MKDisk.cpp \
         MKFS.cpp \
+        MKGRP.cpp \
         Mount.cpp \
         RMDisk.cpp \
+        RMGRP.cpp \
         Rep.cpp \
         lexico.cpp \
         main.cpp \
@@ -41,10 +43,12 @@ HEADERS += \
     MKDir.h \
     MKDisk.h \
     MKFS.h \
+    MKGRP.h \
     Mount.h \
     Objects/MBR.h \
     Objects/Partition.h \
     RMDisk.h \
+    RMGRP.h \
     Rep.h \
     lexico.h \
     nodoast.h \

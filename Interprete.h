@@ -21,8 +21,11 @@
 #include "Rep.h"
 #include "MKFS.h"
 #include "Login.h"
+#include "MKGRP.h"
+#include "RMGRP.h"
 
 extern QList<Mount> *montajes;
+extern bool login;
 
 class Interprete
 {
