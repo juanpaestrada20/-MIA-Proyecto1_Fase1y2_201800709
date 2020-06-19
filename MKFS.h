@@ -32,19 +32,7 @@ public:
     void FormatFast(string);
     Mount getMontaje(string);
     SuperBloque LLenar_SBlock( int, int, int, int, int);
-    void Crear_Raiz(string, SuperBloque, Mount);
     int Calcular_N(int);
-    int Calculo_Posicion_Inodo(SuperBloque, int);
-    int Calculo_Posicion_Block(SuperBloque, int);
-    void Modificar_Count_I(SuperBloque*, int, FILE*, int, int);
-    void Modificar_Count_B(SuperBloque*, int, FILE*, int, int);
-    void Marcar_BitMap_I(int, int, FILE*, char, int);
-    void Marcar_BitMap_B(int, int, FILE*, char, int);
-
-    int BM_Inodo_Disponible(FILE*,int,int);
-    int BM_Bloque_Disponible(FILE*,int,int);
-
-    void Modificar_Inodo(FILE*, Inodo, int, int);
 
 };
 

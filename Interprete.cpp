@@ -100,9 +100,14 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
         }
         restorePred();
     }else if (tipoComando == "Logout"){
-        if(!this->error){
-//            Login *login = new Login();
-//            login->Ejecutar();
+        if(!login){
+            cout << "No hay ninguna sesion activa" << endl;
+        }else{
+            login = false;
+            daLoguer.id_user = -1;
+            daLoguer.direccion = "";
+            daLoguer.inicioSuper = -1;
+            cout << "Sesion finalizada" << endl;
         }
         restorePred();
     }else if (tipoComando == "MkGrp"){
@@ -113,11 +118,11 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             this->error= true;
         }
         if(!this->error){
-//            Login *login = new Login();
-//            login->Ejecutar();
+            MKGRP *mkgrp = new MKGRP(this->grupo);
+            mkgrp->Ejecutar();
         }
         restorePred();
-    }else if (tipoComando == "RkGrp"){
+    }else if (tipoComando == "RmGrp"){
         if(raiz->hijos[0].valor.toStdString() == "Name"){
             this->grupo = raiz->hijos[0].hijos[0].valor.toStdString();
         }else{
@@ -125,8 +130,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             this->error= true;
         }
         if(!this->error){
-//            Login *login = new Login();
-//            login->Ejecutar();
+            RMGRP *rmgrp = new RMGRP(this->grupo);
+            rmgrp->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "MkUsr"){
