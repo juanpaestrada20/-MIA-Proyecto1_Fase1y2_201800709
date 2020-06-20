@@ -1,5 +1,5 @@
-#ifndef MKGRP_H
-#define MKGRP_H
+#ifndef MKUSR_H
+#define MKUSR_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -17,18 +17,22 @@ extern QList<Mount> *montajes;
 extern Sesion daLoguer;
 extern bool login;
 
-class MKGRP
+class MKUSR
 {
 private:
-    string name;
+    string user;
+    string password;
+    string grupo;
 public:
-    MKGRP(string);
+    MKUSR(string, string, string);
     void Ejecutar();
     bool buscarGrupo(string);
-    int Get_Id_Group();
-    void agregarUsers(string);
-    void guardarJournal(char* , int , int, char*);
-    int buscarBit(FILE*, char,char);
+    bool buscarUsuario(string);
+    void agregarUsuario(string);
+    void agregarUsuariosTexto(string);
+    void guardarJournal(char*, int, int, char*);
+    int getIdUser();
+    int buscarBit(FILE*, char, char);
 };
 
-#endif // MKGRP_H
+#endif // MKUSR_H

@@ -23,6 +23,7 @@
 #include "Login.h"
 #include "MKGRP.h"
 #include "RMGRP.h"
+#include "MKUSR.h"
 
 extern QList<Mount> *montajes;
 extern bool login;

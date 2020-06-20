@@ -23,7 +23,7 @@ void RMGRP::Ejecutar(){
 
 bool RMGRP::buscarGrupo(string name){
 
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
     char cadena[400] = "\0";
     SuperBloque super;
@@ -75,7 +75,7 @@ bool RMGRP::buscarGrupo(string name){
 }
 
 void RMGRP::EliminarGrupo(string name){
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
     SuperBloque super;
     InodoTable inodo;

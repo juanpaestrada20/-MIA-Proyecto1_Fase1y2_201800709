@@ -14,17 +14,20 @@ public:
     string id;
     QString name;
     QString path;
+    int posMontada;
     QList<Mount> *montajes;
-    Rep(QString name, QString path, string id, QList<Mount> *montajes);
-    void Analizar_Rep(int tamanio);
+    Rep(QString , QString, string, QList<Mount> *);
+    void Analizar_Rep(int );
 
     void Hacer_Reporte();
 
-    void ReporteDisk(string ruta);
-    void ReporteMBR(string ruta);
-    void ReporteEBR(string ruta);
+    void ReporteDisk(string );
+    void ReporteMBR(string );
+    void ReporteEBR(string);
+    void ReporteJournaling(string);
     void VerificarDirectorio();
     string getRuta();
+    void graficarJournaling(string, string, string, int);
 };
 
 
