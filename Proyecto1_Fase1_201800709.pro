@@ -15,6 +15,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        CHMOD.cpp \
         FDisk.cpp \
         Interprete.cpp \
         Login.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
         Mount.cpp \
         RMDisk.cpp \
         RMGRP.cpp \
+        RMUSR.cpp \
         Rep.cpp \
         lexico.cpp \
         main.cpp \
@@ -38,6 +40,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    CHMOD.h \
     FDisk.h \
     Interprete.h \
     Login.h \
@@ -47,10 +50,9 @@ HEADERS += \
     MKGRP.h \
     MKUSR.h \
     Mount.h \
-    Objects/MBR.h \
-    Objects/Partition.h \
     RMDisk.h \
     RMGRP.h \
+    RMUSR.h \
     Rep.h \
     lexico.h \
     nodoast.h \

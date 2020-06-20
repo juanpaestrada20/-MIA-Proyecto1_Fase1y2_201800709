@@ -201,7 +201,8 @@ void MKUSR::guardarJournal(char *operacion, int tipo, int permisos, char *nombre
     memset(registro.journal_operation_type,'\0',sizeof(registro.journal_operation_type));
     strcpy(registro.journal_operation_type,operacion);
     strcpy(registro.journal_name,nombre);
-    strcpy(registro.operation,this->user.c_str());
+    string comando = "User: " + this->user + " Pass: "+this->password+" Grupo: "+this->grupo;
+    strcpy(registro.operation,comando.c_str());
     registro.journal_type = tipo;
     registro.journal_date = time(0);
     registro.journal_owner = daLoguer.id_user;

@@ -32,7 +32,7 @@ Interprete::Interprete(NodoAST *raiz)
 void Interprete::ejecutar(){
     int cantHijos = raiz->hijos.count();
     for(int i = 0; i < cantHijos; i++){
-    Recorrer_Arbol(&raiz->hijos[i]);
+        Recorrer_Arbol(&raiz->hijos[i]);
     }
 }
 
@@ -149,22 +149,22 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             this->error= true;
         }
         if(!this->error){
-//            RMUser *user = new RMUser();
-//            user->Ejecutar();
+            RMUSR *user = new RMUSR(this->user);
+            user->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Chmod"){
         Opciones_Parametro(&raiz->hijos[0], 9);
         if(!this->error){
-//            Chmod *chmod = new Chmod();
-//            chmod->Ejecutar();
+            CHMOD *chmod = new CHMOD(this->path.toStdString(), this->ugo, this->recursivo);
+            chmod->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "MKFile"){
         Opciones_Parametro(&raiz->hijos[0], 10);
         if(!this->error){
-//            MKFile *mkfile = new MKFile();
-//            mkfile->Ejecutar();
+            //            MKFile *mkfile = new MKFile();
+            //            mkfile->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Cat"){
@@ -175,8 +175,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             this->error= true;
         }
         if(!this->error){
-//            Cat *cat = new Cat();
-//            cat->Ejecutar();
+            //            Cat *cat = new Cat();
+            //            cat->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Rem"){
@@ -187,71 +187,69 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             this->error= true;
         }
         if(!this->error){
-//            Rem *rem = new Rem();
-//            rem->Ejecutar();
+            //            Rem *rem = new Rem();
+            //            rem->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Edit"){
         Opciones_Parametro(&raiz->hijos[0], 11);
         if(!this->error){
-//            Edit *edit = new Edit();
-//            edit->Ejecutar();
+            //            Edit *edit = new Edit();
+            //            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Ren"){
         Opciones_Parametro(&raiz->hijos[0], 12);
         if(!this->error){
-//            Edit *edit = new Edit();
-//            edit->Ejecutar();
+            //            Edit *edit = new Edit();
+            //            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "MkDir"){
         Opciones_Parametro(&raiz->hijos[0], 13);
         if(!this->error){
-//            Edit *edit = new Edit();
-//            edit->Ejecutar();
+            //            Edit *edit = new Edit();
+            //            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Cp"){
         Opciones_Parametro(&raiz->hijos[0], 14);
         if(!this->error){
-//            Edit *edit = new Edit();
-//            edit->Ejecutar();
+            //            Edit *edit = new Edit();
+            //            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Mv"){
         Opciones_Parametro(&raiz->hijos[0], 14);
         if(!this->error){
-//            Edit *edit = new Edit();
-//            edit->Ejecutar();
+            //            Edit *edit = new Edit();
+            //            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Find"){
         Opciones_Parametro(&raiz->hijos[0], 12);
         if(!this->error){
-//            Edit *edit = new Edit();
-//            edit->Ejecutar();
+            //            Edit *edit = new Edit();
+            //            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Chown"){
         Opciones_Parametro(&raiz->hijos[0], 15);
         if(!this->error){
-//            Edit *edit = new Edit();
-//            edit->Ejecutar();
+            //            Edit *edit = new Edit();
+            //            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "ChGrp"){
         Opciones_Parametro(&raiz->hijos[0], 16);
         if(!this->error){
-//            Edit *edit = new Edit();
-//            edit->Ejecutar();
+            //            Edit *edit = new Edit();
+            //            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Pause"){
-        if(!this->error){
-//            Edit *edit = new Edit();
-//            edit->Ejecutar();
-        }
+        cout << "Presiona cualquier tecla para continuar ";
+        getchar();
         restorePred();
     }
 
@@ -272,15 +270,15 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
 
         for(int i = 0; i < cantParametros; i++){
             parametro=raiz->hijos[i].valor;
-         if(parametro == "Size"){
-             size = raiz->hijos[i].hijos[0].valor.toInt();
-         } else if(parametro == "Unit"){
-             unit = raiz->hijos[i].hijos[0].valor.toStdString()[0];
-         } else if(parametro == "Ruta"){
-             path = raiz->hijos[i].hijos[0].valor;
-         } else if(parametro == "Fit"){
-             fit = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[0];
-         }
+            if(parametro == "Size"){
+                size = raiz->hijos[i].hijos[0].valor.toInt();
+            } else if(parametro == "Unit"){
+                unit = raiz->hijos[i].hijos[0].valor.toStdString()[0];
+            } else if(parametro == "Ruta"){
+                path = raiz->hijos[i].hijos[0].valor;
+            } else if(parametro == "Fit"){
+                fit = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[0];
+            }
         }
         // si hay algun parametro obligatorio faltante
         if (size > 0){
@@ -325,7 +323,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // RmDisk
+        // RmDisk
     case 1:
     {
         int cantParametros = raiz->hijos.count();
@@ -333,19 +331,19 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         QString parametro;
         for(int i = 0; i < cantParametros; i++){
             parametro=raiz->hijos[i].valor;
-         if(parametro == "Path"){
-             path = raiz->hijos[i].hijos[0].valor;
-         }
+            if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor;
+            }
         }
-         if(path == ""){
-             printf("Debe indicar la ruta para eliminar el disco!\n");
-             this->error = true;
-         }else{
-             this->path=path;
-         }
+        if(path == ""){
+            printf("Debe indicar la ruta para eliminar el disco!\n");
+            this->error = true;
+        }else{
+            this->path=path;
+        }
         break;
     }
-    // FDisk
+        // FDisk
     case 2:
     {
         int cantParametros = raiz->hijos.count();
@@ -361,25 +359,25 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
 
         for(int i = 0; i < cantParametros; i++){
             parametro=raiz->hijos[i].valor.toStdString();
-         if(parametro == "Size"){
-             size = raiz->hijos[i].hijos[0].valor.toInt();
-         } else if(parametro == "Unit"){
-             unit = raiz->hijos[i].hijos[0].valor.toStdString()[0];
-         } else if(parametro == "Path"){
-             path = raiz->hijos[i].hijos[0].valor.toStdString();
-         } else if(parametro == "Type"){
-             type = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[0];
-         }else if(parametro == "Fit"){
-             fit[0] = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[0];
-             fit[1] = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[1];
-         }else if(parametro == "Delete"){
-             deleteType = raiz->hijos[i].hijos[0].valor.toStdString();
-         }
-         else if(parametro == "Name"){
-             name = raiz->hijos[i].hijos[0].valor.toStdString();
-         }else if(parametro == "Add"){
-             add = raiz->hijos[i].hijos[0].valor.toInt();
-         }
+            if(parametro == "Size"){
+                size = raiz->hijos[i].hijos[0].valor.toInt();
+            } else if(parametro == "Unit"){
+                unit = raiz->hijos[i].hijos[0].valor.toStdString()[0];
+            } else if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor.toStdString();
+            } else if(parametro == "Type"){
+                type = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[0];
+            }else if(parametro == "Fit"){
+                fit[0] = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[0];
+                fit[1] = raiz->hijos[i].hijos[0].valor.toLower().toStdString()[1];
+            }else if(parametro == "Delete"){
+                deleteType = raiz->hijos[i].hijos[0].valor.toStdString();
+            }
+            else if(parametro == "Name"){
+                name = raiz->hijos[i].hijos[0].valor.toStdString();
+            }else if(parametro == "Add"){
+                add = raiz->hijos[i].hijos[0].valor.toInt();
+            }
         }
 
         //verificar errores
@@ -461,7 +459,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // Mount
+        // Mount
     case 3:
     {
         int cantParametros = raiz->hijos.count();
@@ -470,11 +468,11 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         QString parametro;
         for(int i = 0; i < cantParametros; i++){
             parametro=raiz->hijos[i].valor;
-         if(parametro == "Path"){
-             path = raiz->hijos[i].hijos[0].valor;
-         } else if(parametro == "Name"){
-             name = raiz->hijos[i].hijos[0].valor;
-         }
+            if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor;
+            } else if(parametro == "Name"){
+                name = raiz->hijos[i].hijos[0].valor;
+            }
         }
         if(path != "" && name != ""){
             this->path = path;
@@ -485,7 +483,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // Unmount
+        // Unmount
     case 4:
     {
         int cantParametros = raiz->hijos.count();
@@ -493,9 +491,9 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         QString parametro;
         for(int i = 0; i < cantParametros; i++){
             parametro=raiz->hijos[i].valor;
-         if(parametro == "ID"){
-             id = raiz->hijos[i].hijos[0].valor;
-         }
+            if(parametro == "ID"){
+                id = raiz->hijos[i].hijos[0].valor;
+            }
         }
         if(id != ""){
             this->ID = id;
@@ -505,7 +503,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // Rep
+        // Rep
     case 5:
     {
         int cantParametros = raiz->hijos.count();
@@ -515,13 +513,13 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         QString parametro;
         for(int i = 0; i < cantParametros; i++){
             parametro=raiz->hijos[i].valor;
-         if(parametro == "Path"){
-             path = raiz->hijos[i].hijos[0].valor;
-         } else if(parametro == "Name"){
-             name = raiz->hijos[i].hijos[0].valor;
-         } else if(parametro == "ID"){
-             id = raiz->hijos[i].hijos[0].valor;
-         }
+            if(parametro == "Path"){
+                path = raiz->hijos[i].hijos[0].valor;
+            } else if(parametro == "Name"){
+                name = raiz->hijos[i].hijos[0].valor;
+            } else if(parametro == "ID"){
+                id = raiz->hijos[i].hijos[0].valor;
+            }
         }
         if(path != "" && name != "" && id != ""){
             this->path = path;
@@ -533,7 +531,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // MkFS
+        // MkFS
     case 6:
     {
         int cantidadHijos = raiz->hijos.count();
@@ -560,7 +558,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    //Login
+        //Login
     case 7:
     {
         int cantidadHijos = raiz->hijos.count();
@@ -588,7 +586,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    //MkUsr
+        //MkUsr
     case 8:
     {
         int cantidadHijos = raiz->hijos.count();
@@ -617,7 +615,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // Chmod
+        // Chmod
     case 9:
     {
         int cantidadHijos = raiz->hijos.count();
@@ -646,7 +644,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // MkFile
+        // MkFile
     case 10:
     {
         int cantHijos = raiz->hijos.count();
@@ -679,7 +677,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
 
         break;
     }
-    // Edit
+        // Edit
     case 11:
     {
         int cantHijos = raiz->hijos.count();
@@ -702,7 +700,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // Ren y find
+        // Ren y find
     case 12:
     {
         int cantHijos = raiz->hijos.count();
@@ -725,7 +723,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // MkDir
+        // MkDir
     case 13:
     {
         int cantHijos = raiz->hijos.count();
@@ -748,7 +746,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // cp y mv
+        // cp y mv
     case 14:
     {
         int cantHijos = raiz->hijos.count();
@@ -771,7 +769,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // chown
+        // chown
     case 15:
     {
         int cantHijos = raiz->hijos.count();
@@ -798,7 +796,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         }
         break;
     }
-    // chgrp
+        // chgrp
     case 16:
     {
         int cantHijos = raiz->hijos.count();
