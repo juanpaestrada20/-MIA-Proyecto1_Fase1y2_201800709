@@ -35,7 +35,7 @@ void MKUSR::Ejecutar(){
 }
 
 bool MKUSR::buscarGrupo(string name){
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
     char cadena[400] = "\0";
     SuperBloque super;
@@ -87,7 +87,7 @@ bool MKUSR::buscarGrupo(string name){
 }
 
 bool MKUSR::buscarUsuario(string name){
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
     char cadena[400] = "\0";
     SuperBloque super;
@@ -140,7 +140,7 @@ bool MKUSR::buscarUsuario(string name){
 }
 
 int MKUSR::getIdUser(){
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
     char cadena[400] = "\0";
     int res = 0;
@@ -189,44 +189,44 @@ void MKUSR::agregarUsuario(string datos){
     agregarUsuariosTexto(datos);
     char aux[64];
     char operacion[10];
-    char content[2];
     strcpy(aux,datos.c_str());
     strcpy(operacion,"mkusr");
-    memset(content,0,2);
-    guardarJournal(operacion,0,0,aux,content);
+    guardarJournal(operacion,1,0,aux);
 }
 
-void MKUSR::guardarJournal(char *operacion, int tipo, int permisos, char *nombre, char *content){
+void MKUSR::guardarJournal(char *operacion, int tipo, int permisos, char *nombre){
     SuperBloque super;
     Journal registro;
+    memset(registro.journal_name,'\0',sizeof(registro.journal_name));
+    memset(registro.journal_operation_type,'\0',sizeof(registro.journal_operation_type));
     strcpy(registro.journal_operation_type,operacion);
-    registro.journal_type = tipo;
     strcpy(registro.journal_name,nombre);
-    strcpy(registro.operation,content);
+    strcpy(registro.operation,this->user.c_str());
+    registro.journal_type = tipo;
     registro.journal_date = time(0);
     registro.journal_owner = daLoguer.id_user;
     registro.journal_permissions = permisos;
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
     //Buscar el ultimo journal
     Journal registroAux;
     bool ultimo = false;
     fseek(fp,daLoguer.inicioSuper,SEEK_SET);
     fread(&super,sizeof(SuperBloque),1,fp);
-    int inicio_journal = daLoguer.inicioSuper + sizeof(SuperBloque);
+    int inicio_journal = daLoguer.inicioSuper + static_cast<int>(sizeof(SuperBloque));
     int final_journal = super.s_bm_inode_start;
     fseek(fp,inicio_journal,SEEK_SET);
     while((ftell(fp) < final_journal) && !ultimo){
         fread(&registroAux,sizeof(Journal),1,fp);
-        if(registroAux.journal_type != 0 && registroAux.journal_type != 1)
+        if(registroAux.journal_type != 1 && registroAux.journal_type != 2)
             ultimo = true;
     }
-    fseek(fp,ftell(fp)- static_cast<int>(sizeof(Journal)),SEEK_SET);
+    fseek(fp,ftell(fp)- sizeof(Journal),SEEK_SET);
     fwrite(&registro,sizeof(Journal),1,fp);
     fclose(fp);
 }
 
 void MKUSR::agregarUsuariosTexto(string datos){
-    FILE *fp = fopen(daLoguer.direccion.c_str(), "rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(), "r+b");
 
     SuperBloque super;
     InodoTable inodo;

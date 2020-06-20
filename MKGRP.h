@@ -27,7 +27,7 @@ public:
     bool buscarGrupo(string);
     int Get_Id_Group();
     void agregarUsers(string);
-    void guardarJournal(char* , int , int, char*, char*);
+    void guardarJournal(char* , int , int, char*);
     int buscarBit(FILE*, char,char);
 };
 

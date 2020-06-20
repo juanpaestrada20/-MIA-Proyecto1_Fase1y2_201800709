@@ -18,11 +18,9 @@ void MKGRP::Ejecutar(){
                     if(daLoguer.tipo_sistema ==3){
                         char aux[64];
                         char operacion[300];
-                        char content[2];
                         strcpy(aux,nuevoGrupo.c_str());
                         strcpy(operacion, "mkgrp");
-                        memset(content,0,2);
-                        guardarJournal(operacion,0  ,0,aux,content);
+                        guardarJournal(operacion,1,0,aux);
                     }
                 }else{
                     cout << "Grupo con ese nombre ya existe" << endl;
@@ -40,7 +38,7 @@ void MKGRP::Ejecutar(){
 }
 
 bool MKGRP::buscarGrupo(string name){
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
     char cadena[400] = "\0";
     SuperBloque super;
@@ -92,7 +90,7 @@ bool MKGRP::buscarGrupo(string name){
 }
 
 int MKGRP::Get_Id_Group(){
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
     char cadena[400] = "\0";
     int aux_id = -1;
@@ -139,7 +137,7 @@ int MKGRP::Get_Id_Group(){
 }
 
 void MKGRP::agregarUsers(string datos){
-    FILE *fp = fopen(daLoguer.direccion.c_str(), "rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(), "r+b");
 
     SuperBloque super;
     InodoTable inodo;
@@ -339,17 +337,19 @@ int MKGRP::buscarBit(FILE *fp, char tipo, char fit){
 }
 
 
-void MKGRP::guardarJournal(char *operacion, int tipo, int permisos, char *nombre, char *content){
+void MKGRP::guardarJournal(char *operacion, int tipo, int permisos, char *nombre){
     SuperBloque super;
     Journal registro;
+    memset(registro.journal_name,'\0',sizeof(registro.journal_name));
+    memset(registro.journal_operation_type,'\0',sizeof(registro.journal_operation_type));
     strcpy(registro.journal_operation_type,operacion);
-    registro.journal_type = tipo;
     strcpy(registro.journal_name,nombre);
-    strcpy(registro.operation,content);
+    strcpy(registro.operation,this->name.c_str());
+    registro.journal_type = tipo;
     registro.journal_date = time(0);
     registro.journal_owner = daLoguer.id_user;
     registro.journal_permissions = permisos;
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
     //Buscar el ultimo journal
     Journal registroAux;
     bool ultimo = false;
@@ -358,12 +358,15 @@ void MKGRP::guardarJournal(char *operacion, int tipo, int permisos, char *nombre
     int inicio_journal = daLoguer.inicioSuper + static_cast<int>(sizeof(SuperBloque));
     int final_journal = super.s_bm_inode_start;
     fseek(fp,inicio_journal,SEEK_SET);
+    cout << inicio_journal << endl;
     while((ftell(fp) < final_journal) && !ultimo){
+        cout << ftell(fp) << endl;
         fread(&registroAux,sizeof(Journal),1,fp);
-        if(registroAux.journal_type != 0 && registroAux.journal_type != 1)
+        if(registroAux.journal_type != 1 && registroAux.journal_type != 2)
             ultimo = true;
     }
-    fseek(fp,ftell(fp)- static_cast<int>(sizeof(Journal)),SEEK_SET);
+    cout << ftell(fp)-sizeof(Journal)<<endl;
+    fseek(fp,ftell(fp)- sizeof(Journal),SEEK_SET);
     fwrite(&registro,sizeof(Journal),1,fp);
     fclose(fp);
 }

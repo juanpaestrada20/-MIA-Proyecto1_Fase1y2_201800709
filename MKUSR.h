@@ -30,7 +30,7 @@ public:
     bool buscarUsuario(string);
     void agregarUsuario(string);
     void agregarUsuariosTexto(string);
-    void guardarJournal(char*, int, int, char*, char*);
+    void guardarJournal(char*, int, int, char*);
     int getIdUser();
     int buscarBit(FILE*, char, char);
 };

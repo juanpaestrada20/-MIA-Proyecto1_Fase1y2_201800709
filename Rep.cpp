@@ -5,6 +5,7 @@ Rep::Rep(QString name, QString path, string id, QList<Mount> *montajes){
     this->name = name;
     this->path = path;
     this->montajes = montajes;
+    this->posMontada = -1;
 }
 
 void Rep::Hacer_Reporte(){
@@ -13,13 +14,16 @@ void Rep::Hacer_Reporte(){
     QList<Mount>::iterator i;
     i=i+1;
     string ruta = "";
+    int pos = 0;
     for(i = montajes->begin(); i!=montajes->end(); i++ )
     {
         if(this->id == i->id){
             bandera = true;
             ruta = i->path;
+            this->posMontada = pos;
             break;
         }
+        pos++;
     }
 
     if(bandera){
@@ -29,6 +33,8 @@ void Rep::Hacer_Reporte(){
             ReporteDisk(ruta);
         }else if(this->name == "mbr"){
             ReporteMBR(ruta);
+        }else if(this->name == "journaling"){
+            ReporteJournaling(ruta);
         }else{
             printf("No se reconoce el tipo de reporte que desea\n");
         }
@@ -453,7 +459,7 @@ void Rep::ReporteMBR(string ruta){
     fputs("</TABLE>>];\n}",grafo);
     fclose(grafo);
     sprintf(buffer,"dot -Tpng %s -O ",auxRuta);
-        system(buffer);
+    system(buffer);
 
     printf("Se creo el reporte mbr de %s exitosamente\n", this->id.c_str());
 }
@@ -502,4 +508,70 @@ void Rep::VerificarDirectorio(){
         }
 
     }
+}
+
+void Rep::ReporteJournaling(string ruta){
+    int index = -1;
+    MBR masterboot;
+    SuperBloque super;
+    FILE *fp = fopen(ruta.c_str(),"r+b");
+    fread(&masterboot,sizeof(MBR),1,fp);
+    Mount particionMontada = montajes->at(this->posMontada);
+    for(int i = 0; i < masterboot.partitions->size; i++){
+        if(masterboot.partitions[i].status =='1'){
+            if(strcmp(masterboot.partitions[i].name, particionMontada.name.c_str()) == 0){
+                index = i;
+                break;
+            }
+        }
+    }
+    fseek(fp,masterboot.partitions[index].start,SEEK_SET);
+    fread(&super,sizeof(SuperBloque),1,fp);
+    fclose(fp);
+    string aux = this->path.toStdString();
+    string delimiter = ".";
+    size_t pos = 0;
+    while((pos = aux.find(delimiter))!=string::npos){
+        aux.erase(0,pos+delimiter.length());
+    }
+    graficarJournaling(ruta,this->path.toStdString(),aux,masterboot.partitions[index].start);
+}
+
+void Rep::graficarJournaling(string direccion, string destino, string extension,int inicio_super){
+    FILE *fp = fopen(direccion.c_str(),"r");
+
+    SuperBloque super;
+    Journal j;
+    fseek(fp,inicio_super,SEEK_SET);
+    fread(&super,sizeof(SuperBloque),1,fp);
+
+    FILE *graph = fopen("grafica.dot","wt");
+    fprintf(graph,"digraph G{\n");
+    fprintf(graph, "    nodo [shape=none, fontname=\"Century Gothic\" label=<\n");
+    fprintf(graph, "   <table border=\'0\' cellborder='1\' cellspacing=\'0\'>\n");
+    fprintf(graph, "    <tr> <td COLSPAN=\'50\' bgcolor=\"cornflowerblue\"> <b>JOURNALING</b> </td></tr>\n");
+    fprintf(graph, "    <tr> <td bgcolor=\"lightsteelblue\"><b>Operacion</b></td> <td bgcolor=\"lightsteelblue\"><b>Nombre</b></td>\n");
+    fprintf(graph, "    <td bgcolor=\"lightsteelblue\"><b>Propietario</b></td><td bgcolor=\"lightsteelblue\"><b>Permisos</b></td><td bgcolor=\"lightsteelblue\"><b>Fecha</b></td></tr>\n");
+    //
+    fseek(fp,inicio_super + static_cast<int>(sizeof(SuperBloque)),SEEK_SET);
+    cout << ftell(fp) << endl;
+    while(ftell(fp) < super.s_bm_inode_start){
+        fread(&j,sizeof(Journal),1,fp);
+        if(j.journal_type == 1 || j.journal_type == 2){
+            struct tm *tm;
+            char fecha[100];
+            tm = localtime(&j.journal_date);
+            strftime(fecha,100,"%d/%m/%y %H:%S",tm);
+            fprintf(graph,"<tr><td>%s</td><td>%s</td><td>%d</td><td>%d</td><td>%s</td></tr>\n",j.journal_operation_type,j.operation,j.journal_owner,j.journal_permissions,fecha);
+        }
+    }
+    fprintf(graph, "   </table>>]\n");
+    fprintf(graph,"}");
+    fclose(graph);
+
+    fclose(fp);
+
+    string comando = "dot -T"+extension+" grafica.dot -o "+destino;
+    system(comando.c_str());
+    cout << "Reporte Journaling generado con exito " << endl;
 }
