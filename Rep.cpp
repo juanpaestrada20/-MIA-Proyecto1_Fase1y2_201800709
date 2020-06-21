@@ -35,6 +35,8 @@ void Rep::Hacer_Reporte(){
             ReporteMBR(ruta);
         }else if(this->name == "journaling"){
             ReporteJournaling(ruta);
+        }else if(this->name == "inodo"){
+            ReporteInodos(ruta);
         }else{
             printf("No se reconoce el tipo de reporte que desea\n");
         }
@@ -464,8 +466,6 @@ void Rep::ReporteMBR(string ruta){
     printf("Se creo el reporte mbr de %s exitosamente\n", this->id.c_str());
 }
 
-
-
 void Rep::VerificarDirectorio(){
     char delim[] = "/";
     char nuevo[1000];
@@ -554,7 +554,6 @@ void Rep::graficarJournaling(string direccion, string destino, string extension,
     fprintf(graph, "    <td bgcolor=\"lightsteelblue\"><b>Propietario</b></td><td bgcolor=\"lightsteelblue\"><b>Permisos</b></td><td bgcolor=\"lightsteelblue\"><b>Fecha</b></td></tr>\n");
     //
     fseek(fp,inicio_super + static_cast<int>(sizeof(SuperBloque)),SEEK_SET);
-    cout << ftell(fp) << endl;
     while(ftell(fp) < super.s_bm_inode_start){
         fread(&j,sizeof(Journal),1,fp);
         if(j.journal_type == 1 || j.journal_type == 2){
@@ -575,3 +574,84 @@ void Rep::graficarJournaling(string direccion, string destino, string extension,
     system(comando.c_str());
     cout << "Reporte Journaling generado con exito " << endl;
 }
+
+void Rep::ReporteInodos(string ruta){
+    int index = -1;
+    MBR masterboot;
+    SuperBloque super;
+    FILE *fp = fopen(ruta.c_str(),"r+b");
+    fread(&masterboot,sizeof(MBR),1,fp);
+    Mount particionMontada = montajes->at(this->posMontada);
+    for(int i = 0; i < masterboot.partitions->size; i++){
+        if(masterboot.partitions[i].status =='1'){
+            if(strcmp(masterboot.partitions[i].name, particionMontada.name.c_str()) == 0){
+                index = i;
+                break;
+            }
+        }
+    }
+    fseek(fp,masterboot.partitions[index].start,SEEK_SET);
+    fread(&super,sizeof(SuperBloque),1,fp);
+    fclose(fp);
+    string aux = this->path.toStdString();
+    string delimiter = ".";
+    size_t pos = 0;
+    while((pos = aux.find(delimiter))!=string::npos){
+        aux.erase(0,pos+delimiter.length());
+    }
+    graficarInodos(ruta,this->path.toStdString(),aux,super.s_bm_inode_start,super.s_inode_start,super.s_bm_block_start);
+}
+
+void Rep::graficarInodos(string direccion, string destino, string extension,int bm_inode_start,int inode_start,int bm_block_start){
+    FILE *fp = fopen(direccion.c_str(), "r");
+
+    InodoTable inodo;
+    int aux = bm_inode_start;
+    int i = 0;
+    char buffer;
+
+    FILE *graph = fopen("grafica.dot","w");
+    fprintf(graph,"digraph G{\n\n");
+
+    while(aux < bm_block_start){
+        fseek(fp,bm_inode_start + i,SEEK_SET);
+        buffer = static_cast<char>(fgetc(fp));
+        aux++;
+        if(buffer == '1'){
+            fseek(fp,inode_start + static_cast<int>(sizeof(InodoTable))*i,SEEK_SET);
+            fread(&inodo,sizeof(InodoTable),1,fp);
+            fprintf(graph, "    nodo_%d [ shape=none fontname=\"Century Gothic\" label=<\n",i);
+            fprintf(graph, "   <table border=\'0\' cellborder=\'1\' cellspacing=\'0\' bgcolor=\"royalblue\">");
+            fprintf(graph, "    <tr> <td colspan=\'2\'> <b>Inodo %d</b> </td></tr>\n",i);
+            fprintf(graph, "    <tr> <td bgcolor=\"lightsteelblue\"> i_uid </td> <td bgcolor=\"white\"> %d </td>  </tr>\n",inodo.i_uid);
+            fprintf(graph, "    <tr> <td bgcolor=\"lightsteelblue\"> i_gid </td> <td bgcolor=\"white\"> %d </td>  </tr>\n",inodo.i_gid);
+            fprintf(graph, "    <tr> <td bgcolor=\"lightsteelblue\"> i_size </td> <td bgcolor=\"white\"> %d </td> </tr>\n",inodo.i_size);
+            struct tm *tm;
+            char fecha[100];
+            tm=localtime(&inodo.i_atime);
+            strftime(fecha,100,"%d/%m/%y %H:%S",tm);
+            fprintf(graph, "    <tr> <td bgcolor=\"lightsteelblue\"> i_atime </td> <td bgcolor=\"white\"> %s </td>  </tr>\n",fecha);
+            tm=localtime(&inodo.i_ctime);
+            strftime(fecha,100,"%d/%m/%y %H:%S",tm);
+            fprintf(graph, "    <tr> <td bgcolor=\"lightsteelblue\"> i_ctime </td> <td bgcolor=\"white\"> %s </td>  </tr>\n",fecha);
+            tm=localtime(&inodo.i_mtime);
+            strftime(fecha,100,"%d/%m/%y %H:%S",tm);
+            fprintf(graph, "    <tr> <td bgcolor=\"lightsteelblue\"> i_mtime </td> <td bgcolor=\"white\"> %s </td></tr>\n",fecha);
+            for(int b = 0; b < 15; b++)
+                fprintf(graph, "    <tr> <td bgcolor=\"lightsteelblue\"> i_block_%d </td> <td bgcolor=\"white\"> %d </td> </tr>\n",b,inodo.i_block[b]);
+            fprintf(graph, "    <tr> <td bgcolor=\"lightsteelblue\"> i_type </td> <td bgcolor=\"white\"> %c </td> </tr>\n",inodo.i_type);
+            fprintf(graph, "    <tr> <td bgcolor=\"lightsteelblue\"> i_perm </td> <td bgcolor=\"white\"> %d </td> </tr>\n",inodo.i_perm);
+            fprintf(graph, "   </table>>]\n");
+        }
+        i++;
+    }
+    fprintf(graph,"\n}");
+    fclose(graph);
+
+    fclose(fp);
+
+    string comando = "dot -T"+extension+" grafica.dot -o "+destino;
+    system(comando.c_str());
+    cout << "Reporte de inodos generado con exito " << endl;
+}
+

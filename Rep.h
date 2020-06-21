@@ -28,6 +28,10 @@ public:
     void VerificarDirectorio();
     string getRuta();
     void graficarJournaling(string, string, string, int);
+    void graficarInodos(string , string , string ,int ,int ,int );
+    void ReporteInodos(string);
+    void ReporteFile(string);
+    int buscarCarpetaArchivo(FILE*, char*);
 };
 
 

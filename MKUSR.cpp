@@ -11,7 +11,7 @@ void MKUSR::Ejecutar(){
     if(login){
         if(daLoguer.id_user == 1 && daLoguer.id_grp == 1){
             if(this->user.length() <= 10 && this->password.length() <= 10 && this->grupo.length() <= 10){
-                if(buscarGrupo(this->grupo)){
+                if(buscarGrupo(this->grupo) != 1){
                     if(!buscarUsuario(this->user)){
                         int id = getIdUser();
                         string datos = to_string(id)+",U,"+this->grupo+","+this->user+","+this->password+"\n";
@@ -34,7 +34,7 @@ void MKUSR::Ejecutar(){
     }
 }
 
-bool MKUSR::buscarGrupo(string name){
+int MKUSR::buscarGrupo(string name){
     FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
     char cadena[400] = "\0";
@@ -75,15 +75,13 @@ bool MKUSR::buscarGrupo(string name){
             if(strcmp(tipo,"G") == 0){
                 strcpy(group,end_token);
                 if(strcmp(group,name.c_str()) == 0)
-                    //return atoi(id);
-                    return true;
+                    return atoi(id);
             }
         }
         token = strtok_r(nullptr,"\n",&end_str);
     }
 
-    //return -1;
-    return false;
+    return -1;
 }
 
 bool MKUSR::buscarUsuario(string name){
@@ -226,7 +224,8 @@ void MKUSR::guardarJournal(char *operacion, int tipo, int permisos, char *nombre
     fclose(fp);
 }
 
-void MKUSR::agregarUsuariosTexto(string datos){
+void MKUSR::agregarUsuariosTexto(string d){
+    QString datos = QString::fromStdString(d);
     FILE *fp = fopen(daLoguer.direccion.c_str(), "r+b");
 
     SuperBloque super;
@@ -250,8 +249,8 @@ void MKUSR::agregarUsuariosTexto(string datos){
     int enUso = static_cast<int>(strlen(archivo.b_content));
     int libre = 63 - enUso;
 
-    if((int)datos.length() <= libre){
-        strcat(archivo.b_content,datos.c_str());
+    if(datos.length() <= libre){
+        strcat(archivo.b_content,datos.toStdString().c_str());
         fseek(fp,super.s_block_start + static_cast<int>(sizeof(BloqueArchivo))*blockIndex,SEEK_SET);
         fwrite(&archivo,sizeof(BloqueArchivo),1,fp);
         fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable)),SEEK_SET);
@@ -268,7 +267,7 @@ void MKUSR::agregarUsuariosTexto(string datos){
         for(i = 0; i < libre; i++)
             aux += datos.at(i);
 
-        for(; i < (int)datos.length(); i++)
+        for(; i < datos.length(); i++)
             aux2  += datos.at(i);
 
         //Guardamos lo que cabe en el primer bloque
@@ -319,7 +318,7 @@ int MKUSR::buscarBit(FILE *fp, char tipo, char fit){
     }
 
     /*----------------Tipo de ajuste a utilizar----------------*/
-    if(fit == 'F'){//Primer ajuste
+    if(fit == 'F' || fit == 'f'){//Primer ajuste
         for(int i = 0; i < tam_bm; i++){
             fseek(fp,inicio_bm + i,SEEK_SET);
             tempBit = static_cast<char>(fgetc(fp));
@@ -332,7 +331,7 @@ int MKUSR::buscarBit(FILE *fp, char tipo, char fit){
         if(bit_libre == -1)
             return -1;
 
-    }else if(fit == 'B'){//Mejor ajuste
+    }else if(fit == 'B' || fit == 'b'){//Mejor ajuste
         int libres = 0;
         int auxLibres = -1;
 
@@ -377,7 +376,7 @@ int MKUSR::buscarBit(FILE *fp, char tipo, char fit){
 
         return -1;
 
-    }else if(fit == 'W'){//Peor ajuste
+    }else if(fit == 'W' || fit == 'w'){//Peor ajuste
         int libres = 0;
         int auxLibres = -1;
 

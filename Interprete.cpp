@@ -38,7 +38,7 @@ void Interprete::ejecutar(){
 
 void Interprete::Recorrer_Arbol(NodoAST *raiz){
     QString tipoComando = raiz->valor;
-    if(tipoComando == "MkDisk"){
+        if(tipoComando == "MkDisk"){
         Opciones_Parametro(&raiz->hijos[0], 0);
         if(!this->error){
             int tam = this->size;
@@ -160,11 +160,11 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             chmod->Ejecutar();
         }
         restorePred();
-    }else if (tipoComando == "MKFile"){
+    }else if (tipoComando == "MkFile"){
         Opciones_Parametro(&raiz->hijos[0], 10);
         if(!this->error){
-            //            MKFile *mkfile = new MKFile();
-            //            mkfile->Ejecutar();
+            MKFILE *mkfile = new MKFILE(this->path.toStdString(), this->carpetaPadre, this->size, this->cont);
+            mkfile->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Cat"){
@@ -175,8 +175,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             this->error= true;
         }
         if(!this->error){
-            //            Cat *cat = new Cat();
-            //            cat->Ejecutar();
+            CAT *cat = new CAT(this->path.toStdString());
+            cat->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Rem"){
@@ -208,8 +208,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     }else if (tipoComando == "MkDir"){
         Opciones_Parametro(&raiz->hijos[0], 13);
         if(!this->error){
-            //            Edit *edit = new Edit();
-            //            edit->Ejecutar();
+            MKDir *mkdir = new MKDir(this->path.toStdString(), this->carpetaPadre);
+            mkdir->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Cp"){

@@ -1,5 +1,5 @@
-#ifndef RMGRP_H
-#define RMGRP_H
+#ifndef CAT_H
+#define CAT_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -17,15 +17,16 @@ extern QList<Mount> *montajes;
 extern Sesion daLoguer;
 extern bool login;
 
-class RMGRP
+class CAT
 {
 private:
-    string name;
+    string path;
 public:
-    RMGRP(string);
+    CAT(string);
     void Ejecutar();
-    int buscarGrupo(string);
-    void EliminarGrupo(string);
+    int buscarCarpetaArchivo(FILE*, char*);
+    int byteInodoBloque(FILE*, int, char);
+    bool permisosDeLectura(int, bool, bool);
 };
 
-#endif // RMGRP_H
+#endif // CAT_H

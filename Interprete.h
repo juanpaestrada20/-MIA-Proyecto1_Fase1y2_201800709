@@ -26,6 +26,9 @@
 #include "MKUSR.h"
 #include "RMUSR.h"
 #include "CHMOD.h"
+#include "MKDir.h"
+#include "CAT.h"
+#include "MKFILE.h"
 
 extern QList<Mount> *montajes;
 extern bool login;
