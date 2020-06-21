@@ -29,7 +29,7 @@ public:
     Login(string, string, string);
     void Ejecutar();
     bool GetRuta(string);
-    bool ComprobarLogin(string, string, string);
+    int ComprobarLogin(string, string, string);
     void LeerArchivo(FILE*, SuperBloque, int, char*, string);
     void Eliminar_Espacios(char*);
     int Get_Id_Group(string);

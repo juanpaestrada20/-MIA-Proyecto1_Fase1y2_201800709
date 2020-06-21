@@ -1,5 +1,5 @@
-#ifndef RMGRP_H
-#define RMGRP_H
+#ifndef CHMOD_H
+#define CHMOD_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -17,15 +17,18 @@ extern QList<Mount> *montajes;
 extern Sesion daLoguer;
 extern bool login;
 
-class RMGRP
+class CHMOD
 {
 private:
-    string name;
+    string path;
+    int ugo;
+    bool recursivo;
 public:
-    RMGRP(string);
+    CHMOD(string, int, bool);
     void Ejecutar();
-    int buscarGrupo(string);
-    void EliminarGrupo(string);
+    int buscarCarpetaArchivo(FILE *, char*);
+    void cambiarPermisosRecursivo(FILE* , int , int );
+    int byteInodoBloque(FILE *,int , char );
 };
 
-#endif // RMGRP_H
+#endif // CHMOD_H

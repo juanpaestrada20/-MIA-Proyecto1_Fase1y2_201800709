@@ -40,7 +40,7 @@ int main()
 void menu(){
     string entrada = "";
     system("clear");
-    cout << "MANEJO E IMPLEMENTACIO DE ARCHIVOS" << endl;
+    cout << "MANEJO E IMPLEMENTACION DE ARCHIVOS" << endl;
     while(entrada != "exit"){
         cout << "201800709@MIA: ~$ ";
         getline(cin, entrada);

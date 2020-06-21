@@ -24,6 +24,13 @@
 #include "MKGRP.h"
 #include "RMGRP.h"
 #include "MKUSR.h"
+#include "RMUSR.h"
+#include "CHMOD.h"
+#include "MKDir.h"
+#include "CAT.h"
+#include "MKFILE.h"
+#include "REM.h"
+#include "MV.h"
 
 extern QList<Mount> *montajes;
 extern bool login;

@@ -46,13 +46,14 @@ void Login::Ejecutar(){
         daLoguer.fit = masterboot.partitions[index].fit;
         daLoguer.inicioJournal = masterboot.partitions[index].start + sizeof(SuperBloque);
         daLoguer.tipo_sistema = super.s_filesystem_type;
-        bool correcto = ComprobarLogin(this->user, this->pass, this->ruta);
-        if(correcto){
+        int res = ComprobarLogin(this->user, this->pass, this->ruta);
+        if(res == 1){
             login = true;
             cout << "Sesion iniciada con exito" << endl;
-        }else{
-            cout << "Usuario y/o Contraseña incorrecta" << endl;
-        }
+        }else if(res == 2)
+            cout << "Contraseña incorrecta" << endl;
+        else if(res == 0)
+            cout << "Usuario no encontrado" << endl;
 
     }else{
         cout << "Debe montar la particion con el id: " << this->id << endl;
@@ -75,68 +76,69 @@ bool Login::GetRuta(string id){
     return false;
 }
 
-bool Login::ComprobarLogin(string user, string password, string direccion){
-    FILE *fp = fopen(direccion.c_str(),"rb+");
+int Login::ComprobarLogin(string user, string password, string direccion){
+    FILE *fp = fopen(direccion.c_str(),"r+b");
 
-        char cadena[400] = "\0";
-        SuperBloque super;
-        InodoTable inodo;
+    char cadena[400] = "\0";
+    SuperBloque super;
+    InodoTable inodo;
 
-        fseek(fp,daLoguer.inicioSuper,SEEK_SET);
-        fread(&super,sizeof(SuperBloque),1,fp);
-        //Leemos el inodo del archivo users.txt
-        fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable)),SEEK_SET);
-        fread(&inodo,sizeof(InodoTable),1,fp);
+    fseek(fp,daLoguer.inicioSuper,SEEK_SET);
+    fread(&super,sizeof(SuperBloque),1,fp);
+    //Leemos el inodo del archivo users.txt
+    fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable)),SEEK_SET);
+    fread(&inodo,sizeof(InodoTable),1,fp);
 
-        for(int i = 0; i < 15; i++){
-            if(inodo.i_block[i] != -1){
-                BloqueArchivo archivo;
-                fseek(fp,super.s_block_start,SEEK_SET);
-                for(int j = 0; j <= inodo.i_block[i]; j++){
-                    fread(&archivo,sizeof(BloqueArchivo),1,fp);
+    for(int i = 0; i < 15; i++){
+        if(inodo.i_block[i] != -1){
+            BloqueArchivo archivo;
+            fseek(fp,super.s_block_start,SEEK_SET);
+            for(int j = 0; j <= inodo.i_block[i]; j++){
+                fread(&archivo,sizeof(BloqueArchivo),1,fp);
+            }
+            strcat(cadena,archivo.b_content);
+        }
+    }
+
+    fclose(fp);
+
+    char *end_str;
+    char *token = strtok_r(cadena,"\n",&end_str);
+    while(token != nullptr){
+        char id[2];
+        char tipo[2];
+        string group;
+        char user_[12];
+        char password_[12];
+        char *end_token;
+        char *token2 = strtok_r(token,",",&end_token);
+        strcpy(id,token2);
+        if(strcmp(id,"0") != 0){//Verificar que no sea un U/G eliminado
+            token2=strtok_r(nullptr,",",&end_token);
+            strcpy(tipo,token2);
+
+            if(strcmp(tipo,"U") == 0){
+                token2 = strtok_r(nullptr,",",&end_token);
+                group = token2;
+                token2 = strtok_r(nullptr,",",&end_token);
+                strcpy(user_,token2);
+                token2 = strtok_r(nullptr,",",&end_token);
+                strcpy(password_,token2);
+                if(strcmp(user_,user.c_str()) == 0){
+                    if(strcmp(password_,password.c_str()) == 0){
+                        daLoguer.direccion = direccion;
+                        daLoguer.id_user = atoi(id);
+                        daLoguer.id_grp = Get_Id_Group(group);
+                        return 1;
+                    }else
+                        return 2;
                 }
-                strcat(cadena,archivo.b_content);
             }
         }
+        token = strtok_r(nullptr,"\n",&end_str);
+    }
 
-        fclose(fp);
-
-        char *end_str;
-        char *token = strtok_r(cadena,"\n",&end_str);
-        while(token != nullptr){
-            char id[2];
-            char tipo[2];
-            string group;
-            char user_[12];
-            char password_[12];
-            char *end_token;
-            char *token2 = strtok_r(token,",",&end_token);
-            strcpy(id,token2);
-            if(strcmp(id,"0") != 0){//Verificar que no sea un U/G eliminado
-                token2=strtok_r(nullptr,",",&end_token);
-                strcpy(tipo,token2);
-                if(strcmp(tipo,"U") == 0){
-                    token2 = strtok_r(nullptr,",",&end_token);
-                    group = token2;
-                    token2 = strtok_r(nullptr,",",&end_token);
-                    strcpy(user_,token2);
-                    token2 = strtok_r(nullptr,",",&end_token);
-                    strcpy(password_,token2);
-                    if(strcmp(user_,user.c_str()) == 0){
-                        if(strcmp(password_,password.c_str()) == 0){
-                            daLoguer.direccion = direccion;
-                            daLoguer.id_user = atoi(id);
-                            daLoguer.id_grp = Get_Id_Group(group);
-                            return true;
-                        }else
-                            return false;
-                    }
-                }
-            }
-            token = strtok_r(nullptr,"\n",&end_str);
-        }
-
-        return false;
+    return 0;
 }
 
 void Login::Eliminar_Espacios(char *cadena){
@@ -148,52 +150,52 @@ void Login::Eliminar_Espacios(char *cadena){
 
 int Login::Get_Id_Group(string name)
 {
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
-        char cadena[400] = "\0";
-        SuperBloque super;
-        InodoTable inodo;
+    char cadena[400] = "\0";
+    SuperBloque super;
+    InodoTable inodo;
 
-        fseek(fp,daLoguer.inicioSuper,SEEK_SET);
-        fread(&super,sizeof(SuperBloque),1,fp);
-        //Leemos el inodo del archivo users.txt
-        fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable)), SEEK_SET);
-        fread(&inodo,sizeof(InodoTable),1,fp);
+    fseek(fp,daLoguer.inicioSuper,SEEK_SET);
+    fread(&super,sizeof(SuperBloque),1,fp);
+    //Leemos el inodo del archivo users.txt
+    fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable)), SEEK_SET);
+    fread(&inodo,sizeof(InodoTable),1,fp);
 
-        for(int i = 0; i < 15; i++){
-            if(inodo.i_block[i] != -1){
-                BloqueArchivo archivo;
-                fseek(fp,super.s_block_start,SEEK_SET);
-                for(int j = 0; j <= inodo.i_block[i]; j++){
-                    fread(&archivo,sizeof(BloqueArchivo),1,fp);
-                }
-                strcat(cadena,archivo.b_content);
+    for(int i = 0; i < 15; i++){
+        if(inodo.i_block[i] != -1){
+            BloqueArchivo archivo;
+            fseek(fp,super.s_block_start,SEEK_SET);
+            for(int j = 0; j <= inodo.i_block[i]; j++){
+                fread(&archivo,sizeof(BloqueArchivo),1,fp);
+            }
+            strcat(cadena,archivo.b_content);
+        }
+    }
+
+    fclose(fp);
+
+    char *end_str;
+    char *token = strtok_r(cadena,"\n",&end_str);
+    while(token != nullptr){
+        char id[2];
+        char tipo[2];
+        char group[12];
+        char *end_token;
+        char *token2 = strtok_r(token,",",&end_token);
+        strcpy(id,token2);
+        if(strcmp(id,"0") != 0){//Verificar que no sea un U/G eliminado
+            token2 = strtok_r(nullptr,",",&end_token);
+            strcpy(tipo,token2);
+            if(strcmp(tipo,"G") == 0){
+                strcpy(group,end_token);
+                if(strcmp(group,name.c_str()) == 0)
+                    return atoi(id);
             }
         }
+        token = strtok_r(nullptr,"\n",&end_str);
+    }
 
-        fclose(fp);
-
-        char *end_str;
-        char *token = strtok_r(cadena,"\n",&end_str);
-        while(token != nullptr){
-            char id[2];
-            char tipo[2];
-            char group[12];
-            char *end_token;
-            char *token2 = strtok_r(token,",",&end_token);
-            strcpy(id,token2);
-            if(strcmp(id,"0") != 0){//Verificar que no sea un U/G eliminado
-                token2 = strtok_r(nullptr,",",&end_token);
-                strcpy(tipo,token2);
-                if(strcmp(tipo,"G") == 0){
-                    strcpy(group,end_token);
-                    if(strcmp(group,name.c_str()) == 0)
-                        return atoi(id);
-                }
-            }
-            token = strtok_r(nullptr,"\n",&end_str);
-        }
-
-        return -1;
+    return -1;
 }
 

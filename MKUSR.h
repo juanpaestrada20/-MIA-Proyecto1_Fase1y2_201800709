@@ -26,7 +26,7 @@ private:
 public:
     MKUSR(string, string, string);
     void Ejecutar();
-    bool buscarGrupo(string);
+    int buscarGrupo(string);
     bool buscarUsuario(string);
     void agregarUsuario(string);
     void agregarUsuariosTexto(string);

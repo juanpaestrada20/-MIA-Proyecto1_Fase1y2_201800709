@@ -9,7 +9,7 @@ void MKGRP::Ejecutar(){
     if(login){
         if(daLoguer.id_user == 1 && daLoguer.id_grp == 1){
             if(this->name.length() <= 10){
-                if(buscarGrupo(this->name)){
+                if(buscarGrupo(this->name) == -1){
                     int idGrp = Get_Id_Group();
                     string nuevoGrupo = to_string(idGrp)+",G,"+this->name+"\n";
                     agregarUsers(nuevoGrupo);
@@ -37,7 +37,7 @@ void MKGRP::Ejecutar(){
     }
 }
 
-bool MKGRP::buscarGrupo(string name){
+int MKGRP::buscarGrupo(string name){
     FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
     char cadena[400] = "\0";
@@ -78,19 +78,17 @@ bool MKGRP::buscarGrupo(string name){
             if(strcmp(tipo,"G") == 0){
                 strcpy(group,end_token);
                 if(strcmp(group,name.c_str()) == 0)
-                    //return atoi(id);
-                    return false;
+                    return atoi(id);
             }
         }
         token = strtok_r(nullptr,"\n",&end_str);
     }
 
-    //return -1;
-    return true;
+    return -1;
 }
 
 int MKGRP::Get_Id_Group(){
-    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"rb+");
 
     char cadena[400] = "\0";
     int aux_id = -1;
@@ -136,8 +134,9 @@ int MKGRP::Get_Id_Group(){
     return ++aux_id;
 }
 
-void MKGRP::agregarUsers(string datos){
-    FILE *fp = fopen(daLoguer.direccion.c_str(), "r+b");
+void MKGRP::agregarUsers(string d){
+    QString datos = QString::fromStdString(d);
+    FILE *fp = fopen(daLoguer.direccion.c_str(), "rb+");
 
     SuperBloque super;
     InodoTable inodo;
@@ -160,13 +159,13 @@ void MKGRP::agregarUsers(string datos){
     int enUso = static_cast<int>(strlen(archivo.b_content));
     int libre = 63 - enUso;
 
-    if((int)datos.length() <= libre){
-        strcat(archivo.b_content,datos.c_str());
+    if(datos.length() <= libre){
+        strcat(archivo.b_content,datos.toStdString().c_str());
         fseek(fp,super.s_block_start + static_cast<int>(sizeof(BloqueArchivo))*blockIndex,SEEK_SET);
         fwrite(&archivo,sizeof(BloqueArchivo),1,fp);
         fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable)),SEEK_SET);
         fread(&inodo,sizeof(InodoTable),1,fp);
-        inodo.i_size = inodo.i_size + (int) datos.length();
+        inodo.i_size = inodo.i_size + datos.length();
         inodo.i_mtime = time(nullptr);
         fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable)),SEEK_SET);
         fwrite(&inodo,sizeof(InodoTable),1,fp);
@@ -178,7 +177,7 @@ void MKGRP::agregarUsers(string datos){
         for(i = 0; i < libre; i++)
             aux += datos.at(i);
 
-        for(; i < (int)datos.length(); i++)
+        for(; i < datos.length(); i++)
             aux2  += datos.at(i);
 
         //Guardamos lo que cabe en el primer bloque
@@ -229,7 +228,7 @@ int MKGRP::buscarBit(FILE *fp, char tipo, char fit){
     }
 
     /*----------------Tipo de ajuste a utilizar----------------*/
-    if(fit == 'F'){//Primer ajuste
+    if(fit == 'f' || fit == 'F'){//Primer ajuste
         for(int i = 0; i < tam_bm; i++){
             fseek(fp,inicio_bm + i,SEEK_SET);
             tempBit = static_cast<char>(fgetc(fp));
@@ -242,7 +241,7 @@ int MKGRP::buscarBit(FILE *fp, char tipo, char fit){
         if(bit_libre == -1)
             return -1;
 
-    }else if(fit == 'B'){//Mejor ajuste
+    }else if(fit == 'b' || fit == 'B'){//Mejor ajuste
         int libres = 0;
         int auxLibres = -1;
 
@@ -287,7 +286,7 @@ int MKGRP::buscarBit(FILE *fp, char tipo, char fit){
 
         return -1;
 
-    }else if(fit == 'W'){//Peor ajuste
+    }else if(fit == 'w' || fit == 'W'){//Peor ajuste
         int libres = 0;
         int auxLibres = -1;
 
@@ -358,14 +357,11 @@ void MKGRP::guardarJournal(char *operacion, int tipo, int permisos, char *nombre
     int inicio_journal = daLoguer.inicioSuper + static_cast<int>(sizeof(SuperBloque));
     int final_journal = super.s_bm_inode_start;
     fseek(fp,inicio_journal,SEEK_SET);
-    cout << inicio_journal << endl;
     while((ftell(fp) < final_journal) && !ultimo){
-        cout << ftell(fp) << endl;
         fread(&registroAux,sizeof(Journal),1,fp);
         if(registroAux.journal_type != 1 && registroAux.journal_type != 2)
             ultimo = true;
     }
-    cout << ftell(fp)-sizeof(Journal)<<endl;
     fseek(fp,ftell(fp)- sizeof(Journal),SEEK_SET);
     fwrite(&registro,sizeof(Journal),1,fp);
     fclose(fp);

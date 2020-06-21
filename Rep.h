@@ -9,14 +9,18 @@
 #include "MKDisk.h"
 #include "Mount.h"
 
+extern Sesion daLoguer;
+
 class Rep{
 public:
     string id;
     QString name;
     QString path;
+    string ext;
+    string ruta;
     int posMontada;
     QList<Mount> *montajes;
-    Rep(QString , QString, string, QList<Mount> *);
+    Rep(QString , QString, string, QList<Mount> *,string);
     void Analizar_Rep(int );
 
     void Hacer_Reporte();
@@ -28,6 +32,26 @@ public:
     void VerificarDirectorio();
     string getRuta();
     void graficarJournaling(string, string, string, int);
+    void graficarInodos(string , string , string ,int ,int ,int );
+    void ReporteInodos(string);
+    void ReporteFile(string);
+    string getExtension(QString);
+    void ReporteBlock(string);
+    void graficarBloques(string , string, string, int, int, int);
+    void ReporteBM_Inode(string);
+    void reporteBM(string, QString, int, int);
+    void ReporteBM_Block(string);
+    void ReporteTree(string);
+    void graficarTree(string, QString, string, int);
+    void ReporteSB(string);
+    void graficarSuper(string, QString, string, int);
+    void graficarFILE(string, QString, string, QString,int,int);
+    void ReporteLS(string);
+    void graficarPermisos(string, QString, string, int, int, Usuario, QString);
+    int buscarCarpetaArchivo(FILE*, char*);
+    int byteInodoBloque(FILE*, int, char);
+    Usuario getUsuario(string,int, int);
+    int buscarGrupo(string);
 };
 
 

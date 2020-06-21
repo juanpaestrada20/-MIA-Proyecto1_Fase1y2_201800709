@@ -1,5 +1,5 @@
-#ifndef RMGRP_H
-#define RMGRP_H
+#ifndef RMUSR_H
+#define RMUSR_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -17,15 +17,15 @@ extern QList<Mount> *montajes;
 extern Sesion daLoguer;
 extern bool login;
 
-class RMGRP
+class RMUSR
 {
 private:
-    string name;
+    string user;
 public:
-    RMGRP(string);
+    RMUSR(string);
     void Ejecutar();
-    int buscarGrupo(string);
-    void EliminarGrupo(string);
+    bool BuscarUsuario(string);
+    void EliminarUsuario(string);
 };
 
-#endif // RMGRP_H
+#endif // RMUSR_H

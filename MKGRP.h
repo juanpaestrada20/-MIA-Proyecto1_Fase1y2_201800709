@@ -24,7 +24,7 @@ private:
 public:
     MKGRP(string);
     void Ejecutar();
-    bool buscarGrupo(string);
+    int buscarGrupo(string);
     int Get_Id_Group();
     void agregarUsers(string);
     void guardarJournal(char* , int , int, char*);
