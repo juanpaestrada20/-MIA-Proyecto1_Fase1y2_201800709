@@ -1,5 +1,5 @@
-#ifndef CAT_H
-#define CAT_H
+#ifndef MV_H
+#define MV_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -17,16 +17,22 @@ extern QList<Mount> *montajes;
 extern Sesion daLoguer;
 extern bool login;
 
-class CAT
+class MV
 {
 private:
     string path;
+    string dest;
 public:
-    CAT(string);
+    MV(string, string);
     void Ejecutar();
     int buscarCarpetaArchivo(FILE*, char*);
     int byteInodoBloque(FILE*, int, char);
+    bool permisosLecturaRecursivo(FILE*, int);
     bool permisosDeLectura(int, bool, bool);
+    bool permisosDeEscritura(int, bool, bool);
+    void moverCarpetaArchivo(FILE*, int, char*, int);
+    int buscarBit(FILE*, char,char);
+    void bloqueCarpetaArchivo(FILE*, char*, int &, int &,int &,int &);
 };
 
-#endif // CAT_H
+#endif // MV_H

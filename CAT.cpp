@@ -46,9 +46,9 @@ void CAT::Ejecutar(){
                 }
                 cout << cadena << endl;
             }else
-                cout << "ERROR el usuario no tiene permisos de lectura" << endl;
+                cout << "El usuario no tiene permisos de lectura" << endl;
         }else
-            cout << "ERROR no se encuentra el archivo " << path << endl;
+            cout << "No se encuentra el archivo " << path << endl;
         fclose(fp);
     }else{
         cout << "Debe iniciar sesion para usar el comando" << endl;

@@ -81,7 +81,7 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     } else if(tipoComando == "Rep"){
         Opciones_Parametro(&raiz->hijos[0], 5);
         if(!this->error){
-            Rep *rep = new Rep(this->name, this->path, this->ID.toStdString(), montajes);
+            Rep *rep = new Rep(this->name, this->path, this->ID.toStdString(), montajes, this->user);
             rep->Hacer_Reporte();
         }
         restorePred();
@@ -187,8 +187,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             this->error= true;
         }
         if(!this->error){
-            //            Rem *rem = new Rem();
-            //            rem->Ejecutar();
+            REM *rem = new REM(this->path.toStdString());
+            rem->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Edit"){
@@ -222,8 +222,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     }else if (tipoComando == "Mv"){
         Opciones_Parametro(&raiz->hijos[0], 14);
         if(!this->error){
-            //            Edit *edit = new Edit();
-            //            edit->Ejecutar();
+            MV *edit = new MV(this->path.toStdString(), this->dest);
+            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Find"){
@@ -248,7 +248,7 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
         }
         restorePred();
     }else if (tipoComando == "Pause"){
-        cout << "Presiona cualquier tecla para continuar ";
+        cout << "Presiona enter para continuar...";
         getchar();
         restorePred();
     }
@@ -511,6 +511,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         QString name = "";
         QString id = "";
         QString parametro;
+        string ruta = "";
         for(int i = 0; i < cantParametros; i++){
             parametro=raiz->hijos[i].valor;
             if(parametro == "Path"){
@@ -519,12 +520,15 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
                 name = raiz->hijos[i].hijos[0].valor;
             } else if(parametro == "ID"){
                 id = raiz->hijos[i].hijos[0].valor;
+            }else if(parametro == "Ruta"){
+                ruta = raiz->hijos[i].hijos[0].valor.toStdString();
             }
         }
         if(path != "" && name != "" && id != ""){
             this->path = path;
             this->name = name.toLower();
             this->ID = id;
+            this->user = ruta;
         }else{
             this->error = true;
             printf("Parametros Obligatorios no encontrados\n");

@@ -43,10 +43,17 @@ void MKDir::Ejecutar(){
 void MKDir::guardarJournal(char *operacion, int tipo, int permisos, char *nombre){
     SuperBloque super;
     Journal registro;
+    string comando = "Ruta: "+this->path+", P: ";
+    if(this->padre){
+        comando+="Si";
+    }else{
+        comando+="No";
+    }
     memset(registro.journal_name,'\0',sizeof(registro.journal_name));
     memset(registro.journal_operation_type,'\0',sizeof(registro.journal_operation_type));
     strcpy(registro.journal_operation_type,operacion);
     strcpy(registro.journal_name,nombre);
+    strcpy(registro.operation,comando.c_str());
     registro.journal_type = tipo;
     registro.journal_date = time(0);
     registro.journal_owner = daLoguer.id_user;
@@ -60,14 +67,11 @@ void MKDir::guardarJournal(char *operacion, int tipo, int permisos, char *nombre
     int inicio_journal = daLoguer.inicioSuper + static_cast<int>(sizeof(SuperBloque));
     int final_journal = super.s_bm_inode_start;
     fseek(fp,inicio_journal,SEEK_SET);
-    cout << inicio_journal << endl;
     while((ftell(fp) < final_journal) && !ultimo){
-        cout << ftell(fp) << endl;
         fread(&registroAux,sizeof(Journal),1,fp);
         if(registroAux.journal_type != 1 && registroAux.journal_type != 2)
             ultimo = true;
     }
-    cout << ftell(fp)-sizeof(Journal)<<endl;
     fseek(fp,ftell(fp)- sizeof(Journal),SEEK_SET);
     fwrite(&registro,sizeof(Journal),1,fp);
     fclose(fp);
@@ -94,6 +98,17 @@ int MKDir::crearCarpeta(string path, bool p){
     fclose(fp);
 
     return response;
+}
+
+int MKDir::byteInodoBloque(FILE *stream,int pos, char tipo){
+    SuperBloque super;
+    fseek(stream,daLoguer.inicioSuper,SEEK_SET);
+    fread(&super,sizeof(SuperBloque),1,stream);
+    if(tipo == '1'){
+        return (super.s_inode_start + static_cast<int>(sizeof(InodoTable))*pos);
+    }else if(tipo == '2')
+        return (super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*pos);
+    return 0;
 }
 
 int MKDir::buscarCarpetaArchivo(FILE *stream, char* path){
@@ -168,17 +183,6 @@ int MKDir::buscarCarpetaArchivo(FILE *stream, char* path){
     }
 
     return -1;
-}
-
-int MKDir::byteInodoBloque(FILE *stream,int pos, char tipo){
-    SuperBloque super;
-    fseek(stream,daLoguer.inicioSuper,SEEK_SET);
-    fread(&super,sizeof(SuperBloque),1,stream);
-    if(tipo == '1'){
-        return (super.s_inode_start + static_cast<int>(sizeof(InodoTable))*pos);
-    }else if(tipo == '2')
-        return (super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*pos);
-    return 0;
 }
 
 int MKDir::nuevaCarpeta(FILE *stream, char fit, bool flagP, char *path, int index){
@@ -624,7 +628,7 @@ int MKDir::buscarBit(FILE *fp, char tipo, char fit){
     }
 
     /*----------------Tipo de ajuste a utilizar----------------*/
-    if(fit == 'F'){//Primer ajuste
+    if(fit == 'f' || fit == 'F'){//Primer ajuste
         for(int i = 0; i < tam_bm; i++){
             fseek(fp,inicio_bm + i,SEEK_SET);
             tempBit = static_cast<char>(fgetc(fp));
@@ -637,7 +641,7 @@ int MKDir::buscarBit(FILE *fp, char tipo, char fit){
         if(bit_libre == -1)
             return -1;
 
-    }else if(fit == 'B'){//Mejor ajuste
+    }else if(fit == 'b' || fit == 'B'){//Mejor ajuste
         int libres = 0;
         int auxLibres = -1;
 
@@ -682,7 +686,7 @@ int MKDir::buscarBit(FILE *fp, char tipo, char fit){
 
         return -1;
 
-    }else if(fit == 'W'){//Peor ajuste
+    }else if(fit == 'w' || fit == 'W'){//Peor ajuste
         int libres = 0;
         int auxLibres = -1;
 

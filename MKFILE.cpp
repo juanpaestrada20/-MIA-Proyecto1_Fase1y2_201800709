@@ -24,7 +24,7 @@ void MKFILE::Ejecutar(){
                     }else{
                         padre = "No";
                     }
-                    string datos = "Ruta: "+this->path+" P: "+padre+" Size: "+to_string(this->size)+" Cont: "+this->cont;
+                    string datos = "Ruta: "+this->path+", P: "+padre+", Size: "+to_string(this->size)+", Cont: "+this->cont;
                     strcpy(aux,datos.c_str());
                     strcpy(operacion,"mkfile");
                     guardarJournal(operacion,1,664,aux);

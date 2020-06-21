@@ -26,7 +26,9 @@ SOURCES += \
         MKFS.cpp \
         MKGRP.cpp \
         MKUSR.cpp \
+        MV.cpp \
         Mount.cpp \
+        REM.cpp \
         RMDisk.cpp \
         RMGRP.cpp \
         RMUSR.cpp \
@@ -53,7 +55,9 @@ HEADERS += \
     MKFS.h \
     MKGRP.h \
     MKUSR.h \
+    MV.h \
     Mount.h \
+    REM.h \
     RMDisk.h \
     RMGRP.h \
     RMUSR.h \

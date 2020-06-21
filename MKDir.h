@@ -30,13 +30,13 @@ public:
     void Ejecutar();
     int crearCarpeta(string, bool);
     void guardarJournal(char* , int , int, char*);
-    int buscarCarpetaArchivo(FILE *, char* );
-    int byteInodoBloque(FILE *,int, char);
-    int nuevaCarpeta(FILE*, char, bool, char*, int);
-    int buscarContentLibre(FILE*,int,InodoTable &,BloqueCarpeta &, BloqueApuntadores &,int &,int &,int &);
+    int buscarCarpetaArchivo(FILE*, char*);
+    int byteInodoBloque(FILE*, int, char);
+    int nuevaCarpeta(FILE *, char, bool, char*, int);
+    int buscarContentLibre(FILE*, int, InodoTable &, BloqueCarpeta &, BloqueApuntadores &, int &, int &,int &);
+    int buscarBit(FILE*, char,char);
     bool permisosDeEscritura(int, bool, bool);
-    int buscarBit(FILE *, char , char );
-    InodoTable crearInodo(int,char,int );
+    InodoTable crearInodo(int, char, int);
     BloqueCarpeta crearBloqueCarpeta();
 };
 

@@ -38,8 +38,8 @@ public:
     int buscarContentLibre(FILE*, int, InodoTable &, BloqueCarpeta &, BloqueApuntadores &, int &, int &,int &);
     bool permisosDeEscritura(int, bool, bool);
     int buscarBit(FILE*, char,char);
-    InodoTable crearInodo(int, char, int);
     int nuevaCarpeta(FILE *, char, bool, char *, int);
+    InodoTable crearInodo(int, char, int);
     BloqueCarpeta crearBloqueCarpeta();
 };
 
