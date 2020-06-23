@@ -6,6 +6,18 @@ MKFILE::MKFILE(string path, bool p, int size, string cont)
     this->p = p;
     this->size = size;
     this->cont = cont;
+    this->edit = false;
+    this->texto = "";
+}
+
+MKFILE::MKFILE(string path, bool p, int size, string cont, bool edit, string texto)
+{
+    this->path = path;
+    this->p = p;
+    this->size = size;
+    this->cont = cont;
+    this->edit = edit;
+    this->texto = texto;
 }
 
 void MKFILE::Ejecutar(){
@@ -14,28 +26,30 @@ void MKFILE::Ejecutar(){
         QString name = fileName.fileName();
         if(name.length() <= 11){
             int resultado = crearArchivo(this->path, this->p, this->size, this->cont);
-            if(resultado == 1){
-                if(daLoguer.tipo_sistema == 3){
-                    char aux[500];
-                    char operacion[8];
-                    string padre="";
-                    if(this->p){
-                        padre = "Si";
-                    }else{
-                        padre = "No";
+            if(!edit){
+                if(resultado == 1){
+                    if(daLoguer.tipo_sistema == 3){
+                        char aux[500];
+                        char operacion[8];
+                        string padre="";
+                        if(this->p){
+                            padre = "Si";
+                        }else{
+                            padre = "No";
+                        }
+                        string datos = "Ruta: "+this->path+", P: "+padre+", Size: "+to_string(this->size)+", Cont: "+this->cont;
+                        strcpy(aux,datos.c_str());
+                        strcpy(operacion,"mkfile");
+                        guardarJournal(operacion,1,664,aux);
                     }
-                    string datos = "Ruta: "+this->path+", P: "+padre+", Size: "+to_string(this->size)+", Cont: "+this->cont;
-                    strcpy(aux,datos.c_str());
-                    strcpy(operacion,"mkfile");
-                    guardarJournal(operacion,1,664,aux);
+                    cout << "Archivo creado con exito" << endl;
+                }else if(resultado == 2){
+                    cout << "El usuario no tiene permisos de escritura" << endl;
+                }else if(resultado == 3){
+                    cout << "El archivo contenido no existe" << endl;
+                }else if(resultado == 4){
+                    cout << "No existe la ruta y no coloco el parametro -P" << endl;
                 }
-                cout << "Archivo creado con exito" << endl;
-            }else if(resultado == 2){
-                cout << "El usuario no tiene permisos de escritura" << endl;
-            }else if(resultado == 3){
-                cout << "El archivo contenido no existe" << endl;
-            }else if(resultado == 4){
-                cout << "No existe la ruta y no coloco el parametro -P" << endl;
             }
         }else{
             cout << "El nombre del archivo es mas grande que lo esperado" << endl;
@@ -362,9 +376,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                         archivo.b_content[j] = content[contChar];
                                         contChar++;
                                     }else{//-size
-                                        archivo.b_content[j] = contentSize[charNum];
+                                        if(!edit){
+                                            archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                         charNum++;
-                                        if(charNum == 10)
+                                        if(charNum == 10 && !edit)
                                             charNum = 0;
                                     }
                                 }
@@ -378,9 +396,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                         archivo.b_content[j] = content[contChar];
                                         contChar++;
                                     }else{
-                                        archivo.b_content[j] = contentSize[charNum];
+                                        if(!edit){
+                                            archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                         charNum++;
-                                        if(charNum == 10)
+                                        if(charNum == 10 && !edit)
                                             charNum = 0;
                                     }
                                 }
@@ -413,9 +435,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                         archivo.b_content[j] = content[contChar];
                                         contChar++;
                                     }else{//-size
-                                        archivo.b_content[j] = contentSize[charNum];
+                                        if(!edit){
+                                            archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                         charNum++;
-                                        if(charNum == 10)
+                                        if(charNum == 10 && !edit)
                                             charNum = 0;
                                     }
                                 }
@@ -429,9 +455,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                         archivo.b_content[j] = content[contChar];
                                         contChar++;
                                     }else{
-                                        archivo.b_content[j] = contentSize[charNum];
+                                        if(!edit){
+                                            archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                         charNum++;
-                                        if(charNum == 10)
+                                        if(charNum == 10 && !edit)
                                             charNum = 0;
                                     }
                                 }
@@ -452,9 +482,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                         archivo.b_content[j] = content[contChar];
                                         contChar++;
                                     }else{//-size
-                                        archivo.b_content[j] = contentSize[charNum];
+                                        if(!edit){
+                                            archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                         charNum++;
-                                        if(charNum == 10)
+                                        if(charNum == 10  && !edit)
                                             charNum = 0;
                                     }
                                 }
@@ -475,9 +509,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                         archivo.b_content[j] = content[contChar];
                                         contChar++;
                                     }else{
-                                        archivo.b_content[j] = contentSize[charNum];
+                                        if(!edit){
+                                            archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                         charNum++;
-                                        if(charNum == 10)
+                                        if(charNum == 10 && !edit)
                                             charNum = 0;
                                     }
                                 }
@@ -603,9 +641,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                             archivo.b_content[j] = content[contChar];
                                             contChar++;
                                         }else{//-size
-                                            archivo.b_content[j] = contentSize[charNum];
+                                            if(!edit){
+                                                archivo.b_content[j] = contentSize[charNum];
+                                            }else{
+                                                archivo.b_content[j] = texto[charNum];
+                                            }
                                             charNum++;
-                                            if(charNum == 10)
+                                            if(charNum == 10 && !edit)
                                                 charNum = 0;
                                         }
                                     }
@@ -619,9 +661,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                             archivo.b_content[j] = content[contChar];
                                             contChar++;
                                         }else{
+                                            if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                             charNum++;
-                                            if(charNum == 10)
+                                            if(charNum == 10 && !edit)
                                                 charNum = 0;
                                         }
                                     }
@@ -654,9 +700,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                             archivo.b_content[j] = content[contChar];
                                             contChar++;
                                         }else{//-size
+                                            if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                             charNum++;
-                                            if(charNum == 10)
+                                            if(charNum == 10 && !edit)
                                                 charNum = 0;
                                         }
                                     }
@@ -670,9 +720,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                             archivo.b_content[j] = content[contChar];
                                             contChar++;
                                         }else{
+                                            if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                             charNum++;
-                                            if(charNum == 10)
+                                            if(charNum == 10 && !edit)
                                                 charNum = 0;
                                         }
                                     }
@@ -694,9 +748,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                             archivo.b_content[j] = content[contChar];
                                             contChar++;
                                         }else{//-size
+                                            if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                             charNum++;
-                                            if(charNum == 10)
+                                            if(charNum == 10 && !edit)
                                                 charNum = 0;
                                         }
                                     }
@@ -716,9 +774,13 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                             archivo.b_content[j] = content[contChar];
                                             contChar++;
                                         }else{
+                                            if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
+                                        }else{
+                                            archivo.b_content[j] = texto[charNum];
+                                        }
                                             charNum++;
-                                            if(charNum == 10)
+                                            if(charNum == 10 && !edit)
                                                 charNum = 0;
                                         }
                                     }

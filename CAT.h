@@ -27,6 +27,8 @@ public:
     int buscarCarpetaArchivo(FILE*, char*);
     int byteInodoBloque(FILE*, int, char);
     bool permisosDeLectura(int, bool, bool);
+    bool permisosDeEscritura(int, bool, bool);
+    void guardarJournal(char*, int, int, char*);
 };
 
 #endif // CAT_H

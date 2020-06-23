@@ -26,6 +26,7 @@ public:
     void Ejecutar();
     int buscarGrupo(string);
     void EliminarGrupo(string);
+    void guardarJournal(char*, int, int, char*);
 };
 
 #endif // RMGRP_H

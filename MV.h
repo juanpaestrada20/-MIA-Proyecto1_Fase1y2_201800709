@@ -33,6 +33,7 @@ public:
     void moverCarpetaArchivo(FILE*, int, char*, int);
     int buscarBit(FILE*, char,char);
     void bloqueCarpetaArchivo(FILE*, char*, int &, int &,int &,int &);
+    void guardarJournal(char*, int, int, char*);
 };
 
 #endif // MV_H
