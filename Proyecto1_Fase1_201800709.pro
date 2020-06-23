@@ -17,7 +17,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         CAT.cpp \
         CHMOD.cpp \
+        EDIT.cpp \
         FDisk.cpp \
+        FIND.cpp \
         Interprete.cpp \
         Login.cpp \
         MKDir.cpp \
@@ -46,7 +48,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     CAT.h \
     CHMOD.h \
+    EDIT.h \
     FDisk.h \
+    FIND.h \
     Interprete.h \
     Login.h \
     MKDir.h \

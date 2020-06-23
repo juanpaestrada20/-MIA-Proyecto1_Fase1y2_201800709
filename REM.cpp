@@ -1,8 +1,9 @@
 #include "REM.h"
 
-REM::REM(string path)
+REM::REM(string path, bool edit)
 {
     this->path = path;
+    this->edit = edit;
 }
 
 void REM::Ejecutar(){
@@ -42,15 +43,57 @@ void REM::Ejecutar(){
                 }
                 //Eliminar la carpeta/archivo
                 eliminarCarpetaArchivo(fp,existe);
-                cout << "Removido con exito" << endl;
+                if(!edit){
+                    cout << "Removido con exito" << endl;
+                    char aux[500];
+                    char operacion[8];
+                    string datos = "Ruta: "+this->path;
+                    strcpy(aux,datos.c_str());
+                    strcpy(operacion,"REM");
+                    guardarJournal(operacion,1,664,aux);
+                }
             }else
-                cout << "ERROR: alguna carpeta hija no posee permisos de escritura" << endl;
+                if(!edit)
+                    cout << "ERROR: alguna carpeta hija no posee permisos de escritura" << endl;
         }else
-            cout << "ERROR: no se encuentra la direccion" << endl;
+            if(!edit)
+                cout << "ERROR: no se encuentra la direccion" << endl;
         fclose(fp);
     }else{
-        cout << "Debe iniciar sesion para usar el comando" << endl;
+        if(!edit)
+            cout << "Debe iniciar sesion para usar el comando" << endl;
     }
+}
+
+void REM::guardarJournal(char *operacion, int tipo, int permisos, char *nombre){
+    SuperBloque super;
+    Journal registro;
+    memset(registro.journal_name,'\0',sizeof(registro.journal_name));
+    memset(registro.journal_operation_type,'\0',sizeof(registro.journal_operation_type));
+    strcpy(registro.journal_operation_type,operacion);
+    strcpy(registro.journal_name,nombre);
+    strcpy(registro.operation,nombre);
+    registro.journal_type = tipo;
+    registro.journal_date = time(0);
+    registro.journal_owner = daLoguer.id_user;
+    registro.journal_permissions = permisos;
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
+    //Buscar el ultimo journal
+    Journal registroAux;
+    bool ultimo = false;
+    fseek(fp,daLoguer.inicioSuper,SEEK_SET);
+    fread(&super,sizeof(SuperBloque),1,fp);
+    int inicio_journal = daLoguer.inicioSuper + static_cast<int>(sizeof(SuperBloque));
+    int final_journal = super.s_bm_inode_start;
+    fseek(fp,inicio_journal,SEEK_SET);
+    while((ftell(fp) < final_journal) && !ultimo){
+        fread(&registroAux,sizeof(Journal),1,fp);
+        if(registroAux.journal_type != 1 && registroAux.journal_type != 2)
+            ultimo = true;
+    }
+    fseek(fp,ftell(fp)- sizeof(Journal),SEEK_SET);
+    fwrite(&registro,sizeof(Journal),1,fp);
+    fclose(fp);
 }
 
 int REM::byteInodoBloque(FILE *stream,int pos, char tipo){

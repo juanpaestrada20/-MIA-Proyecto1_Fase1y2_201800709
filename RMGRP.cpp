@@ -21,6 +21,37 @@ void RMGRP::Ejecutar(){
     }
 }
 
+void RMGRP::guardarJournal(char *operacion, int tipo, int permisos, char *nombre){
+    SuperBloque super;
+    Journal registro;
+    memset(registro.journal_name,'\0',sizeof(registro.journal_name));
+    memset(registro.journal_operation_type,'\0',sizeof(registro.journal_operation_type));
+    strcpy(registro.journal_operation_type,operacion);
+    strcpy(registro.journal_name,nombre);
+    strcpy(registro.operation,nombre);
+    registro.journal_type = tipo;
+    registro.journal_date = time(0);
+    registro.journal_owner = daLoguer.id_user;
+    registro.journal_permissions = permisos;
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
+    //Buscar el ultimo journal
+    Journal registroAux;
+    bool ultimo = false;
+    fseek(fp,daLoguer.inicioSuper,SEEK_SET);
+    fread(&super,sizeof(SuperBloque),1,fp);
+    int inicio_journal = daLoguer.inicioSuper + static_cast<int>(sizeof(SuperBloque));
+    int final_journal = super.s_bm_inode_start;
+    fseek(fp,inicio_journal,SEEK_SET);
+    while((ftell(fp) < final_journal) && !ultimo){
+        fread(&registroAux,sizeof(Journal),1,fp);
+        if(registroAux.journal_type != 1 && registroAux.journal_type != 2)
+            ultimo = true;
+    }
+    fseek(fp,ftell(fp)- sizeof(Journal),SEEK_SET);
+    fwrite(&registro,sizeof(Journal),1,fp);
+    fclose(fp);
+}
+
 int RMGRP::buscarGrupo(string name){
     FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
 
@@ -111,6 +142,12 @@ void RMGRP::EliminarGrupo(string name){
                                 fseek(fp,super.s_block_start+static_cast<int>(sizeof(BloqueArchivo))*numBloque,SEEK_SET);
                                 fwrite(&archivo,sizeof(BloqueArchivo),1,fp);
                                 cout << "Grupo eliminado con exito" << endl;
+                                char aux[500];
+                                char operacion[8];
+                                string datos = "Grupo: "+this->name;
+                                strcpy(aux,datos.c_str());
+                                strcpy(operacion,"RMGRP");
+                                guardarJournal(operacion,1,0,aux);
                                 flag = true;
                                 break;
                             }

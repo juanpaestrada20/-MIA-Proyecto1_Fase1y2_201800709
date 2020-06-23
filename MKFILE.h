@@ -22,13 +22,15 @@ extern bool login;
 
 class MKFILE
 {
-private:
+public:
     string path;
     bool p;
     int size;
     string cont;
-public:
+    bool edit;
+    string texto;
     MKFILE(string, bool, int, string);
+    MKFILE(string, bool, int, string, bool, string);
     void Ejecutar();
     int crearArchivo(string, bool, int, string);
     void guardarJournal(char*, int, int, char*);

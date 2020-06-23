@@ -164,6 +164,7 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
         Opciones_Parametro(&raiz->hijos[0], 10);
         if(!this->error){
             MKFILE *mkfile = new MKFILE(this->path.toStdString(), this->carpetaPadre, this->size, this->cont);
+            archivos->append(*mkfile);
             mkfile->Ejecutar();
         }
         restorePred();
@@ -187,15 +188,15 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
             this->error= true;
         }
         if(!this->error){
-            REM *rem = new REM(this->path.toStdString());
+            REM *rem = new REM(this->path.toStdString(), false);
             rem->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Edit"){
         Opciones_Parametro(&raiz->hijos[0], 11);
         if(!this->error){
-            //            Edit *edit = new Edit();
-            //            edit->Ejecutar();
+            EDIT *edit = new EDIT(this->path.toStdString(), this->cont);
+            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Ren"){
@@ -215,8 +216,7 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     }else if (tipoComando == "Cp"){
         Opciones_Parametro(&raiz->hijos[0], 14);
         if(!this->error){
-            //            Edit *edit = new Edit();
-            //            edit->Ejecutar();
+/////////////////////////////////////////////////
         }
         restorePred();
     }else if (tipoComando == "Mv"){
@@ -229,8 +229,7 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     }else if (tipoComando == "Find"){
         Opciones_Parametro(&raiz->hijos[0], 12);
         if(!this->error){
-            //            Edit *edit = new Edit();
-            //            edit->Ejecutar();
+
         }
         restorePred();
     }else if (tipoComando == "Chown"){
@@ -698,6 +697,8 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
         if(path != "" && cont != ""){
             this->path = QString(path.c_str());
             this->cont = cont;
+            this->error = false;
+            break;
         }else{
             cout << "Parametros obligatorios faltantes" << endl;
             this->error = true;

@@ -22,8 +22,9 @@ class REM
 {
 private:
     string path;
+    bool edit;
 public:
-    REM(string);
+    REM(string, bool);
     void Ejecutar();
     int buscarCarpetaArchivo(FILE*, char*);
     int byteInodoBloque(FILE*, int, char);
@@ -31,6 +32,7 @@ public:
     bool permisosDeEscritura(int, bool, bool);
     void bloqueCarpetaArchivo(FILE*, char*, int &, int &,int &,int &);
     void eliminarCarpetaArchivo(FILE*, int);
+    void guardarJournal(char*, int, int, char*);
 };
 
 #endif // REM_H

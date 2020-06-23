@@ -1,11 +1,12 @@
-#include "CAT.h"
+#include "EDIT.h"
 
-CAT::CAT(string path)
+EDIT::EDIT(string path, string cont)
 {
     this->path = path;
+    this->cont = cont;
 }
 
-void CAT::Ejecutar(){
+void EDIT::Ejecutar(){
     if(login){
         char auxPath[500];
         strcpy(auxPath,path.c_str());
@@ -20,37 +21,48 @@ void CAT::Ejecutar(){
             fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable))*carpeta,SEEK_SET);
             fread(&inodo,sizeof(InodoTable),1,fp);
             bool permisos = permisosDeLectura(inodo.i_perm,(inodo.i_uid == daLoguer.id_user),(inodo.i_gid == daLoguer.id_grp));
+            bool escritura = permisosDeEscritura(inodo.i_perm,(inodo.i_uid == daLoguer.id_user),(inodo.i_gid == daLoguer.id_grp));
             if(permisos || (daLoguer.id_user == 1 && daLoguer.id_grp == 1)){
-                for (int i = 0; i < 15; i++) {
-                    if(inodo.i_block[i] != -1){
-                        if(i < 12){
-                            BloqueArchivo archivo;
-                            fseek(fp,super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*inodo.i_block[i],SEEK_SET);
-                            fread(&archivo,sizeof(BloqueCarpeta),1,fp);
-                            cadena += archivo.b_content;
-                        }else if(i == 12){//Apuntador indirecto simple
-                            BloqueApuntadores apuntador;
-                            fseek(fp,super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*inodo.i_block[i],SEEK_SET);
-                            fread(&apuntador,sizeof(BloqueApuntadores),1,fp);
-                            for(int j = 0; j < 16; j++){
-                                if(apuntador.b_pointer[j] != -1){
-                                    BloqueArchivo archivo;
-                                    fseek(fp,super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*apuntador.b_pointer[j],SEEK_SET);
-                                    fread(&archivo,sizeof(BloqueArchivo),1,fp);
-                                    cadena += archivo.b_content;
-                                }
+                if(escritura || (daLoguer.id_user == 1 && daLoguer.id_grp == 1)){
+                    for (int i = 0; i < 15; i++) {
+                        if(inodo.i_block[i] != -1){
+                            if(i < 12){
+                                BloqueArchivo archivo;
+                                fseek(fp,super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*inodo.i_block[i],SEEK_SET);
+                                fread(&archivo,sizeof(BloqueCarpeta),1,fp);
+                                cadena += archivo.b_content;
+                            }else if(i == 12){//Apuntador indirecto simple
+                                BloqueApuntadores apuntador;
+                                fseek(fp,super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*inodo.i_block[i],SEEK_SET);
+                                fread(&apuntador,sizeof(BloqueApuntadores),1,fp);
+                                for(int j = 0; j < 16; j++){
+                                    if(apuntador.b_pointer[j] != -1){
+                                        BloqueArchivo archivo;
+                                        fseek(fp,super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*apuntador.b_pointer[j],SEEK_SET);
+                                        fread(&archivo,sizeof(BloqueArchivo),1,fp);
+                                        cadena += archivo.b_content;
+                                    }
 
+                                }
                             }
                         }
                     }
+                    string arreglo = cadena + cont;
+                    REM *rm = new REM(this->path, true);
+                    rm->Ejecutar();
+
+                    MKFILE *mkfile = new MKFILE(this->path, true, (int) arreglo.length(), "", true, arreglo);
+                    mkfile->Ejecutar();
+                    cout << "Se edito el archivo" << endl;
+                    char aux[500];
+                    char operacion[8];
+                    string datos = "Ruta: "+this->path + ", Cont: " + cont;
+                    strcpy(aux,datos.c_str());
+                    strcpy(operacion,"EDIT");
+                    guardarJournal(operacion,1,664,aux);
+                }else{
+                    cout << "El usuario no tiene permisos de escritura" << endl;
                 }
-                cout << "Contenido:\n" << cadena << endl;
-                char aux[500];
-                char operacion[8];
-                string datos = "Ruta: "+this->path;
-                strcpy(aux,datos.c_str());
-                strcpy(operacion,"CAT");
-                guardarJournal(operacion,1,664,aux);
             }else
                 cout << "El usuario no tiene permisos de lectura" << endl;
         }else
@@ -58,10 +70,11 @@ void CAT::Ejecutar(){
         fclose(fp);
     }else{
         cout << "Debe iniciar sesion para usar el comando" << endl;
+
     }
 }
 
-void CAT::guardarJournal(char *operacion, int tipo, int permisos, char *nombre){
+void EDIT::guardarJournal(char *operacion, int tipo, int permisos, char *nombre){
     SuperBloque super;
     Journal registro;
     memset(registro.journal_name,'\0',sizeof(registro.journal_name));
@@ -92,7 +105,33 @@ void CAT::guardarJournal(char *operacion, int tipo, int permisos, char *nombre){
     fclose(fp);
 }
 
-int CAT::buscarCarpetaArchivo(FILE *stream, char* path){
+MKFILE EDIT::buscarArchivo(string ruta){
+    QList<MKFILE>::iterator i;
+    int pos = 0;
+    for(i = archivos->begin(); i!= archivos->end(); i++ )
+    {
+        if(i->path == ruta)
+        {
+
+            return archivos->at(pos);
+        }
+        pos++;
+    }
+    return *new MKFILE("",false,0,"");
+}
+
+int EDIT::byteInodoBloque(FILE *stream,int pos, char tipo){
+    SuperBloque super;
+    fseek(stream,daLoguer.inicioSuper,SEEK_SET);
+    fread(&super,sizeof(SuperBloque),1,stream);
+    if(tipo == '1'){
+        return (super.s_inode_start + static_cast<int>(sizeof(InodoTable))*pos);
+    }else if(tipo == '2')
+        return (super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*pos);
+    return 0;
+}
+
+int EDIT::buscarCarpetaArchivo(FILE *stream, char* path){
     SuperBloque super;
     InodoTable inodo;
     BloqueCarpeta carpeta;
@@ -166,18 +205,7 @@ int CAT::buscarCarpetaArchivo(FILE *stream, char* path){
     return -1;
 }
 
-int CAT::byteInodoBloque(FILE *stream,int pos, char tipo){
-    SuperBloque super;
-    fseek(stream,daLoguer.inicioSuper,SEEK_SET);
-    fread(&super,sizeof(SuperBloque),1,stream);
-    if(tipo == '1'){
-        return (super.s_inode_start + static_cast<int>(sizeof(InodoTable))*pos);
-    }else if(tipo == '2')
-        return (super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*pos);
-    return 0;
-}
-
-bool CAT::permisosDeLectura(int permisos, bool flagUser, bool flagGroup){
+bool EDIT::permisosDeLectura(int permisos, bool flagUser, bool flagGroup){
     string aux = to_string(permisos);
     int propietario = aux[0] - '0';
     int grupo = aux[1] - '0';
@@ -188,6 +216,22 @@ bool CAT::permisosDeLectura(int permisos, bool flagUser, bool flagGroup){
     else if((grupo >= 3) && flagGroup)
         return true;
     else if(otros >= 3)
+        return true;
+
+    return false;
+}
+
+bool EDIT::permisosDeEscritura(int permisos, bool flagUser, bool flagGroup){
+    string aux = to_string(permisos);
+    char propietario = aux[0];
+    char grupo = aux[1];
+    char otros = aux[2];
+
+    if((propietario == '2' || propietario == '3' || propietario == '6' || propietario || '7') && flagUser)
+        return true;
+    else if((grupo == '2' || grupo == '3' || grupo == '6' || grupo == '7') && flagGroup)
+        return true;
+    else if(otros == '2' || otros == '3' || otros == '6' || otros == '7')
         return true;
 
     return false;

@@ -29,6 +29,7 @@ public:
     int buscarCarpetaArchivo(FILE *, char*);
     void cambiarPermisosRecursivo(FILE* , int , int );
     int byteInodoBloque(FILE *,int , char );
+    void guardarJournal(char*, int, int, char*);
 };
 
 #endif // CHMOD_H
