@@ -845,6 +845,7 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
             }
         }
     }else{//Directorio
+
         int existe = buscarCarpetaArchivo(stream,directorio);
         if(existe == -1){
             if(flagP){
