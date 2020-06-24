@@ -132,7 +132,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 149 "sintactico.y"
+#line 148 "sintactico.y"
 
     char *TEXT;
     class NodoAST *NODO;

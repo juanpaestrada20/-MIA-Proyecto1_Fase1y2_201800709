@@ -20,7 +20,7 @@ COMENTARIO "#".*
 DIG [0-9]
 NUM {DIG}+
 NUMNEGATIVO [-][0-9]+
-IDENT [a-zA-Z_][a-zA-Z_0-9]*
+IDENT [a-z|A-Z|_][a-z|A-Z|_|0-9|.]*
 RUTA "/"[^\n\t\r" "]+
 CADENA \"[^\"]*\"
 CONTRA [a-z|A-Z|_|-|0-9]+

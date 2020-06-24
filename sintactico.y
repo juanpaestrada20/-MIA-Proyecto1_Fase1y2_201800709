@@ -144,7 +144,6 @@ NodoAST *raiz = new NodoAST("INICIO");
 %type <NODO> OPCION_CHOWN
 %type <NODO> LISTACHGRP
 %type <NODO> OPCION_CHGRP
-%type <TEXT> TIPO_FILE
 
 %union{
     char *TEXT;
@@ -342,12 +341,9 @@ LISTAREN: LISTAREN OPCION_REN   { $$ = $1; $$->agregarHijo(*$2); }
 ;
 
 OPCION_REN: TK_GUION TK_PATH TK_IGUAL TIPO_RUTA   { NodoAST *n1 = new NodoAST("Path"); NodoAST *n2 = new NodoAST($4); n1->agregarHijo(*n2); $$ = n1; }
-          | TK_GUION TK_NAME TK_IGUAL TIPO_FILE   { NodoAST *n1 = new NodoAST("Name"); NodoAST *n2 = new NodoAST($4); n1->agregarHijo(*n2); $$ = n1; }
+          | TK_GUION TK_NAME TK_IGUAL TIPO_RUTA   { NodoAST *n1 = new NodoAST("Name"); NodoAST *n2 = new NodoAST($4); n1->agregarHijo(*n2); $$ = n1; }
 ;
 
-TIPO_FILE: TK_FILENAME                                  { $$ = $1; }
-         | TK_IDENTIFICADOR TK_PUNTO TK_IDENTIFICADOR   { char * str3 = (char *) malloc(2 + strlen($1)+ strlen($3) ); strcpy(str3, $1); strcpy(str3, $2); strcpy(str3, $3); $$ = str3; }
-;
 
 LISTAMKDIR: LISTAMKDIR OPCION_MKDIR     { $$ = $1; $$->agregarHijo(*$2); } 
           | OPCION_MKDIR                { $$ = new NodoAST("Parametros"); $$->agregarHijo(*$1); }
@@ -371,7 +367,7 @@ LISTAFIND: LISTAFIND OPCION_FIND        { $$ = $1; $$->agregarHijo(*$2); }
 ;
 
 OPCION_FIND: TK_GUION TK_PATH TK_IGUAL TIPO_RUTA    { NodoAST *n1 = new NodoAST("Path"); NodoAST *n2 = new NodoAST($4); n1->agregarHijo(*n2); $$ = n1; }    
-           | TK_GUION TK_NAME TK_IGUAL TIPO_FILE    { NodoAST *n1 = new NodoAST("Ruta"); NodoAST *n2 = new NodoAST($4); n1->agregarHijo(*n2); $$ = n1; }    
+           | TK_GUION TK_NAME TK_IGUAL TIPO_RUTA    { NodoAST *n1 = new NodoAST("Ruta"); NodoAST *n2 = new NodoAST($4); n1->agregarHijo(*n2); $$ = n1; }    
 ;
 
 LISTACHOWN: LISTACHOWN OPCION_CHOWN     { $$ = $1; $$->agregarHijo(*$2); } 

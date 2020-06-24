@@ -1,9 +1,11 @@
 #include "EDIT.h"
 
-EDIT::EDIT(string path, string cont)
+EDIT::EDIT(string path, string cont, bool move, bool copy)
 {
     this->path = path;
     this->cont = cont;
+    this->move = move;
+    this->copy = copy;
 }
 
 void EDIT::Ejecutar(){
@@ -47,19 +49,33 @@ void EDIT::Ejecutar(){
                             }
                         }
                     }
-                    string arreglo = cadena + cont;
-                    REM *rm = new REM(this->path, true);
-                    rm->Ejecutar();
+                    string arreglo = "";
+                    if(!move && !copy){
+                        arreglo = cadena + cont;
+                        REM *rm = new REM(this->path, true);
+                        rm->Ejecutar();
+                        MKFILE *mkfile = new MKFILE(this->path, true, (int) arreglo.length(), "", true, arreglo);
+                        mkfile->Ejecutar();
+                        cout << "Se edito el archivo" << endl;
+                        char aux[500];
+                        char operacion[8];
+                        string datos = "Ruta: "+this->path + ", Cont: " + cont;
+                        strcpy(aux,datos.c_str());
+                        strcpy(operacion,"EDIT");
+                        guardarJournal(operacion,1,664,aux);
+                    }else if(copy && !move){
+                        MKFILE *mkfile = new MKFILE(cont, true, (int) cadena.length(), "", true, cadena);
+                        mkfile->Ejecutar();
+                        cout << "Se copio el archivo" << endl;
+                        char aux[500];
+                        char operacion[8];
+                        string datos = "Ruta: "+this->path + ", Destino: " + cont;
+                        strcpy(aux,datos.c_str());
+                        strcpy(operacion,"CP");
+                        guardarJournal(operacion,1,664,aux);
+                    }
 
-                    MKFILE *mkfile = new MKFILE(this->path, true, (int) arreglo.length(), "", true, arreglo);
-                    mkfile->Ejecutar();
-                    cout << "Se edito el archivo" << endl;
-                    char aux[500];
-                    char operacion[8];
-                    string datos = "Ruta: "+this->path + ", Cont: " + cont;
-                    strcpy(aux,datos.c_str());
-                    strcpy(operacion,"EDIT");
-                    guardarJournal(operacion,1,664,aux);
+
                 }else{
                     cout << "El usuario no tiene permisos de escritura" << endl;
                 }
@@ -105,20 +121,6 @@ void EDIT::guardarJournal(char *operacion, int tipo, int permisos, char *nombre)
     fclose(fp);
 }
 
-MKFILE EDIT::buscarArchivo(string ruta){
-    QList<MKFILE>::iterator i;
-    int pos = 0;
-    for(i = archivos->begin(); i!= archivos->end(); i++ )
-    {
-        if(i->path == ruta)
-        {
-
-            return archivos->at(pos);
-        }
-        pos++;
-    }
-    return *new MKFILE("",false,0,"");
-}
 
 int EDIT::byteInodoBloque(FILE *stream,int pos, char tipo){
     SuperBloque super;
