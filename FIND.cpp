@@ -84,8 +84,6 @@ void FIND::getRuta(FILE *file, string &aux, int tabs, int inodePos){
                     }
                 }
             }
-        }else if(i = 12){
-
         }
     }
 

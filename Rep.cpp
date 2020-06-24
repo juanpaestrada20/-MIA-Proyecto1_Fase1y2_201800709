@@ -1161,7 +1161,7 @@ void Rep::ReporteLS(string ruta){
     InodoTable inodo;
     char auxRuta[500];
     strcpy(auxRuta,this->ruta.c_str());
-    FILE *fp = fopen(ruta.c_str(),"r+b");
+    FILE *fp = fopen(daLoguer.direccion.c_str(),"r+b");
     fread(&masterboot,sizeof(MBR),1,fp);
     int index = -1;
     Mount particionMontada = montajes->at(this->posMontada);
@@ -1175,32 +1175,6 @@ void Rep::ReporteLS(string ruta){
     }
     fseek(fp,masterboot.partitions[index].start,SEEK_SET);
     fread(&super,sizeof(SuperBloque),1,fp);
-    int existe = buscarCarpetaArchivo(fp,auxRuta);
-    if(existe != -1){
-        char nombre[50];
-        char auxRuta[400];
-        strcpy(auxRuta,this->ruta   .c_str());
-        strcpy(nombre,basename(auxRuta));
-        fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable))*existe,SEEK_SET);
-        fread(&inodo,sizeof(InodoTable),1,fp);
-        Usuario user = getUsuario(ruta,masterboot.partitions[index].start,inodo.i_uid);
-        graficarPermisos(ruta,this->path,ext,masterboot.partitions[index].start,existe,user,QString(nombre));
-    }
-    else
-        cout << "ERROR: No se encuentra la ruta " << endl;
-    fclose(fp);
-}
-
-void Rep::graficarPermisos(string direccion, QString destino, string extension, int start_super, int n, Usuario user, QString name){
-    FILE *fp = fopen(direccion.c_str(),"r+b");
-
-    SuperBloque super;
-    InodoTable inodo;
-
-    fseek(fp,start_super,SEEK_SET);
-    fread(&super,sizeof(SuperBloque),1,fp);
-    fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable))*n,SEEK_SET);
-    fread(&inodo,sizeof(InodoTable),1,fp);
 
     FILE *graph = fopen("grafica.dot","w");
     fprintf(graph,"digraph G{\n\n");
@@ -1208,83 +1182,13 @@ void Rep::graficarPermisos(string direccion, QString destino, string extension, 
     fprintf(graph, "    label=< <table border=\'0\' cellborder='1\' cellspacing=\'0\' bgcolor=\"lightsteelblue\">\n");
     fprintf(graph, "     <tr> <td><b>Permisos</b></td><td><b>Owner</b></td><td><b>Grupo</b></td><td><b>Size</b></td><td><b>Fecha</b></td><td><b>Hora</b></td><td><b>Tipo</b></td><td><b>Name</b></td> </tr>\n");
 
-    string auxPermisos = to_string(inodo.i_perm);
-    char propietario = auxPermisos[0];
-    char grupo = auxPermisos[1];
-    char otros = auxPermisos[2];
-    char permisos[50];
-
-    //Tipo de permisos para el propietario
-    if(propietario == '0')
-        strcpy(permisos,"---");
-    else if(propietario == '1')
-        strcpy(permisos,"--x");
-    else if(propietario == '2')
-        strcpy(permisos,"-w-");
-    else if(propietario == '3')
-        strcpy(permisos,"-wx");
-    else if(propietario == '4')
-        strcpy(permisos,"r--");
-    else if(propietario == '5')
-        strcpy(permisos,"r-x");
-    else if(propietario == '6')
-        strcpy(permisos,"rw-");
-    else if(propietario == '7')
-        strcpy(permisos,"rwx");
-
-    //Tipo de permisos para grupo
-    if(grupo == '0')
-        strcat(permisos," ---");
-    else if(grupo == '1')
-        strcat(permisos," --x");
-    else if(grupo == '2')
-        strcat(permisos," -w-");
-    else if(grupo == '3')
-        strcat(permisos," -wx");
-    else if(grupo == '4')
-        strcat(permisos," r--");
-    else if(grupo == '5')
-        strcat(permisos," r-x");
-    else if(grupo == '6')
-        strcat(permisos," rw-");
-    else if(grupo == '7')
-        strcat(permisos," rwx");
-
-    //Tipo de permisos para otros
-    if(otros == '0')
-        strcat(permisos," ---");
-    else if(otros == '1')
-        strcat(permisos," --x");
-    else if(otros == '2')
-        strcat(permisos," -w-");
-    else if(otros == '3')
-        strcat(permisos," -wx");
-    else if(otros == '4')
-        strcat(permisos," r--");
-    else if(otros == '5')
-        strcat(permisos," r-x");
-    else if(otros == '6')
-        strcat(permisos," rw-");
-    else if(otros == '7')
-        strcat(permisos," rwx");
-
-    fprintf(graph,"<tr> <td bgcolor=\"white\">%s</td> ",permisos);
-    fprintf(graph, "<td bgcolor=\"white\">%s</td>",user.username);
-    fprintf(graph, "<td bgcolor=\"white\">%s</td>",user.group);
-    fprintf(graph, "<td bgcolor=\"white\">%d</td>",inodo.i_size);
-
-    struct tm *tm;
-    char fecha[100];
-    tm=localtime(&inodo.i_atime);
-    strftime(fecha,100,"%d/%m/%y",tm);
-    fprintf(graph, "<td bgcolor=\"white\">%s</td>",fecha);
-    strftime(fecha,100,"%H:%S",tm);
-    fprintf(graph,"<td bgcolor=\"white\">%s</td>",fecha);
-    if(inodo.i_type == '0')
-        fprintf(graph,"<td bgcolor=\"white\">%s</td>","Carpeta");
-    else if(inodo.i_type == '1')
-        fprintf(graph,"<td bgcolor=\"white\">%s</td>","Archivo");
-    fprintf(graph, "<td bgcolor=\"white\">%s</td> </tr>\n",name.toStdString().c_str());
+    char nombre[50];
+    strcpy(auxRuta,this->ruta.c_str());
+    strcpy(nombre,basename(auxRuta));
+    fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable)),SEEK_SET);
+    fread(&inodo,sizeof(InodoTable),1,fp);
+    Usuario user = getUsuario(daLoguer.direccion,inodo.i_uid);
+    graficarPermisos(graph, fp,0,user);
 
     fprintf(graph, "    </table>>]\n");
     fprintf(graph,"\n}");
@@ -1292,9 +1196,121 @@ void Rep::graficarPermisos(string direccion, QString destino, string extension, 
 
     fclose(fp);
 
-    string comando = "dot -T"+extension+" grafica.dot -o "+destino.toStdString();
+    string comando = "dot -T"+ext+" grafica.dot -o "+ this->path.toStdString();
     system(comando.c_str());
     cout << "Reporte ls generado con exito " << endl;
+}
+
+void Rep::graficarPermisos(FILE* graph, FILE* fp, int inodePos, Usuario user){
+
+    SuperBloque sb;
+    fseek(fp, daLoguer.inicioSuper, SEEK_SET);
+    fread(&sb, sizeof (SuperBloque), 1, fp);
+
+    Inodo inodo;
+    int inodeSize = static_cast<int>(sizeof (Inodo));
+    fseek(fp, sb.s_inode_start + inodeSize*inodePos, SEEK_SET);
+    fread(&inodo, sizeof (Inodo), 1, fp);
+
+    for(int i=0; i < 15; i++){
+        if(inodo.i_block[i] == -1)
+            continue;
+
+        if(i < 12){
+            if(inodo.i_type == '0'){
+                BloqueCarpeta fb;
+                int folderSize = static_cast<int>(sizeof (BloqueCarpeta));
+                fseek(fp, sb.s_block_start + folderSize*inodo.i_block[i], SEEK_SET);
+                fread(&fb, sizeof (BloqueCarpeta), 1, fp);
+
+                string auxS = "";
+                for(int i = 0; i < 4; i++){
+                    auxS = fb.b_content[i].b_name;
+                    if((auxS.length() > 1 && auxS[0] != '.') || (auxS.length() > 1 && auxS[1] != '.')){
+
+                        string auxPermisos = to_string(inodo.i_perm);
+                        char propietario = auxPermisos[0];
+                        char grupo = auxPermisos[1];
+                        char otros = auxPermisos[2];
+                        char permisos[50];
+
+                        //Tipo de permisos para el propietario
+                        if(propietario == '0')
+                            strcpy(permisos,"---");
+                        else if(propietario == '1')
+                            strcpy(permisos,"--x");
+                        else if(propietario == '2')
+                            strcpy(permisos,"-w-");
+                        else if(propietario == '3')
+                            strcpy(permisos,"-wx");
+                        else if(propietario == '4')
+                            strcpy(permisos,"r--");
+                        else if(propietario == '5')
+                            strcpy(permisos,"r-x");
+                        else if(propietario == '6')
+                            strcpy(permisos,"rw-");
+                        else if(propietario == '7')
+                            strcpy(permisos,"rwx");
+
+                        //Tipo de permisos para grupo
+                        if(grupo == '0')
+                            strcat(permisos," ---");
+                        else if(grupo == '1')
+                            strcat(permisos," --x");
+                        else if(grupo == '2')
+                            strcat(permisos," -w-");
+                        else if(grupo == '3')
+                            strcat(permisos," -wx");
+                        else if(grupo == '4')
+                            strcat(permisos," r--");
+                        else if(grupo == '5')
+                            strcat(permisos," r-x");
+                        else if(grupo == '6')
+                            strcat(permisos," rw-");
+                        else if(grupo == '7')
+                            strcat(permisos," rwx");
+
+                        //Tipo de permisos para otros
+                        if(otros == '0')
+                            strcat(permisos," ---");
+                        else if(otros == '1')
+                            strcat(permisos," --x");
+                        else if(otros == '2')
+                            strcat(permisos," -w-");
+                        else if(otros == '3')
+                            strcat(permisos," -wx");
+                        else if(otros == '4')
+                            strcat(permisos," r--");
+                        else if(otros == '5')
+                            strcat(permisos," r-x");
+                        else if(otros == '6')
+                            strcat(permisos," rw-");
+                        else if(otros == '7')
+                            strcat(permisos," rwx");
+
+                        fprintf(graph,"<tr> <td bgcolor=\"white\">%s</td> ",permisos);
+                        fprintf(graph, "<td bgcolor=\"white\">%s</td>",user.username);
+                        fprintf(graph, "<td bgcolor=\"white\">%s</td>",user.group);
+                        fprintf(graph, "<td bgcolor=\"white\">%d</td>",inodo.i_size);
+
+                        struct tm *tm;
+                        char fecha[100];
+                        tm=localtime(&inodo.i_atime);
+                        strftime(fecha,100,"%d/%m/%y",tm);
+                        fprintf(graph, "<td bgcolor=\"white\">%s</td>",fecha);
+                        strftime(fecha,100,"%H:%S",tm);
+                        fprintf(graph,"<td bgcolor=\"white\">%s</td>",fecha);
+                        if(auxS.find(".")==string::npos)
+                            fprintf(graph,"<td bgcolor=\"white\">%s</td>","Carpeta");
+                        else
+                            fprintf(graph,"<td bgcolor=\"white\">%s</td>","Archivo");
+                        fprintf(graph, "<td bgcolor=\"white\">%s</td> </tr>\n", auxS.c_str());
+                        graficarPermisos(graph, fp,fb.b_content[i].b_inodo,user);
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -1395,7 +1411,7 @@ string Rep::getExtension(QString direccion){
 }
 
 
-Usuario Rep::getUsuario(string direccion,int inicioSuper, int usuario){
+Usuario Rep::getUsuario(string direccion,int usuario){
     FILE *fp = fopen(direccion.c_str(),"r+b");
 
     char cadena[400] = "\0";
@@ -1403,7 +1419,7 @@ Usuario Rep::getUsuario(string direccion,int inicioSuper, int usuario){
     InodoTable inodo;
     Usuario response;
 
-    fseek(fp,inicioSuper,SEEK_SET);
+    fseek(fp,daLoguer.inicioSuper,SEEK_SET);
     fread(&super,sizeof(SuperBloque),1,fp);
     //Nos posicionamos en el inodo del archivo users.txt
     fseek(fp,super.s_inode_start + static_cast<int>(sizeof(InodoTable)), SEEK_SET);
