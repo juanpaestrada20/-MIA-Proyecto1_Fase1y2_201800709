@@ -25,6 +25,8 @@ void REM::Ejecutar(){
                 fseek(fp,daLoguer.inicioSuper,SEEK_SET);
                 fread(&super,sizeof(SuperBloque),1,fp);
                 //Obtenemos el bloque y la poisicion de la carpeta/archivo a eliminar
+                char auxPath[500];
+                strcpy(auxPath,path.c_str());
                 bloqueCarpetaArchivo(fp,auxPath,bloque,posicion,pointer,posPointer);
                 if(pointer == -1){
                     //Eliminar la referencia carpeta/archivo del bloque carpeta

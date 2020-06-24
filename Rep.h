@@ -47,11 +47,12 @@ public:
     void graficarSuper(string, QString, string, int);
     void graficarFILE(string, QString, string, QString,int,int);
     void ReporteLS(string);
-    void graficarPermisos(string, QString, string, int, int, Usuario, QString);
+    void graficarPermisos(FILE*, FILE*, int, Usuario);
     int buscarCarpetaArchivo(FILE*, char*);
     int byteInodoBloque(FILE*, int, char);
-    Usuario getUsuario(string,int, int);
+    Usuario getUsuario(string, int);
     int buscarGrupo(string);
+
 };
 
 

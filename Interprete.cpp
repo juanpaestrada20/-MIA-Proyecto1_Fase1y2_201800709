@@ -164,7 +164,6 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
         Opciones_Parametro(&raiz->hijos[0], 10);
         if(!this->error){
             MKFILE *mkfile = new MKFILE(this->path.toStdString(), this->carpetaPadre, this->size, this->cont);
-            archivos->append(*mkfile);
             mkfile->Ejecutar();
         }
         restorePred();
@@ -195,7 +194,7 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     }else if (tipoComando == "Edit"){
         Opciones_Parametro(&raiz->hijos[0], 11);
         if(!this->error){
-            EDIT *edit = new EDIT(this->path.toStdString(), this->cont);
+            EDIT *edit = new EDIT(this->path.toStdString(), this->cont, false, false);
             edit->Ejecutar();
         }
         restorePred();
@@ -216,7 +215,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     }else if (tipoComando == "Cp"){
         Opciones_Parametro(&raiz->hijos[0], 14);
         if(!this->error){
-/////////////////////////////////////////////////
+            EDIT *edit = new EDIT(this->path.toStdString(), this->dest, false, true);
+            edit->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Mv"){
@@ -229,7 +229,8 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
     }else if (tipoComando == "Find"){
         Opciones_Parametro(&raiz->hijos[0], 12);
         if(!this->error){
-
+            FIND *find = new FIND(this->path.toStdString(), this->name.toStdString());
+            find->Ejecutar();
         }
         restorePred();
     }else if (tipoComando == "Chown"){
@@ -715,7 +716,7 @@ void Interprete::Opciones_Parametro(NodoAST *raiz, int tipo){
             string parametro = raiz->hijos[i].valor.toStdString();
             if(parametro == "Path"){
                 path = raiz->hijos[i].hijos[0].valor.toStdString();
-            }else if(parametro == "Name"){
+            }else if(parametro == "Ruta"){
                 name = raiz->hijos[i].hijos[0].valor.toStdString();
             }
         }

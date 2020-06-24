@@ -16,7 +16,7 @@
 
 using namespace std;
 extern QList<Mount> *montajes;
-extern QList<MKFILE> *archivos;
+extern QList<Files> *files;
 extern Sesion daLoguer;
 extern bool login;
 
@@ -25,14 +25,16 @@ class EDIT
 private:
     string path;
     string cont;
+    bool move;
+    bool copy;
+
 public:
-    EDIT(string, string);
+    EDIT(string, string, bool, bool);
     void Ejecutar();
     int buscarCarpetaArchivo(FILE*, char*);
     int byteInodoBloque(FILE*, int, char);
     bool permisosDeLectura(int, bool, bool);
     bool permisosDeEscritura(int, bool, bool);
-    MKFILE buscarArchivo(string);
     void guardarJournal(char*, int, int, char*);
 };
 

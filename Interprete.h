@@ -32,9 +32,10 @@
 #include "REM.h"
 #include "MV.h"
 #include "EDIT.h"
+#include "FIND.h"
 
 extern QList<Mount> *montajes;
-extern QList<MKFILE> *archivos;
+extern QList<Files> *files;
 extern bool login;
 
 class Interprete
