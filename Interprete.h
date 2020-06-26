@@ -35,7 +35,6 @@
 #include "FIND.h"
 
 extern QList<Mount> *montajes;
-extern QList<Files> *files;
 extern bool login;
 
 class Interprete

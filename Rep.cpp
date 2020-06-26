@@ -170,10 +170,10 @@ void Rep::ReporteDisk(string ruta){
 
             if(i == 4)
             {
-                int porcent = ((maxSize-recorrido) * 100)/maxSize;
+                int porcent = 76;
                 if(porcent > 0)
                 {
-                    sprintf(buffer,"<td colspan=\"4\" rowspan=\"4\" bgcolor=\"BLUE\" >%s<br/> (Primaria)<br/> %d%c del disco<br/>%d bytes</td>\n",actual.name,porcent,'%',maxSize-recorrido);
+                    sprintf(buffer,"<td colspan=\"4\" rowspan=\"4\" bgcolor=\"#b2b7b2\" >%s<br/> Libre<br/> %d%c del disco<br/>%d bytes</td>\n",actual.name,porcent,'%',maxSize-recorrido);
                     fputs(buffer,grafo);
                     memset(buffer,'\0',sizeof(buffer));//ACTUALIZAR RECORRIDO
                     recorrido = maxSize;

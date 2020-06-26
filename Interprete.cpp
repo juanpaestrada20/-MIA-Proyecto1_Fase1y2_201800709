@@ -196,6 +196,7 @@ void Interprete::Recorrer_Arbol(NodoAST *raiz){
         if(!this->error){
             EDIT *edit = new EDIT(this->path.toStdString(), this->cont, false, false);
             edit->Ejecutar();
+            delete(edit);
         }
         restorePred();
     }else if (tipoComando == "Ren"){

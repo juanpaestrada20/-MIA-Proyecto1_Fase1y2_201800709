@@ -49,13 +49,15 @@ void EDIT::Ejecutar(){
                             }
                         }
                     }
-                    string arreglo = "";
+                    fclose(fp);
                     if(!move && !copy){
-                        arreglo = cadena + cont;
+                        string arreglo = cadena + cont;
                         REM *rm = new REM(this->path, true);
                         rm->Ejecutar();
                         MKFILE *mkfile = new MKFILE(this->path, true, (int) arreglo.length(), "", true, arreglo);
                         mkfile->Ejecutar();
+                        arreglo.clear();
+                        delete(mkfile);
                         cout << "Se edito el archivo" << endl;
                         char aux[500];
                         char operacion[8];
@@ -64,9 +66,24 @@ void EDIT::Ejecutar(){
                         strcpy(operacion,"EDIT");
                         guardarJournal(operacion,1,664,aux);
                     }else if(copy && !move){
-                        MKFILE *mkfile = new MKFILE(cont, true, (int) cadena.length(), "", true, cadena);
-                        mkfile->Ejecutar();
-                        cout << "Se copio el archivo" << endl;
+                        string s = this->path;
+                        string delimiter = "/";
+                        size_t pos = 0;
+                        std::string token;
+                        while ((pos = s.find(delimiter)) != std::string::npos) {
+                            token = s.substr(0, pos);
+                            s.erase(0, pos + delimiter.length());
+                        }
+                        string carpeta = cont + +"/"+s;
+                        if(cont.find(".")!=string::npos){
+
+                            MKFILE *mkfile = new MKFILE(carpeta, true, (int) cadena.length(), "", true, cadena);
+                            mkfile->Ejecutar();
+                        }else{
+                            MKDir *mkdir = new MKDir(carpeta, true);
+                            mkdir->Ejecutar();
+                        }
+                        cout << "Se copio el carpeta/archivo" << endl;
                         char aux[500];
                         char operacion[8];
                         string datos = "Ruta: "+this->path + ", Destino: " + cont;
@@ -78,12 +95,16 @@ void EDIT::Ejecutar(){
 
                 }else{
                     cout << "El usuario no tiene permisos de escritura" << endl;
+                    fclose(fp);
                 }
-            }else
+            }else{
                 cout << "El usuario no tiene permisos de lectura" << endl;
-        }else
+                fclose(fp);
+            }
+        }else{
             cout << "No se encuentra el archivo " << path << endl;
-        fclose(fp);
+            fclose(fp);
+        }
     }else{
         cout << "Debe iniciar sesion para usar el comando" << endl;
 

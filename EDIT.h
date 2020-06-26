@@ -13,10 +13,10 @@
 #include "structures.h"
 #include "REM.h"
 #include "MKFILE.h"
+#include "MKDir.h"
 
 using namespace std;
 extern QList<Mount> *montajes;
-extern QList<Files> *files;
 extern Sesion daLoguer;
 extern bool login;
 

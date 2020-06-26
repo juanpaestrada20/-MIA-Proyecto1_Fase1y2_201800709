@@ -16,7 +16,6 @@
 
 using namespace std;
 extern QList<Mount> *montajes;
-extern QList<Files> *files;
 extern Sesion daLoguer;
 extern bool login;
 
@@ -30,7 +29,6 @@ public:
     string cont;
     bool edit;
     string texto;
-    Files file;
     MKFILE(string, bool, int, string);
     MKFILE(string, bool, int, string, bool, string);
     void Ejecutar();
