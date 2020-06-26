@@ -43,7 +43,7 @@ void Login::Ejecutar(){
         fwrite(&inodo,sizeof(InodoTable),1,disco);
         fclose(disco);
         daLoguer.inicioSuper = masterboot.partitions[index].start;
-        daLoguer.fit = masterboot.partitions[index].fit;
+        daLoguer.fit = 'F';
         daLoguer.inicioJournal = masterboot.partitions[index].start + sizeof(SuperBloque);
         daLoguer.tipo_sistema = super.s_filesystem_type;
         int res = ComprobarLogin(this->user, this->pass, this->ruta);

@@ -25,7 +25,7 @@ void CAT::Ejecutar(){
                     if(inodo.i_block[i] != -1){
                         if(i < 12){
                             BloqueArchivo archivo;
-                            fseek(fp,super.s_block_start + static_cast<int>(sizeof(BloqueCarpeta))*inodo.i_block[i],SEEK_SET);
+                            fseek(fp,super.s_block_start + sizeof(BloqueCarpeta)*inodo.i_block[i],SEEK_SET);
                             fread(&archivo,sizeof(BloqueCarpeta),1,fp);
                             cadena += archivo.b_content;
                         }else if(i == 12){//Apuntador indirecto simple

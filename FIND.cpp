@@ -18,18 +18,7 @@ void FIND::Ejecutar(){
         else
             carpetaInicio = 0;
         if(carpetaInicio != -1){
-            QList<string> lista = QList<string>();
-            Files busqueda = buscarRuta(this->name);
-            char rutaAux[500];
-            memset(rutaAux,'\0',sizeof (rutaAux));
-            strcpy(rutaAux, busqueda.path.c_str());
-            char *token = strtok(rutaAux,"/");
-            int cont = 0;
-            while(token != nullptr){
-                lista.append(token);
-                cont++;
-                token = strtok(nullptr,"/");
-            }
+
             string route = "";
             getRuta(fp, route, 0, carpetaInicio);
             if(route.find(name) != string::npos){
@@ -89,18 +78,7 @@ void FIND::getRuta(FILE *file, string &aux, int tabs, int inodePos){
 
 }
 
-Files FIND::buscarRuta(string name){
-    for(int i = 0; i < files->size(); i++){
-        QFileInfo fileName(QString::fromStdString(files->at(i).path));
-        string nombre = fileName.fileName().toStdString();
-        if(nombre == name){
-            return files->at(i);
-        }
-    }
-    Files file;
-    file.path = "";
-    return file;
-}
+
 
 void FIND::guardarJournal(char *operacion, int tipo, int permisos, char *nombre){
     SuperBloque super;

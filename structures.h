@@ -114,12 +114,6 @@ typedef struct UsuarioLogguedo{
     char fit;
 }Sesion;
 
-typedef struct Files{
-    string path;
-    string cont;
-    string texto;
-    int size;
-}Files;
 
 
 #endif // STRUCTURES_H

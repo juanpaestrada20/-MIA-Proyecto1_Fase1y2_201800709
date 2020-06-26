@@ -43,7 +43,6 @@ void MKFILE::Ejecutar(){
                         guardarJournal(operacion,1,664,aux);
                     }
                     cout << "Archivo creado con exito" << endl;
-                    files->append(this->file);
                 }else if(resultado == 2){
                     cout << "El usuario no tiene permisos de escritura" << endl;
                 }else if(resultado == 3){
@@ -314,10 +313,6 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
     fseek(stream,daLoguer.inicioSuper,SEEK_SET);
         fread(&super,sizeof(SuperBloque),1,stream);
 
-    file.path = this->path;
-    file.cont = this->cont;
-    file.size = this->size;
-
     if(cont == 1){
         int bloque = 0;
         int pointer = 0;
@@ -380,12 +375,12 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                 for(int j = 0; j < 63; j++){
                                     if(content.length() != 0){//-cont
                                         archivo.b_content[j] = content[contChar];
-                                        file.texto += content[contChar];
+
                                         contChar++;
                                     }else{//-size
                                         if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
-                                            file.texto+= contentSize[charNum];
+
                                         }else{
                                             archivo.b_content[j] = texto[charNum];
                                         }
@@ -402,12 +397,12 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                 for (int j = 0; j < caracteres; j++) {
                                     if(content.length() != 0){
                                         archivo.b_content[j] = content[contChar];
-                                        file.texto += content[contChar];
+
                                         contChar++;
                                     }else{
                                         if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
-                                            file.texto+= contentSize[charNum];
+
                                         }else{
                                             archivo.b_content[j] = texto[charNum];
                                         }
@@ -443,12 +438,12 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                 for(int j = 0; j < 63; j++){
                                     if(content.length() != 0){//-cont
                                         archivo.b_content[j] = content[contChar];
-                                        file.texto += content[contChar];
+
                                         contChar++;
                                     }else{//-size
                                         if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
-                                            file.texto+= contentSize[charNum];
+
                                         }else{
                                             archivo.b_content[j] = texto[charNum];
                                         }
@@ -465,12 +460,12 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                 for (int j = 0; j < caracteres; j++) {
                                     if(content.length() != 0){
                                         archivo.b_content[j] = content[contChar];
-                                        file.texto += content[contChar];
+
                                         contChar++;
                                     }else{
                                         if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
-                                            file.texto+= contentSize[charNum];
+
                                         }else{
                                             archivo.b_content[j] = texto[charNum];
                                         }
@@ -487,19 +482,18 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
 
                         }else{
                             int bitBloque = buscarBit(stream,'B',fit);
-                            //Registramos el bloque en el bitmap
                             fseek(stream,super.s_bm_block_start + bitBloque,SEEK_SET);
                             fwrite(&buffer2,sizeof(char),1,stream);
                             if(caracteres > 63){
                                 for(int j = 0; j < 63; j++){
                                     if(content.length() != 0){//-cont
                                         archivo.b_content[j] = content[contChar];
-                                        file.texto += content[contChar];
+
                                         contChar++;
                                     }else{//-size
                                         if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
-                                            file.texto+= contentSize[charNum];
+
                                         }else{
                                             archivo.b_content[j] = texto[charNum];
                                         }
@@ -523,12 +517,12 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                 for (int j = 0; j < caracteres; j++) {
                                     if(content.length() != 0){
                                         archivo.b_content[j] = content[contChar];
-                                        file.texto += content[contChar];
+
                                         contChar++;
                                     }else{
                                         if(!edit){
                                             archivo.b_content[j] = contentSize[charNum];
-                                            file.texto+= contentSize[charNum];
+
                                         }else{
                                             archivo.b_content[j] = texto[charNum];
                                         }
@@ -657,12 +651,12 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                     for(int j = 0; j < 63; j++){
                                         if(content.length() != 0){//-cont
                                             archivo.b_content[j] = content[contChar];
-                                            file.texto += content[contChar];
+
                                             contChar++;
                                         }else{//-size
                                             if(!edit){
                                                 archivo.b_content[j] = contentSize[charNum];
-                                                file.texto+= contentSize[charNum];
+
                                             }else{
                                                 archivo.b_content[j] = texto[charNum];
                                             }
@@ -679,11 +673,11 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                     for (int j = 0; j < caracteres; j++) {
                                         if(content.length() != 0){
                                             archivo.b_content[j] = content[contChar];
-                                            file.texto += content[contChar];
+
                                             contChar++;
                                         }else{
                                             if(!edit){
-                                                file.texto+= contentSize[charNum];
+
                                                 archivo.b_content[j] = contentSize[charNum];
                                             }else{
                                                 archivo.b_content[j] = texto[charNum];
@@ -720,12 +714,12 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                     for(int j = 0; j < 63; j++){
                                         if(content.length() != 0){//-cont
                                             archivo.b_content[j] = content[contChar];
-                                            file.texto += content[contChar];
+
                                             contChar++;
                                         }else{//-size
                                             if(!edit){
                                                 archivo.b_content[j] = contentSize[charNum];
-                                                file.texto+= contentSize[charNum];
+
                                             }else{
                                                 archivo.b_content[j] = texto[charNum];
                                             }
@@ -742,12 +736,12 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                     for (int j = 0; j < caracteres; j++) {
                                         if(content.length() != 0){
                                             archivo.b_content[j] = content[contChar];
-                                            file.texto += content[contChar];
+
                                             contChar++;
                                         }else{
                                             if(!edit){
                                                 archivo.b_content[j] = contentSize[charNum];
-                                                file.texto+= contentSize[charNum];
+
                                             }else{
                                                 archivo.b_content[j] = texto[charNum];
                                             }
@@ -772,11 +766,11 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                     for(int j = 0; j < 63; j++){
                                         if(content.length() != 0){//-cont
                                             archivo.b_content[j] = content[contChar];
-                                            file.texto += content[contChar];
+
                                             contChar++;
                                         }else{//-size
                                             if(!edit){
-                                                file.texto+= contentSize[charNum];
+
                                                 archivo.b_content[j] = contentSize[charNum];
                                             }else{
                                                 archivo.b_content[j] = texto[charNum];
@@ -800,11 +794,11 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
                                     for (int j = 0; j < caracteres; j++) {
                                         if(content.length() != 0){
                                             archivo.b_content[j] = content[contChar];
-                                            file.texto += content[contChar];
+
                                             contChar++;
                                         }else{
                                             if(!edit){
-                                                file.texto+= contentSize[charNum];
+
                                                 archivo.b_content[j] = contentSize[charNum];
                                             }else{
                                                 archivo.b_content[j] = texto[charNum];
@@ -845,6 +839,7 @@ int MKFILE::nuevoArchivo(FILE *stream, char fit, bool flagP, char *path, int siz
             }
         }
     }else{//Directorio
+
         int existe = buscarCarpetaArchivo(stream,directorio);
         if(existe == -1){
             if(flagP){

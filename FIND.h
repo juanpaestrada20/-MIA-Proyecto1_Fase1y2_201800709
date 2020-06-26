@@ -17,7 +17,6 @@ using namespace std;
 extern QList<Mount> *montajes;
 extern Sesion daLoguer;
 extern bool login;
-extern QList<Files> *files;
 
 
 class FIND
@@ -32,7 +31,6 @@ public:
     void guardarJournal(char*, int, int, char*);
     int buscarCarpetaArchivo(FILE*, char*);
     int byteInodoBloque(FILE*, int, char);
-    Files buscarRuta(string);
     void getRuta(FILE*, string &, int, int);
     void imprimirRuta(string);
 };

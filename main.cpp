@@ -23,7 +23,6 @@ extern NodoAST *raiz;
 bool login = false;
 Sesion daLoguer;
 QList<Mount> *montajes = new QList<Mount>();
-QList<Files> *files = new QList<Files>();
 
 using namespace std;
 
